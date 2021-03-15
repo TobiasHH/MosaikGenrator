@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="200.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tobiashh.javafx.PrimaryController">
+   <top>
+      <MenuBar fx:id="menuBar" focusTraversable="true" BorderPane.alignment="CENTER">
+         <Menu text="File">
+            <MenuItem text="Open" />
+            <MenuItem text="Save" />
+            <MenuItem text="Save As" />
+            <SeparatorMenuItem />
+            <MenuItem onAction="#processExit" text="Exit" />
+         </Menu>
+         <Menu text="JavaFX 2.0 Examples">
+            <MenuItem text="Text Example" />
+            <MenuItem text="Objects Example" />
+            <MenuItem text="Animation Example" />
+         </Menu>
+         <Menu text="Help">
+            <MenuItem disable="true" text="Search" />
+            <MenuItem text="Online Manual" visible="false" />
+            <SeparatorMenuItem />
+            <MenuItem onAction="#showAboutDialog" text="About" />
+         </Menu>
+      </MenuBar>
+   </top>
+   <center>
+      <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+         <TextField />
+         <ScrollPane prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+            <Canvas fx:id="canvas" height="93.0" width="200.0" />
+         </ScrollPane>
+      </VBox>
+   </center>
+</BorderPane>
