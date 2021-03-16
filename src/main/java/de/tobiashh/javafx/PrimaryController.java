@@ -1,6 +1,8 @@
 package de.tobiashh.javafx;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -10,6 +12,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.MenuBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -33,36 +36,20 @@ public class PrimaryController {
 
     @FXML
     public void initialize() {
-        System.out.println("canvas");
+        canvas.addEventFilter(MouseEvent.MOUSE_DRAGGED, mouseEvent -> {
+            System.out.println("mouse click detected! " + mouseEvent.getSource());
+            System.out.println("x: " + mouseEvent.getX());
+            System.out.println("y: " + mouseEvent.getY());
+            GraphicsContext gc = canvas.getGraphicsContext2D();
+            gc.fillOval(mouseEvent.getX() - 5, mouseEvent.getY() - 5, 10,10);
+        });
+
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        gc.setFill(Color.RED);
-
         Image image = new Image(getClass().getResourceAsStream("test.png"));
-        System.out.println("x");
         canvas.setWidth(image.getWidth());
         canvas.setHeight(image.getHeight());
         gc.drawImage(image, 0,0, image.getWidth(), image.getHeight());
-        gc.setFont(new Font("", 100));
-        gc.fillText("I LOVE YOU!", 75, 75);
-        gc.fillOval(200,150,200,200);
-        gc.fillOval(400,150,200,200);
-        double[] x = {230,570,400};
-        double[] y = {320,320,500};
-        gc.fillPolygon(x,y,3);
-
-
-        gc.fillRect(250,250,300,75);
-        WritableImage s = canvas.snapshot(null, null);
-
-        try {
-            BufferedImage bufferedImage = SwingFXUtils.fromFXImage(s, null);
-            File file = new File("out.png");
-            ImageIO.write(bufferedImage, "png", file);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        System.out.println("y");
     }
 
     public void processExit(ActionEvent actionEvent) {
