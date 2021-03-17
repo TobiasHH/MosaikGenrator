@@ -22,12 +22,10 @@ public class App extends Application {
         stage.show();
     }
 
-    static void setRoot(String fxml) throws IOException {
-        scene.setRoot(loadFXML(fxml));
-    }
-
     private static Parent loadFXML(String fxml) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml + ".fxml"));
+        Model model = new Model();
+        fxmlLoader.setControllerFactory(c -> new Controller(model));
         return fxmlLoader.load();
     }
 
