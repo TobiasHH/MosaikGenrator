@@ -1,12 +1,12 @@
 package de.tobiashh.javafx;
 
-import java.io.File;
+import java.awt.image.BufferedImage;
 
 public class Tile {
-    File file;
+    BufferedImage image;
 
-    public Tile(File file)
+    public Tile(BufferedImage image)
     {
-        this.file = file;
+        this.image = image;
     }
 }
