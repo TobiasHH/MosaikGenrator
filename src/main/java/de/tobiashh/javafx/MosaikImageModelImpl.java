@@ -37,7 +37,9 @@ public class MosaikImageModelImpl implements MosaikImageModel {
 
     private final List<Tile> tiles = new ArrayList<>();
 
-    public MosaikImageModelImpl (){
+    private final ImageComparator imageComparator = new ImageComparator();
+
+    public MosaikImageModelImpl() {
         initProperties();
         initChangeListener();
     }
