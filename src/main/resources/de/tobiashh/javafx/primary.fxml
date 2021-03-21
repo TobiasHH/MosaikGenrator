@@ -9,6 +9,7 @@
       <MenuBar fx:id="menuBar" focusTraversable="true" BorderPane.alignment="CENTER">
          <Menu text="Datei">
             <MenuItem onAction="#processOpen" text="Öffnen" />
+            <MenuItem onAction="#processTilesPath" text="Tiles Pfad" />
             <MenuItem text="Speichern" />
             <SeparatorMenuItem />
             <MenuItem onAction="#processExit" text="Beenden" />
@@ -33,6 +34,8 @@
       <HBox alignment="CENTER_LEFT" BorderPane.alignment="CENTER">
          <Label fx:id="cursorPositionLabel" style="-fx-background-color: RED;" />
          <Label fx:id="fileLabel" style="-fx-background-color: GREEN;" />
+         <Label fx:id="pathLabel" style="-fx-background-color: BLUE;" />
+         <Label fx:id="tilesCountLabel" style="-fx-background-color: ORANGE;" />
       </HBox>
    </bottom>
 </BorderPane>

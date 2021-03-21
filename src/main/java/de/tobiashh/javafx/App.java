@@ -24,7 +24,7 @@ public class App extends Application {
 
     private static Parent loadFXML(String fxml) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml + ".fxml"));
-        Model model = new Model();
+        CalculationModel model = new CalculationModel();
         fxmlLoader.setControllerFactory(c -> new Controller(model));
         return fxmlLoader.load();
     }
