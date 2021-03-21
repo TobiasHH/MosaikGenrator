@@ -1,14 +1,15 @@
 package de.tobiashh.javafx;
 
 import javafx.beans.property.*;
-import javafx.scene.image.Image;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Properties;
 
 public class MosaikImageModelImpl implements MosaikImageModel {
     private static final File PROPERTY_FILE = new File("mosaik.properties");
@@ -19,21 +20,25 @@ public class MosaikImageModelImpl implements MosaikImageModel {
     private static final int TILES_X_DEFAULT = 20;
 
     private static final String TILE_SIZE_PROPERTY_KEY = "tileSize";
-    private static final int TILE_SIZE_DEFAULT = 32;
+    private static final int TILE_SIZE_DEFAULT = 128;
     private static final int TILE_SIZE_MIN = 2;
     private static final int TILE_SIZE_MAX = 512;
 
-    private final ObjectProperty<File> tilesPath = new SimpleObjectProperty<>();
+    private final ObjectProperty<File> imagesPath = new SimpleObjectProperty<>();
 
     private final IntegerProperty tileSize = new SimpleIntegerProperty(TILE_SIZE_DEFAULT);
 
     private final ObjectProperty<File> imageFile = new SimpleObjectProperty<>();
 
-    private final IntegerProperty tileCount = new SimpleIntegerProperty();
-
     private final IntegerProperty tilesX = new SimpleIntegerProperty();
 
-    private final ReadOnlyObjectWrapper<Image> image = new ReadOnlyObjectWrapper<>();
+    private final ReadOnlyIntegerWrapper tilesY = new ReadOnlyIntegerWrapper();
+
+    private final ReadOnlyIntegerWrapper tileCount = new ReadOnlyIntegerWrapper();
+
+    private final ReadOnlyIntegerWrapper filesCount = new ReadOnlyIntegerWrapper();
+
+    private final ReadOnlyObjectWrapper<BufferedImage> compositeImage = new ReadOnlyObjectWrapper<>();
 
     private final List<Tile> tiles = new ArrayList<>();
 
@@ -46,20 +51,75 @@ public class MosaikImageModelImpl implements MosaikImageModel {
 
     private void initProperties() {
         Properties properties = (PROPERTY_FILE.exists()) ? loadProperties() : createPropertiesFile();
-
         setTileSize(Integer.parseInt(properties.getProperty(TILE_SIZE_PROPERTY_KEY, String.valueOf(TILE_SIZE_DEFAULT))));
         setTilesX(Integer.parseInt(properties.getProperty(TILES_X_PROPERTY_KEY, String.valueOf(TILES_X_DEFAULT))));
     }
 
     private void initChangeListener() {
-        tilesPath.addListener((observableValue, oldPath, newPath) -> calculateTileCount(newPath));
-        tilesPath.addListener((observableValue, oldPath, newPath) -> setTiles(newPath));
+        imagesPath.addListener((observableValue, oldPath, newPath) -> calculateImagesCount(newPath));
+        imageFile.addListener((observable, oldImageFile, newImageFile) -> loadImage(newImageFile));
+    }
+
+
+    private void generateTiles(BufferedImage image) {
+        System.out.println("MosaikImageModelImpl.generateTiles");
+        System.out.println("image = " + image);
+        tiles.clear();
+        for (int y = 0; y < getTilesY(); y++) {
+            for (int x = 0; x < getTilesX(); x++) {
+                int tileSize = getTileSize();
+                BufferedImage subImage = image.getSubimage(x * tileSize, y * tileSize, tileSize, tileSize);
+                tiles.add(new Tile(subImage));
+            }
+        }
+    }
+
+    private void loadImage(File imageFile) {
+        System.out.println("MosaikImageModelImpl.loadImage");
+        System.out.println("imageFile = " + imageFile);
+        try {
+            BufferedImage bufferedImage = ImageIO.read(imageFile);
+
+            tilesY.set(getTilesX() * bufferedImage.getHeight() / bufferedImage.getWidth());
+
+            int imageWidth = getTilesX() * getTileSize();
+            int imageHeight = getTilesY() * getTileSize();
+
+            generateTiles(ImageTools.calculateScaledImage(bufferedImage, imageWidth, imageHeight, true));
+            compositeImage.set(calculateCompositeImage());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private BufferedImage calculateCompositeImage() {
+        System.out.println("MosaikImageModelImpl.calculateCompositeImage");
+        BufferedImage retval = new BufferedImage(getTileSize() * getTilesX(), getTileSize() * getTilesY(), BufferedImage.TYPE_INT_RGB);
+
+        Graphics2D graphics = (Graphics2D) retval.getGraphics();
+
+        for (int y = 0; y < getTilesY(); y++) {
+            for (int x = 0; x < getTilesX(); x++) {
+                graphics.drawImage(tiles.get(x + y * getTilesX()).image, x * getTileSize(), y * getTileSize(), null);
+            }
+        }
+
+        Random r = new Random();
+        for(int i = 0; i < 1000; i++) {
+            int x = r.nextInt(getTilesX());
+            int y = r.nextInt(getTilesY());
+            int tile = r.nextInt(getTilesX() * getTilesY());
+            graphics.drawImage(tiles.get(tile).image, x * getTileSize(), y * getTileSize(), null);
+        }
+
+        return retval;
     }
 
     private Properties createPropertiesFile() {
         Properties properties = new Properties();
 
         properties.setProperty(TILE_SIZE_PROPERTY_KEY, String.valueOf(TILE_SIZE_DEFAULT));
+        properties.setProperty(TILES_X_PROPERTY_KEY, String.valueOf(TILES_X_DEFAULT));
 
         saveProperties(properties);
 
@@ -92,49 +152,49 @@ public class MosaikImageModelImpl implements MosaikImageModel {
         this.tileSize.set(Math.max(Math.min(nearestPowerOf2, TILE_SIZE_MAX), TILE_SIZE_MIN));
     }
 
-    private void calculateTileCount(File newPath) {
+    private void calculateImagesCount(File newPath) {
         if (newPath.exists()) {
             File[] files = newPath.listFiles((dir, name) -> Arrays.stream(FILE_EXTENSION).anyMatch(extension -> name.endsWith(".".concat(extension))));
             if (files != null) {
-                setTileCount(files.length);
+                filesCount.set(files.length);
             }
         }
     }
 
-    private void setTiles(File newPath) {
-        if (newPath.exists()) {
-            File[] files = newPath.listFiles((dir, name) -> Arrays.stream(FILE_EXTENSION).anyMatch(extension -> name.endsWith(".".concat(extension))));
-            if (files != null) {
-                tiles.clear();
-                for (File file : files) {
-                    tiles.add(new Tile(file));
-                }
-            }
-        }
-        runCalculation();
-    }
-
-    private void runCalculation() {
-        for (Tile tile : tiles) {
-            System.out.println(tile.file);
-        }
-
+    @Override
+    public ReadOnlyObjectProperty<BufferedImage> compositeImageProperty() {
+        return compositeImage.getReadOnlyProperty();
     }
 
     @Override
-    public ReadOnlyObjectProperty<Image> imageProperty()
-    {
-        return image.getReadOnlyProperty();
+    public BufferedImage getCompositeImage() {
+        return compositeImage.get();
     }
 
     @Override
-    public Image getImage()
-    {
-        return image.get();
+    public ReadOnlyIntegerProperty filesCountProperty() {
+        return filesCount.getReadOnlyProperty();
     }
 
     @Override
-    public ObjectProperty<File> imageFileProperty() { return imageFile; }
+    public int getFilesCount() {
+        return filesCount.get();
+    }
+
+    @Override
+    public ReadOnlyIntegerProperty tileCountProperty() {
+        return tileCount.getReadOnlyProperty();
+    }
+
+    @Override
+    public int getTileCount() {
+        return tileCount.get();
+    }
+
+    @Override
+    public ObjectProperty<File> imageFileProperty() {
+        return imageFile;
+    }
 
     @Override
     public File getImageFile() {
@@ -142,49 +202,60 @@ public class MosaikImageModelImpl implements MosaikImageModel {
     }
 
     @Override
-    public void setImageFile(File file)
-    {
-        try {
-            image.set(new Image(String.valueOf(file.toURI().toURL())));
-            imageFile.set(file);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
+    public void setImageFile(File file) {
+        imageFile.set(file);
     }
 
     @Override
-    public IntegerProperty tileSizeProperty() { return tileSize; }
+    public IntegerProperty tileSizeProperty() {
+        return tileSize;
+    }
 
     @Override
-    public int getTileSize() { return tileSize.get(); }
+    public int getTileSize() {
+        return tileSize.get();
+    }
 
     @Override
-    public void setTileSize(int tileSize) { setPowerOf2TileSize(tileSize); }
+    public void setTileSize(int tileSize) {
+        setPowerOf2TileSize(tileSize);
+    }
 
     @Override
-    public File getTilesPath() { return tilesPath.get(); }
+    public ObjectProperty<File> imagesPathProperty() {
+        return imagesPath;
+    }
 
     @Override
-    public void setTilesPath(File tilesPath) { this.tilesPath.set(tilesPath); }
+    public File getImagesPath() {
+        return imagesPath.get();
+    }
 
     @Override
-    public ObjectProperty<File> tilesPathProperty() { return tilesPath; }
+    public void setImagesPath(File tilesPath) {
+        this.imagesPath.set(tilesPath);
+    }
 
     @Override
-    public int getTileCount() { return tileCount.get(); }
+    public IntegerProperty tilesXProperty() {
+        return tilesX;
+    }
 
     @Override
-    public void setTileCount(int tileCount) { this.tileCount.set(tileCount); }
+    public int getTilesX() {
+        return tilesX.get();
+    }
 
     @Override
-    public IntegerProperty tileCountProperty() { return tileCount; }
+    public void setTilesX(int length) {
+        tilesX.set(length);
+    }
 
-    @Override
-    public int getTilesX() { return tilesX.get(); }
+    public ReadOnlyIntegerProperty tilesYProperty() {
+        return tilesY.getReadOnlyProperty();
+    }
 
-    @Override
-    public void setTilesX(int length) { tilesX.set(length);}
-
-    @Override
-    public IntegerProperty tilesX() { return tilesX; }
+    public int getTilesY() {
+        return tilesY.get();
+    }
 }

@@ -1,11 +1,8 @@
 package de.tobiashh.javafx;
 
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.scene.image.Image;
+import javafx.beans.property.*;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 /* Properties from old Project
     #Property File
@@ -31,9 +28,9 @@ public interface MosaikImageModel {
 
     void setTileSize(int tileSize);
 
-    Image getImage();
+    BufferedImage getCompositeImage();
 
-    ReadOnlyObjectProperty<Image> imageProperty();
+    ReadOnlyObjectProperty<BufferedImage> compositeImageProperty();
 
     ObjectProperty<File> imageFileProperty();
 
@@ -41,21 +38,28 @@ public interface MosaikImageModel {
 
     void setImageFile(File file);
 
-    File getTilesPath();
+    File getImagesPath();
 
-    void setTilesPath(File tilesPath);
+    void setImagesPath(File tilesPath);
 
-    ObjectProperty<File> tilesPathProperty();
+    ObjectProperty<File> imagesPathProperty();
 
+    /**
+     * Diese Methode gibt die Anzahl der Tiles des zu berechnenden Bildes zurück
+     *
+     * @return ...
+     */
     int getTileCount();
 
-    void setTileCount(int tileCount);
+    ReadOnlyIntegerProperty filesCountProperty();
 
-    IntegerProperty tileCountProperty();
+    int getFilesCount();
+
+    ReadOnlyIntegerProperty tileCountProperty();
 
     int getTilesX();
 
     void setTilesX(int tileCount);
 
-    IntegerProperty tilesX();
+    IntegerProperty tilesXProperty();
 }

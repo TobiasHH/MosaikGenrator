@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -16,6 +17,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
@@ -23,6 +25,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Arrays;
 
@@ -31,35 +34,31 @@ public class Controller {
 
     private final MosaikImageModel model;
 
-    @FXML
-    public MenuBar menuBar;
+    @FXML public MenuBar menuBar;
 
-    @FXML
-    public Canvas canvas;
+    @FXML public Canvas canvas;
 
-    @FXML
-    public ScrollPane scrollPane;
+    @FXML public ScrollPane scrollPane;
 
-    @FXML
-    public Label cursorPositionLabel;
+    @FXML public Label cursorPositionLabel;
 
-    @FXML
-    public Label fileLabel;
+    @FXML public Label fileLabel;
 
-    @FXML
-    public Label pathLabel;
+    @FXML public Label pathLabel;
 
-    @FXML
-    public Label tilesCountLabel;
+    @FXML public Label filesCountLabel;
 
-    private static final String SCALE_PROPERTY_KEY = "scale";
+    @FXML public Label tileHoverLabel;
+
+    @FXML public Pane canvasPane;
+
     private static final double SCALE_DEFAULT = 1.0;
     private static final double SCALE_MIN = 0.1;
     private static final double SCALE_MAX = 2;
 
     private final DoubleProperty scale = new SimpleDoubleProperty(SCALE_DEFAULT);
 
-    public Controller(CalculationModel model) {
+    public Controller(MosaikImageModel model) {
         this.model = model;
     }
 
@@ -72,26 +71,24 @@ public class Controller {
     }
 
     private void initBindings() {
-        pathLabel.textProperty().bind(Bindings.when(model.tilesPathProperty().isNull()).then("Kein Pfad gewählt.").otherwise(model.tilesPathProperty().asString()));
-        tilesCountLabel.textProperty().bind(model.tileCountProperty().asString());
+        pathLabel.textProperty().bind(Bindings.when(model.imagesPathProperty().isNull()).then("Kein Pfad gewählt.").otherwise(model.imagesPathProperty().asString()));
+        filesCountLabel.textProperty().bind(model.filesCountProperty().asString());
+
+        canvas.widthProperty().bind(canvasPane.prefWidthProperty());
+        canvas.heightProperty().bind(canvasPane.prefHeightProperty());
     }
 
     private void initEventHandler() {
-        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, getDotEventHandler());
         canvas.addEventHandler(MouseEvent.MOUSE_MOVED, getCursorPositionEventHandler());
+        canvas.addEventHandler(MouseEvent.MOUSE_MOVED, getTileHoverEventHandler());
         scrollPane.addEventFilter(ScrollEvent.SCROLL,getScrollEventHandler());
     }
 
     private void initChangeListener() {
-        scale.addListener((observable, oldValue, newValue) -> {
-            double scaledWidth = model.getImage().getWidth() * newValue.doubleValue();
-            double scaledHeight = model.getImage().getHeight() * newValue.doubleValue();
-            canvas.setWidth(scaledWidth);
-            canvas.setHeight(scaledHeight);
-        });
-
-        model.imageProperty().addListener((observable, oldImage, newImage) -> drawImage(newImage));
+        scale.addListener((observable, oldValue, newValue) -> drawImage());
+        model.compositeImageProperty().addListener((observable, oldImage, newImage) -> drawImage());
     }
+
 
     private EventHandler<ScrollEvent> getScrollEventHandler() {
         return scrollEvent -> {
@@ -106,22 +103,28 @@ public class Controller {
         model.setImageFile( new File(getClass().getResource("test.png").getFile()));
     }
 
-    private void drawImage(Image image) {
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        canvas.setWidth(image.getWidth());
-        canvas.setHeight(image.getHeight());
-        gc.drawImage(image, 0,0, image.getWidth(), image.getHeight());
+    private void scaleCanvasPane(BufferedImage image) {
+        System.out.println("Controller.scaleCanvas");
+        canvasPane.setPrefWidth((int)(image.getWidth() * getScale()));
+        canvasPane.setPrefHeight((int)(image.getHeight() * getScale()));
     }
 
-    private EventHandler<MouseEvent> getDotEventHandler() {
-        return mouseEvent -> {
-            GraphicsContext gc = canvas.getGraphicsContext2D();
-            gc.fillOval(mouseEvent.getX() - 5, mouseEvent.getY() - 5, 10, 10);
-        };
+    private void drawImage() {
+        System.out.println("Controller.drawImage");
+        BufferedImage bufferedImage = model.getCompositeImage();
+        scaleCanvasPane(bufferedImage);
+
+        Image image = SwingFXUtils.toFXImage(bufferedImage, null);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.drawImage(image, 0,0, canvas.getWidth(),canvas.getHeight());
     }
 
     private EventHandler<MouseEvent> getCursorPositionEventHandler() {
         return mouseEvent -> cursorPositionLabel.setText("x:" + (int) mouseEvent.getX() + " y:" + (int) mouseEvent.getY());
+    }
+
+    private EventHandler<MouseEvent> getTileHoverEventHandler() {
+        return mouseEvent -> tileHoverLabel.setText("x:" + (int) (mouseEvent.getX() / (model.getTileSize() * getScale())) + " y:" + (int) (mouseEvent.getY() / (model.getTileSize()  * getScale())));
     }
 
     public void processExit(ActionEvent actionEvent) {
@@ -143,7 +146,7 @@ public class Controller {
     public void processOpen(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Öffne Bild");
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Bilder", Arrays.stream(CalculationModel.FILE_EXTENSION).map("*."::concat).toArray(String[]::new)));
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Bilder", Arrays.stream(MosaikImageModelImpl.FILE_EXTENSION).map("*."::concat).toArray(String[]::new)));
         File selectedFile = fileChooser.showOpenDialog(menuBar.getScene().getWindow());
         if (selectedFile != null) {
             model.setImageFile(selectedFile);
@@ -155,7 +158,7 @@ public class Controller {
         directoryChooser.setTitle("Wähle Tile Pfad");
         File selectedFile = directoryChooser.showDialog(menuBar.getScene().getWindow());
         if (selectedFile != null) {
-            model.setTilesPath(selectedFile);
+            model.setImagesPath(selectedFile);
         }
     }
 
