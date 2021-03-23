@@ -3,7 +3,8 @@ package de.tobiashh.javafx;
 import javafx.beans.property.*;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.nio.file.Path;
+
 /* Properties from old Project
     #Property File
     #Wed Sep 13 11:35:24 CEST 2017
@@ -32,17 +33,17 @@ public interface MosaikImageModel {
 
     ReadOnlyObjectProperty<BufferedImage> compositeImageProperty();
 
-    ObjectProperty<File> imageFileProperty();
+    ObjectProperty<Path> imageFileProperty();
 
-    File getImageFile();
+    Path getImageFile();
 
-    void setImageFile(File file);
+    void setImageFile(Path file);
 
-    File getImagesPath();
+    Path getTilesPath();
 
-    void setImagesPath(File tilesPath);
+    void setTilesPath(Path tilesPath);
 
-    ObjectProperty<File> imagesPathProperty();
+    ObjectProperty<Path> tilesPathProperty();
 
     /**
      * Diese Methode gibt die Anzahl der Tiles des zu berechnenden Bildes zurück
@@ -51,9 +52,9 @@ public interface MosaikImageModel {
      */
     int getTileCount();
 
-    ReadOnlyIntegerProperty filesCountProperty();
+    ReadOnlyLongProperty filesCountProperty();
 
-    int getFilesCount();
+    long getFilesCount();
 
     ReadOnlyIntegerProperty tileCountProperty();
 
@@ -62,4 +63,6 @@ public interface MosaikImageModel {
     void setTilesX(int tileCount);
 
     IntegerProperty tilesXProperty();
+
+    void deleteTile(int x, int y);
 }

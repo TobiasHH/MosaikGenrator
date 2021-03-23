@@ -26,12 +26,11 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 public class Controller {
-    public static final String KEIN_PFAD_AUSGEWAEHLT = "Kein Pfad ausgewählt!";
-
     private final MosaikImageModel model;
 
     @FXML public MenuBar menuBar;
@@ -71,7 +70,7 @@ public class Controller {
     }
 
     private void initBindings() {
-        pathLabel.textProperty().bind(Bindings.when(model.imagesPathProperty().isNull()).then("Kein Pfad gewählt.").otherwise(model.imagesPathProperty().asString()));
+        pathLabel.textProperty().bind(Bindings.when(model.tilesPathProperty().isNull()).then("Kein Pfad gewählt.").otherwise(model.tilesPathProperty().asString()));
         filesCountLabel.textProperty().bind(model.filesCountProperty().asString());
 
         canvas.widthProperty().bind(canvasPane.prefWidthProperty());
@@ -81,8 +80,26 @@ public class Controller {
     private void initEventHandler() {
         canvas.addEventHandler(MouseEvent.MOUSE_MOVED, getCursorPositionEventHandler());
         canvas.addEventHandler(MouseEvent.MOUSE_MOVED, getTileHoverEventHandler());
+        canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, changeTileEventHandler());
         scrollPane.addEventFilter(ScrollEvent.SCROLL,getScrollEventHandler());
     }
+
+    private EventHandler<MouseEvent>  changeTileEventHandler() {
+        return mouseEvent -> {
+            int x = (int) (mouseEvent.getX() / (model.getTileSize() * getScale()));
+            int y = (int) (mouseEvent.getY() / (model.getTileSize() * getScale()));
+            model.deleteTile(x,y);
+        };
+    }
+
+    private EventHandler<MouseEvent> getCursorPositionEventHandler() {
+        return mouseEvent -> cursorPositionLabel.setText("x:" + (int) mouseEvent.getX() + " y:" + (int) mouseEvent.getY());
+    }
+
+    private EventHandler<MouseEvent> getTileHoverEventHandler() {
+        return mouseEvent -> tileHoverLabel.setText("x:" + (int) (mouseEvent.getX() / (model.getTileSize() * getScale())) + " y:" + (int) (mouseEvent.getY() / (model.getTileSize()  * getScale())));
+    }
+
 
     private void initChangeListener() {
         scale.addListener((observable, oldValue, newValue) -> drawImage());
@@ -100,7 +117,11 @@ public class Controller {
     }
 
     private void initCanvas() {
-        model.setImageFile( new File(getClass().getResource("test.png").getFile()));
+        try {
+            model.setImageFile(Path.of(getClass().getResource("test.png").toURI()));
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
 
     private void scaleCanvasPane(BufferedImage image) {
@@ -116,15 +137,8 @@ public class Controller {
 
         Image image = SwingFXUtils.toFXImage(bufferedImage, null);
         GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0,0,canvas.getWidth(),canvas.getHeight());
         gc.drawImage(image, 0,0, canvas.getWidth(),canvas.getHeight());
-    }
-
-    private EventHandler<MouseEvent> getCursorPositionEventHandler() {
-        return mouseEvent -> cursorPositionLabel.setText("x:" + (int) mouseEvent.getX() + " y:" + (int) mouseEvent.getY());
-    }
-
-    private EventHandler<MouseEvent> getTileHoverEventHandler() {
-        return mouseEvent -> tileHoverLabel.setText("x:" + (int) (mouseEvent.getX() / (model.getTileSize() * getScale())) + " y:" + (int) (mouseEvent.getY() / (model.getTileSize()  * getScale())));
     }
 
     public void processExit(ActionEvent actionEvent) {
@@ -147,19 +161,14 @@ public class Controller {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Öffne Bild");
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Bilder", Arrays.stream(MosaikImageModelImpl.FILE_EXTENSION).map("*."::concat).toArray(String[]::new)));
-        File selectedFile = fileChooser.showOpenDialog(menuBar.getScene().getWindow());
-        if (selectedFile != null) {
-            model.setImageFile(selectedFile);
-        }
+        model.setImageFile(fileChooser.showOpenDialog(menuBar.getScene().getWindow()).toPath());
     }
 
     public void processTilesPath(ActionEvent actionEvent) {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Wähle Tile Pfad");
-        File selectedFile = directoryChooser.showDialog(menuBar.getScene().getWindow());
-        if (selectedFile != null) {
-            model.setImagesPath(selectedFile);
-        }
+        directoryChooser.setInitialDirectory(model.getTilesPath().toFile());
+        model.setTilesPath(directoryChooser.showDialog(menuBar.getScene().getWindow()).toPath());
     }
 
     public DoubleProperty scaleProperty() { return scale; }
