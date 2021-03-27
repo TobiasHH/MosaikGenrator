@@ -1,5 +1,6 @@
 package de.tobiashh.javafx;
 
+import de.tobiashh.javafx.properties.Properties;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
@@ -71,7 +72,7 @@ public class Controller {
 
     private void initBindings() {
         pathLabel.textProperty().bind(Bindings.when(model.tilesPathProperty().isNull()).then("Kein Pfad gewählt.").otherwise(model.tilesPathProperty().asString()));
-        filesCountLabel.textProperty().bind(model.filesCountProperty().asString());
+        filesCountLabel.textProperty().bind(model.dstTilesCountProperty().asString());
 
         canvas.widthProperty().bind(canvasPane.prefWidthProperty());
         canvas.heightProperty().bind(canvasPane.prefHeightProperty());
@@ -118,7 +119,8 @@ public class Controller {
 
     private void initCanvas() {
         try {
-            model.setImageFile(Path.of(getClass().getResource("test.png").toURI()));
+            String filename = "test.png";
+            model.setImageFile(Path.of(getClass().getResource(filename).toURI()));
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -162,6 +164,7 @@ public class Controller {
         fileChooser.setTitle("Öffne Bild");
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Bilder", Arrays.stream(MosaikImageModelImpl.FILE_EXTENSION).map("*."::concat).toArray(String[]::new)));
         model.setImageFile(fileChooser.showOpenDialog(menuBar.getScene().getWindow()).toPath());
+
     }
 
     public void processTilesPath(ActionEvent actionEvent) {
@@ -176,4 +179,14 @@ public class Controller {
     public double getScale() { return scale.get(); }
 
     public void setScale(double scale) { this.scale.set(Math.max(Math.min(scale, SCALE_MAX), SCALE_MIN)); }
+
+    public void reloadImage(ActionEvent actionEvent) {
+        BufferedImage bufferedImage = model.getCompositeImage();
+        scaleCanvasPane(bufferedImage);
+
+        Image image = SwingFXUtils.toFXImage(bufferedImage, null);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0,0,canvas.getWidth(),canvas.getHeight());
+        gc.drawImage(image, 0,0, canvas.getWidth(),canvas.getHeight());
+    }
 }

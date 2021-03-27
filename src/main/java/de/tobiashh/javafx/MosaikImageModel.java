@@ -5,64 +5,60 @@ import javafx.beans.property.*;
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 
-/* Properties from old Project
-    #Property File
-    #Wed Sep 13 11:35:24 CEST 2017
-    LINEAR_MODE=false
-    TILE_SIZE=256
-    COLOR_ALIGNMENT=85
-    BLUR_MODE=false
-    PREVIEW_IMAGE_WIDTH=329
-    TILES_X=20
-    REUSE=100
-    SCAN_SUB_FOLDERS=true
-    COMPARE_SIZE=16
-    DEBUG=false
-    OPACITY=88
-    REUSE_DISTANCE=8
-    IMAGE_FOLDER=C\:\\Users\\ts\\Google Drive\\BilderAdrianCaro\\
- */
 public interface MosaikImageModel {
-    IntegerProperty tileSizeProperty();
-
-    int getTileSize();
-
-    void setTileSize(int tileSize);
-
+    ReadOnlyObjectProperty<BufferedImage> compositeImageProperty();
     BufferedImage getCompositeImage();
 
-    ReadOnlyObjectProperty<BufferedImage> compositeImageProperty();
+    ReadOnlyIntegerProperty dstTilesCountProperty();
+    int getDstTilesCount();
+
+    BooleanProperty linearModeProperty();
+    boolean isLinearMode();
+    void setLinearMode(boolean linearMode);
+
+    IntegerProperty tileSizeProperty();
+    int getTileSize();
+    void setTileSize(int tileSize);
+
+    IntegerProperty compareSizeProperty();
+    int getCompareSize();
+    void setCompareSize(int compareSize);
+
+    IntegerProperty opacityProperty();
+    int getOpacity();
+    void setOpacity(int opacity);
+
+    IntegerProperty colorAlignmentProperty();
+    int getColorAlignment();
+    void setColorAlignment(int colorAlignment);
+
+    BooleanProperty blurModeProperty();
+    boolean isBlurMode();
+    void setBlurMode(boolean blurMode);
+
+    IntegerProperty maxReusesProperty();
+    int getMaxReuses();
+    void setMaxReuses(int maxReuses);
+
+    IntegerProperty reuseDistanceProperty();
+    int getReuseDistance();
+    void setReuseDistance(int reuseDistance);
+
+    BooleanProperty scanSubFolderProperty();
+    boolean isScanSubFolder();
+    void setScanSubFolder(boolean scanSubFolder);
 
     ObjectProperty<Path> imageFileProperty();
-
     Path getImageFile();
-
     void setImageFile(Path file);
 
+    ObjectProperty<Path> tilesPathProperty();
     Path getTilesPath();
-
     void setTilesPath(Path tilesPath);
 
-    ObjectProperty<Path> tilesPathProperty();
-
-    /**
-     * Diese Methode gibt die Anzahl der Tiles des zu berechnenden Bildes zurück
-     *
-     * @return ...
-     */
-    int getTileCount();
-
-    ReadOnlyLongProperty filesCountProperty();
-
-    long getFilesCount();
-
-    ReadOnlyIntegerProperty tileCountProperty();
-
-    int getTilesX();
-
-    void setTilesX(int tileCount);
-
     IntegerProperty tilesXProperty();
+    int getTilesX();
+    void setTilesX(int tileCount);
 
     void deleteTile(int x, int y);
 }
