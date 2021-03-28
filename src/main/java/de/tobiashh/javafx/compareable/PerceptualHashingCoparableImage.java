@@ -1,6 +1,6 @@
 package de.tobiashh.javafx.compareable;
 
-import de.tobiashh.javafx.ImageTools;
+import de.tobiashh.javafx.tools.ImageTools;
 import de.tobiashh.javafx.properties.Properties;
 
 import java.awt.image.BufferedImage;
@@ -26,17 +26,15 @@ public class PerceptualHashingCoparableImage extends ComparableImage
      *
      * If you want to compare two images, construct the hash from each image and count the number of bit positions that are different. (This is a Hamming distance.) A distance of zero indicates that it is likely a very similar picture (or a variation of the same picture). A distance of 5 means a few things may be different, but they are probably still close enough to be similar. But a distance of 10 or more? That's probably a very different picture.
      *
-     * @param dataImage
+     * @param dataImage the image with the data for the comparison
      */
-
     @Override
-    public void calculateData(BufferedImage compareImage) {
+    public void calculateData(BufferedImage dataImage) {
         System.out.println("PerceptualHashingCoparableImage.calculateData");
-        BufferedImage dataImage = compareImage;
 
-        if(compareImage.getWidth() != COMPARE_SIZE || compareImage.getHeight() != COMPARE_SIZE) {
+        if(dataImage.getWidth() != COMPARE_SIZE || dataImage.getHeight() != COMPARE_SIZE) {
             dataImage = new BufferedImage(COMPARE_SIZE, COMPARE_SIZE, BufferedImage.TYPE_INT_RGB);
-            dataImage.getGraphics().drawImage(compareImage, 0, 0, COMPARE_SIZE, COMPARE_SIZE, null);
+            dataImage.getGraphics().drawImage(dataImage, 0, 0, COMPARE_SIZE, COMPARE_SIZE, null);
         }
 
         red = new int[COMPARE_SIZE * COMPARE_SIZE];
@@ -58,16 +56,16 @@ public class PerceptualHashingCoparableImage extends ComparableImage
 
     private int getBit(int red)
     {
-        switch (red) {
-            case 0:  return 0x00000001;
-            case 1:  return 0x00000010;
-            case 2:  return 0x00000100;
-            case 3:  return 0x00001000;
-            case 4: return 0x00010000;
-            case 5:  return 0x00100000;
-            case 6: return 0x01000000;
-            default: return 0x10000000;
-        }
+        return switch (red) {
+            case 0 -> 0x00000001;
+            case 1 -> 0x00000010;
+            case 2 -> 0x00000100;
+            case 3 -> 0x00001000;
+            case 4 -> 0x00010000;
+            case 5 -> 0x00100000;
+            case 6 -> 0x01000000;
+            default -> 0x10000000;
+        };
     }
 
     public int compare(ComparableImage ci)

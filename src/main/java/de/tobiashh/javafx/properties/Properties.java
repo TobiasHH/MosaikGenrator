@@ -127,9 +127,7 @@ public class Properties {
         return tileSize.get();
     }
 
-    public void setTileSize(int tileSize) {
-        setPowerOf2TileSize(tileSize);
-    }
+    public void setTileSize(int tileSize) { setPowerOf2TileSize(tileSize); }
 
     public ObjectProperty<Path> tilesPathProperty() {
         return tilesPath;

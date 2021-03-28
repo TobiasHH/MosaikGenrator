@@ -1,10 +1,8 @@
 package de.tobiashh.javafx;
 
-import de.tobiashh.javafx.properties.Properties;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.*;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -12,12 +10,12 @@ import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -27,6 +25,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -52,11 +51,17 @@ public class Controller {
 
     @FXML public Pane canvasPane;
 
+    @FXML public CheckBox originalCheck;
+
     private static final double SCALE_DEFAULT = 1.0;
     private static final double SCALE_MIN = 0.1;
     private static final double SCALE_MAX = 2;
 
     private final DoubleProperty scale = new SimpleDoubleProperty(SCALE_DEFAULT);
+
+    private final ObjectProperty<Path> imagePath = new SimpleObjectProperty<>();
+
+    private final BooleanProperty displayOriginalImage = new SimpleBooleanProperty();
 
     public Controller(MosaikImageModel model) {
         this.model = model;
@@ -71,7 +76,7 @@ public class Controller {
     }
 
     private void initBindings() {
-        pathLabel.textProperty().bind(Bindings.when(model.tilesPathProperty().isNull()).then("Kein Pfad gewählt.").otherwise(model.tilesPathProperty().asString()));
+        pathLabel.textProperty().bind(Bindings.when(model.mosaikTilesPathProperty().isNull()).then("Kein Pfad gewählt.").otherwise(model.mosaikTilesPathProperty().asString()));
         filesCountLabel.textProperty().bind(model.dstTilesCountProperty().asString());
 
         canvas.widthProperty().bind(canvasPane.prefWidthProperty());
@@ -161,17 +166,19 @@ public class Controller {
 
     public void processOpen(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
+        if(getImagePath() != null) fileChooser.setInitialDirectory(getImagePath().toFile());
         fileChooser.setTitle("Öffne Bild");
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Bilder", Arrays.stream(MosaikImageModelImpl.FILE_EXTENSION).map("*."::concat).toArray(String[]::new)));
-        model.setImageFile(fileChooser.showOpenDialog(menuBar.getScene().getWindow()).toPath());
-
+        Path image = fileChooser.showOpenDialog(menuBar.getScene().getWindow()).toPath();
+        model.setImageFile(image);
+        setImagePath(image.getParent());
     }
 
     public void processTilesPath(ActionEvent actionEvent) {
         DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setTitle("Wähle Tile Pfad");
-        directoryChooser.setInitialDirectory(model.getTilesPath().toFile());
-        model.setTilesPath(directoryChooser.showDialog(menuBar.getScene().getWindow()).toPath());
+        directoryChooser.setTitle("Wähle Mosaik Tile Pfad");
+        directoryChooser.setInitialDirectory(model.getMosaikTilesPath().toFile());
+        model.setMosaikTilesPath(directoryChooser.showDialog(menuBar.getScene().getWindow()).toPath());
     }
 
     public DoubleProperty scaleProperty() { return scale; }
@@ -180,13 +187,87 @@ public class Controller {
 
     public void setScale(double scale) { this.scale.set(Math.max(Math.min(scale, SCALE_MAX), SCALE_MIN)); }
 
-    public void reloadImage(ActionEvent actionEvent) {
-        BufferedImage bufferedImage = model.getCompositeImage();
-        scaleCanvasPane(bufferedImage);
+    public ObjectProperty<Path>  imagePathProperty(){ return imagePath; }
 
-        Image image = SwingFXUtils.toFXImage(bufferedImage, null);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.clearRect(0,0,canvas.getWidth(),canvas.getHeight());
-        gc.drawImage(image, 0,0, canvas.getWidth(),canvas.getHeight());
+    public Path getImagePath() { return imagePath.get(); }
+
+    public void setImagePath(Path imagePath) { this.imagePath.set(imagePath); }
+
+    public BooleanProperty displayOriginalImageProperty(){ return displayOriginalImage; }
+
+    public boolean getDisplayOriginalImage() { return displayOriginalImage.get(); }
+
+    public void setDisplayOriginalImage(boolean displayOriginalImage) { this.displayOriginalImage.set(displayOriginalImage); }
+
+    public void dragDropped(DragEvent dragEvent) {
+        System.out.println("Controller.dragDropped");
+        Dragboard dragboard = dragEvent.getDragboard();
+        boolean success = false;
+        if (dragboard.hasFiles()) {
+            if(hasDirectory(dragboard))
+            {
+                File folder = dragboard.getFiles().get(0);
+                model.setMosaikTilesPath(folder.toPath());
+                success = true;
+            }
+            else if (hasImageFile(dragboard))
+            {
+                Path path = dragboard.getFiles().get(0).toPath();
+                if(isImage(path))
+                {
+                    model.setImageFile(path);
+                }
+            }
+        }
+
+        dragEvent.setDropCompleted(success);
+
+        dragEvent.consume();
+    }
+
+    public void dragOver(DragEvent dragEvent) {
+        System.out.println("Controller.dragOver");
+        Dragboard dragboard = dragEvent.getDragboard();
+        if(dragEvent.getGestureSource() != scrollPane){
+
+            if(dragboard.hasFiles())
+            {
+                System.out.println(hasDirectory(dragboard));
+                System.out.println(hasImageFile(dragboard));
+
+                if(hasDirectory(dragboard) || hasImageFile(dragboard))
+                {
+                    dragEvent.acceptTransferModes(TransferMode.ANY);
+                }
+            }
+            else {
+                dragEvent.consume();
+            }
+        }
+    }
+
+    private boolean hasDirectory(Dragboard dragboard) {
+        return dragboard.getFiles().size() == 1 && dragboard.getFiles().get(0).isDirectory();
+    }
+
+    private boolean hasImageFile(Dragboard dragboard) {
+        return dragboard.getFiles().size() == 1 && isImage(dragboard.getFiles().get(0).toPath());
+    }
+
+    private boolean isImage(Path path) {
+        return Arrays.stream(MosaikImageModelImpl.FILE_EXTENSION).anyMatch(e -> path.toString().toLowerCase().endsWith(".".concat(e.toLowerCase())));
+    }
+
+    public void originalCheckAction(ActionEvent actionEvent) {
+        displayOriginalImage.set(originalCheck.isSelected());
+    }
+
+    public void reloadImage(ActionEvent actionEvent) {
+        drawImage();
+    }
+
+    public void recalculateImage(ActionEvent actionEvent) {
+        model.calculateMosaik();
+     //   drawImage();
     }
 }

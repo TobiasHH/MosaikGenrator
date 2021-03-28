@@ -52,13 +52,14 @@ public interface MosaikImageModel {
     Path getImageFile();
     void setImageFile(Path file);
 
-    ObjectProperty<Path> tilesPathProperty();
-    Path getTilesPath();
-    void setTilesPath(Path tilesPath);
+    ObjectProperty<Path> mosaikTilesPathProperty();
+    Path getMosaikTilesPath();
+    void setMosaikTilesPath(Path mosaikTilesPath);
 
     IntegerProperty tilesXProperty();
     int getTilesX();
     void setTilesX(int tileCount);
 
     void deleteTile(int x, int y);
+    void calculateMosaik();
 }

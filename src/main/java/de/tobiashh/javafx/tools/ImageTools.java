@@ -1,4 +1,4 @@
-package de.tobiashh.javafx;
+package de.tobiashh.javafx.tools;
 
 import de.tobiashh.javafx.properties.Properties;
 
@@ -15,13 +15,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class ImageTools {
-    /**
-     * In dieser Methode wird ein Bild geladen.
-     *
-     * @param imageFile
-     * @return
-     * @throws IOException
-     */
+
     public static BufferedImage loadTileImage(File imageFile)
             throws IOException {
         BufferedImage retval = null;
@@ -35,34 +29,32 @@ public class ImageTools {
             int imageWidth = reader.getWidth(0);
             int imageHeight = reader.getHeight(0);
 
-            System.out.println("imageWidth: " + imageWidth);
-            System.out.println("imageHeight: " + imageHeight);
+//            System.out.println("imageWidth: " + imageWidth);
+//            System.out.println("imageHeight: " + imageHeight);
 
             int factorWidth = imageWidth / Properties.getInstance().getTileSize();
             int factorHeight = imageHeight / Properties.getInstance().getTileSize();
 
             ImageReadParam param = new ImageReadParam();
-            int factor = (factorWidth > factorHeight) ? factorHeight : factorWidth;
+            int factor = Math.min(factorWidth, factorHeight);
 
             if(factor < 1) {
-                System.out.println("image " + imageFile.getName() + " smaller than tileDim");
+//                System.out.println("image " + imageFile.getName() + " smaller than tileDim");
                 factor = 1;
             }
 
-            System.out.println("factorWidth: " + factorWidth);
-            System.out.println("factorHeight: " + factorHeight);
-            System.out.println("factor: " + factor);
-
-            if(factor <= 0) System.exit(-1);
+//            System.out.println("factorWidth: " + factorWidth);
+//            System.out.println("factorHeight: " + factorHeight);
+//            System.out.println("factor: " + factor);
 
             param.setSourceSubsampling(factor, factor, 0, 0);
 
             Rectangle sourceRegion = new Rectangle();
-            boolean orientationLandscape = (imageWidth > imageHeight) ? true : false;
+            boolean orientationLandscape = imageWidth > imageHeight;
 
-            System.out.println("orientationLandscape: " + orientationLandscape);
-            System.out.println("width: " + imageWidth);
-            System.out.println("height: " +imageHeight);
+//            System.out.println("orientationLandscape: " + orientationLandscape);
+//            System.out.println("width: " + imageWidth);
+//            System.out.println("height: " +imageHeight);
 
             if(orientationLandscape){
                 sourceRegion.setSize(imageHeight, imageHeight);
@@ -72,7 +64,7 @@ public class ImageTools {
                 sourceRegion.setLocation(0, (imageHeight - imageWidth) / 2);
             }
 
-            System.out.println(sourceRegion.toString());
+//            System.out.println(sourceRegion.toString());
 
             param.setSourceRegion(sourceRegion);
 

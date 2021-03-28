@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.canvas.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -24,9 +25,21 @@
    </top>
    <center>
       <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
-         <Button mnemonicParsing="false" onAction="#reloadImage" text="Reload" />
-         <Button mnemonicParsing="false" text="Button" />
-         <ScrollPane fx:id="scrollPane" pannable="true" VBox.vgrow="ALWAYS">
+         <HBox alignment="CENTER">
+            <Button mnemonicParsing="false" onAction="#reloadImage" text="Neu laden">
+               <HBox.margin>
+                  <Insets right="10.0"/>
+               </HBox.margin>
+            </Button>
+            <Button layoutX="37.0" layoutY="10.0" mnemonicParsing="false" onAction="#recalculateImage"
+                    text="Neu berechnen">
+               <HBox.margin>
+                  <Insets right="10.0"/>
+               </HBox.margin>
+            </Button>
+            <CheckBox fx:id="originalCheck" mnemonicParsing="false" onAction="#originalCheckAction" text="Original"/>
+         </HBox>
+         <ScrollPane fx:id="scrollPane" onDragDropped="#dragDropped" onDragOver="#dragOver" pannable="true" VBox.vgrow="ALWAYS">
             <Pane fx:id="canvasPane">
                <Canvas fx:id="canvas" height="93.0" width="200.0" />
             </Pane>

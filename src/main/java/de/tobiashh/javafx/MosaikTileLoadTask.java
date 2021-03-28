@@ -2,6 +2,7 @@ package de.tobiashh.javafx;
 
 import de.tobiashh.javafx.properties.Properties;
 import de.tobiashh.javafx.tiles.MosaikTile;
+import de.tobiashh.javafx.tools.ImageTools;
 
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;

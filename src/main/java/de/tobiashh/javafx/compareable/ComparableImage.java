@@ -1,6 +1,6 @@
 package de.tobiashh.javafx.compareable;
 
-import de.tobiashh.javafx.ImageTools;
+import de.tobiashh.javafx.tools.ImageTools;
 import de.tobiashh.javafx.properties.Properties;
 
 import java.awt.image.BufferedImage;
