@@ -13,6 +13,10 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 public class MosaikImageModelImpl implements MosaikImageModel {
     public static final String[] FILE_EXTENSION = {"png", "jpg", "jpeg"};
@@ -39,28 +43,27 @@ public class MosaikImageModelImpl implements MosaikImageModel {
 
     private void initChangeListener() {
         System.out.println("MosaikImageModelPropsImpl.initChangeListener");
-         imageComparator.destinationTiles.addListener((ListChangeListener<MosaikTile>) c -> Platform.runLater(() -> dstTilesCount.set(imageComparator.destinationTiles.size())));
+        imageComparator.destinationTiles.addListener((ListChangeListener<MosaikTile>) c -> Platform.runLater(() -> dstTilesCount.set(imageComparator.destinationTiles.size())));
 
         mosaikLoadProgress.addListener((observable, oldValue, newValue) -> dstTilesCount.set(newValue.intValue()));
         mosaikTilesPathProperty().addListener((observableValue, oldPath, newPath) -> loadMosaikTiles(newPath));
         imageFile.addListener((observable, oldImageFile, newImageFile) -> loadImage(newImageFile));
     }
 
-
     private void loadMosaikTiles(Path newPath) {
         System.out.println("MosaikImageModelPropsImpl.loadMosaikTiles");
         System.out.println("newPath = " + newPath);
 
-            if (task != null) task.cancel(true);
-            task = new MosaikTilesLoaderTask(newPath, isScanSubFolder());
-            task.progressProperty().addListener((observable, oldValue, newValue) -> mosaikLoadProgress.set((int) (newValue.doubleValue() * 100)));
-            task.setOnSucceeded(event -> {
-                imageComparator.setMosaikTiles(task.getValue());
-                calculateMosaik();
-            });
-            Thread thread = new Thread(task);
-            thread.setDaemon(true);
-            thread.start();
+        if (task != null) task.cancel(true);
+        task = new MosaikTilesLoaderTask(newPath, isScanSubFolder());
+        task.progressProperty().addListener((observable, oldValue, newValue) -> mosaikLoadProgress.set((int) (newValue.doubleValue() * 100)));
+        task.setOnSucceeded(event -> {
+            imageComparator.setMosaikTiles(task.getValue());
+            calculateMosaik();
+        });
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
     }
 
     private void loadImage(Path imageFile) {
@@ -93,6 +96,7 @@ public class MosaikImageModelImpl implements MosaikImageModel {
             }
         }
     }
+
     private void calculateCompositeImage() {
         System.out.println("MosaikImageModelImpl.calculateCompositeImage");
 
@@ -106,33 +110,64 @@ public class MosaikImageModelImpl implements MosaikImageModel {
         for (int y = 0; y < getTilesY(); y++) {
             for (int x = 0; x < getTilesX(); x++) {
                 MosaikTile mosaikTile = mosaikTiles[x][y];
-                if(mosaikTile != null) {
+                if (mosaikTile != null) {
                     graphics.drawImage(mosaikTile.getImage(), x * getTileSize(), y * getTileSize(), null);
                 } else {
-                   graphics.drawImage(tiles[x][y].getImage(), x * getTileSize(), y * getTileSize(), null);
+                    graphics.drawImage(tiles[x][y].getImage(), x * getTileSize(), y * getTileSize(), null);
                 }
             }
         }
 
-       compositeImage.set(retval);
+        compositeImage.set(retval);
     }
 
     public void calculateMosaik() {
         System.out.println("MosaikImageModelImpl.calculateMosaik");
-        int tilesX = getTilesX();
-        int tilesY = getTilesY();
 
-        mosaikTiles = new MosaikTile[tilesX][tilesY];
+        mosaikTiles = new MosaikTile[getTilesX()][getTilesY()];
 
-        for (int y = 0; y < tilesY; y++) {
-            for (int x = 0; x < tilesX; x++) {
-                Tile tile = tiles[x][y];
-                if (tile != null) {
-                    mosaikTiles[x][y] = imageComparator.compare(tile);
+        if (isLinearMode()) {
+            generateLinearImage();
+        } else {
+            generateRandomImage();
+        }
+
+        calculateCompositeImage();
+    }
+
+    private void generateRandomImage() {
+        System.out.println("MosaikImageModelImpl.generateRandomImage");
+        if (imageComparator.hasDestinationTiles()) {
+
+            Random rand = new Random();
+
+            int x;
+            int y;
+
+            while (Arrays.stream(mosaikTiles).flatMap(Arrays::stream).anyMatch(Objects::isNull)) {
+                x = rand.nextInt(getTilesX());
+                y = rand.nextInt(getTilesY());
+
+                if (mosaikTiles[x][y] == null) {
+                    mosaikTiles[x][y] = imageComparator.compare(tiles[x][y]);
                 }
             }
         }
-        calculateCompositeImage();
+    }
+
+    private void generateLinearImage() {
+        System.out.println("MosaikImageModelImpl.generateLinearImage");
+        if (imageComparator.hasDestinationTiles()) {
+
+            for (int y = 0; y < getTilesY(); y++) {
+                for (int x = 0; x < getTilesX(); x++) {
+                    Tile tile = tiles[x][y];
+                    if (tile != null) {
+                        mosaikTiles[x][y] = imageComparator.compare(tile);
+                    }
+                }
+            }
+        }
     }
 
     public ReadOnlyIntegerProperty tilesYProperty() {
@@ -143,7 +178,7 @@ public class MosaikImageModelImpl implements MosaikImageModel {
         return tilesY.get();
     }
 
-    public  ReadOnlyIntegerProperty mosaikLoadProgressProperty() {
+    public ReadOnlyIntegerProperty mosaikLoadProgressProperty() {
         return mosaikLoadProgress.getReadOnlyProperty();
     }
 
@@ -213,7 +248,7 @@ public class MosaikImageModelImpl implements MosaikImageModel {
 
     @Override
     public void setCompareSize(int compareSize) {
-Properties.getInstance().setCompareSize(compareSize);
+        Properties.getInstance().setCompareSize(compareSize);
     }
 
     @Override
@@ -228,7 +263,7 @@ Properties.getInstance().setCompareSize(compareSize);
 
     @Override
     public void setOpacity(int opacity) {
-Properties.getInstance().setOpacity(opacity);
+        Properties.getInstance().setOpacity(opacity);
     }
 
     @Override
@@ -243,7 +278,7 @@ Properties.getInstance().setOpacity(opacity);
 
     @Override
     public void setColorAlignment(int colorAlignment) {
-Properties.getInstance().setColorAlignment(colorAlignment);
+        Properties.getInstance().setColorAlignment(colorAlignment);
     }
 
     @Override
@@ -258,7 +293,7 @@ Properties.getInstance().setColorAlignment(colorAlignment);
 
     @Override
     public void setBlurMode(boolean blurMode) {
-Properties.getInstance().setBlurMode(blurMode);
+        Properties.getInstance().setBlurMode(blurMode);
     }
 
     @Override
@@ -273,7 +308,7 @@ Properties.getInstance().setBlurMode(blurMode);
 
     @Override
     public void setMaxReuses(int maxReuses) {
-Properties.getInstance().setMaxReuses(maxReuses);
+        Properties.getInstance().setMaxReuses(maxReuses);
     }
 
     @Override
@@ -288,7 +323,7 @@ Properties.getInstance().setMaxReuses(maxReuses);
 
     @Override
     public void setReuseDistance(int reuseDistance) {
-Properties.getInstance().setReuseDistance(reuseDistance);
+        Properties.getInstance().setReuseDistance(reuseDistance);
     }
 
     @Override

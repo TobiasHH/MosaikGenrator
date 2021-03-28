@@ -16,6 +16,10 @@ import java.util.List;
 public class ImageComparator {
     ObservableList<MosaikTile> destinationTiles = FXCollections.observableList(new ArrayList<>());
 
+   public boolean hasDestinationTiles(){
+        return destinationTiles.size() > 0;
+    }
+
     public MosaikTile compare(Tile tile){
         int bestScore = Integer.MAX_VALUE;
         MosaikTile retval = null;

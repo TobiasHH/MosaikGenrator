@@ -53,6 +53,8 @@ public class Controller {
 
     @FXML public CheckBox originalCheck;
 
+    @FXML public CheckBox linearModeCheck;
+
     private static final double SCALE_DEFAULT = 1.0;
     private static final double SCALE_MIN = 0.1;
     private static final double SCALE_MAX = 2;
@@ -73,6 +75,11 @@ public class Controller {
         initEventHandler();
         initBindings();
         initCanvas();
+        initGUI();
+    }
+
+    private void initGUI() {
+        linearModeCheck.setSelected(model.isLinearMode());
     }
 
     private void initBindings() {
@@ -268,6 +275,10 @@ public class Controller {
 
     public void recalculateImage(ActionEvent actionEvent) {
         model.calculateMosaik();
-     //   drawImage();
+    }
+
+    public void linearModeCheckAction(ActionEvent actionEvent) {
+        model.setLinearMode(linearModeCheck.isSelected());
+        model.calculateMosaik();
     }
 }

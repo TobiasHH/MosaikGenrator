@@ -15,9 +15,6 @@
             <SeparatorMenuItem />
             <MenuItem onAction="#processExit" text="Beenden" />
          </Menu>
-         <Menu text="Einstellungen">
-            <MenuItem text="..." />
-         </Menu>
          <Menu text="Hilfe">
             <MenuItem onAction="#showAboutDialog" text="Über" />
          </Menu>
@@ -28,16 +25,19 @@
          <HBox alignment="CENTER">
             <Button mnemonicParsing="false" onAction="#reloadImage" text="Neu laden">
                <HBox.margin>
-                  <Insets right="10.0"/>
+                  <Insets right="10.0" />
                </HBox.margin>
             </Button>
-            <Button layoutX="37.0" layoutY="10.0" mnemonicParsing="false" onAction="#recalculateImage"
-                    text="Neu berechnen">
+            <Button layoutX="37.0" layoutY="10.0" mnemonicParsing="false" onAction="#recalculateImage" text="Neu berechnen">
                <HBox.margin>
-                  <Insets right="10.0"/>
+                  <Insets right="10.0" />
                </HBox.margin>
             </Button>
-            <CheckBox fx:id="originalCheck" mnemonicParsing="false" onAction="#originalCheckAction" text="Original"/>
+            <CheckBox fx:id="originalCheck" mnemonicParsing="false" onAction="#originalCheckAction" text="Original">
+               <HBox.margin>
+                  <Insets right="10.0" />
+               </HBox.margin></CheckBox>
+            <CheckBox fx:id="linearModeCheck" layoutX="164.0" layoutY="14.0" mnemonicParsing="false" onAction="#linearModeCheckAction" text="Linear Mode" />
          </HBox>
          <ScrollPane fx:id="scrollPane" onDragDropped="#dragDropped" onDragOver="#dragOver" pannable="true" VBox.vgrow="ALWAYS">
             <Pane fx:id="canvasPane">
@@ -47,7 +47,7 @@
       </VBox>
    </center>
    <bottom>
-      <HBox alignment="CENTER_LEFT" BorderPane.alignment="CENTER">
+      <HBox alignment="CENTER_LEFT" prefHeight="18.0" prefWidth="350.0" BorderPane.alignment="CENTER">
          <Label fx:id="cursorPositionLabel" style="-fx-background-color: RED;" />
          <Label fx:id="tileHoverLabel" style="-fx-background-color: PURPLE;" />
          <Label fx:id="fileLabel" style="-fx-background-color: GREEN;" />
