@@ -48,6 +48,8 @@ public class MosaikImageModelImpl implements MosaikImageModel {
         mosaikLoadProgress.addListener((observable, oldValue, newValue) -> dstTilesCount.set(newValue.intValue()));
         mosaikTilesPathProperty().addListener((observableValue, oldPath, newPath) -> loadMosaikTiles(newPath));
         imageFile.addListener((observable, oldImageFile, newImageFile) -> loadImage(newImageFile));
+        linearModeProperty().addListener((observable, oldValue, newValue) -> calculateMosaik());
+        scanSubFolderProperty().addListener(((observable, oldValue, newValue) -> loadMosaikTiles(getMosaikTilesPath())));
     }
 
     private void loadMosaikTiles(Path newPath) {
@@ -61,6 +63,7 @@ public class MosaikImageModelImpl implements MosaikImageModel {
             imageComparator.setMosaikTiles(task.getValue());
             calculateMosaik();
         });
+
         Thread thread = new Thread(task);
         thread.setDaemon(true);
         thread.start();

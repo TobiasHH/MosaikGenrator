@@ -55,6 +55,8 @@ public class Controller {
 
     @FXML public CheckBox linearModeCheck;
 
+    @FXML public CheckBox scanSubfolderCheck;
+
     private static final double SCALE_DEFAULT = 1.0;
     private static final double SCALE_MIN = 0.1;
     private static final double SCALE_MAX = 2;
@@ -277,8 +279,7 @@ public class Controller {
         model.calculateMosaik();
     }
 
-    public void linearModeCheckAction(ActionEvent actionEvent) {
-        model.setLinearMode(linearModeCheck.isSelected());
-        model.calculateMosaik();
-    }
+    public void linearModeCheckAction(ActionEvent actionEvent) { model.setLinearMode(linearModeCheck.isSelected()); }
+
+    public void scanSubfolderCheckAction(ActionEvent actionEvent) { model.setScanSubFolder(scanSubfolderCheck.isSelected()); }
 }

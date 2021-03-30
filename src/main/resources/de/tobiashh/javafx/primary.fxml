@@ -5,7 +5,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane prefHeight="200.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tobiashh.javafx.Controller">
+<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tobiashh.javafx.Controller">
    <top>
       <MenuBar fx:id="menuBar" focusTraversable="true" BorderPane.alignment="CENTER">
          <Menu text="Datei">
@@ -22,22 +22,23 @@
    </top>
    <center>
       <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
-         <HBox alignment="CENTER">
+         <HBox alignment="CENTER" spacing="5.0">
             <Button mnemonicParsing="false" onAction="#reloadImage" text="Neu laden">
                <HBox.margin>
-                  <Insets right="10.0" />
+                  <Insets />
                </HBox.margin>
             </Button>
             <Button layoutX="37.0" layoutY="10.0" mnemonicParsing="false" onAction="#recalculateImage" text="Neu berechnen">
                <HBox.margin>
-                  <Insets right="10.0" />
+                  <Insets />
                </HBox.margin>
             </Button>
             <CheckBox fx:id="originalCheck" mnemonicParsing="false" onAction="#originalCheckAction" text="Original">
                <HBox.margin>
-                  <Insets right="10.0" />
+                  <Insets />
                </HBox.margin></CheckBox>
             <CheckBox fx:id="linearModeCheck" layoutX="164.0" layoutY="14.0" mnemonicParsing="false" onAction="#linearModeCheckAction" text="Linear Mode" />
+            <CheckBox fx:id="scanSubfolderCheck" layoutX="497.0" layoutY="14.0" mnemonicParsing="false" onAction="#scanSubfolderCheckAction" text="Scan Subfolder" />
          </HBox>
          <ScrollPane fx:id="scrollPane" onDragDropped="#dragDropped" onDragOver="#dragOver" pannable="true" VBox.vgrow="ALWAYS">
             <Pane fx:id="canvasPane">
