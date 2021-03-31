@@ -24,6 +24,8 @@ public class ImageComparator {
         int bestScore = Integer.MAX_VALUE;
         MosaikTile retval = null;
 
+        // Mosaik Tile vor Vergleich color Align machen
+
         if(tile != null) {
             for (MosaikTile destinationTile : destinationTiles) {
                int score = tile.compare(destinationTile);

@@ -50,6 +50,7 @@ public class MosaikImageModelImpl implements MosaikImageModel {
         imageFile.addListener((observable, oldImageFile, newImageFile) -> loadImage(newImageFile));
         linearModeProperty().addListener((observable, oldValue, newValue) -> calculateMosaik());
         scanSubFolderProperty().addListener(((observable, oldValue, newValue) -> loadMosaikTiles(getMosaikTilesPath())));
+        colorAlignmentProperty().addListener((observable, oldValue, newValue) -> System.out.println(newValue));
     }
 
     private void loadMosaikTiles(Path newPath) {

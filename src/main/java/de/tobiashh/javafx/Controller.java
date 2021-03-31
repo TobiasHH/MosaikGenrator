@@ -10,10 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
@@ -23,6 +20,9 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
+import javafx.util.converter.NumberStringConverter;
+import javafx.util.converter.PercentageStringConverter;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -57,6 +57,10 @@ public class Controller {
 
     @FXML public CheckBox scanSubfolderCheck;
 
+    @FXML public TextField colorAlignment;
+
+    @FXML public TextField opacity;
+
     private static final double SCALE_DEFAULT = 1.0;
     private static final double SCALE_MIN = 0.1;
     private static final double SCALE_MAX = 2;
@@ -90,6 +94,7 @@ public class Controller {
 
         canvas.widthProperty().bind(canvasPane.prefWidthProperty());
         canvas.heightProperty().bind(canvasPane.prefHeightProperty());
+
     }
 
     private void initEventHandler() {
@@ -119,6 +124,28 @@ public class Controller {
     private void initChangeListener() {
         scale.addListener((observable, oldValue, newValue) -> drawImage());
         model.compositeImageProperty().addListener((observable, oldImage, newImage) -> drawImage());
+
+        colorAlignment.textProperty().addListener((observable, oldValue, newValue) -> {
+            int percent = getPercentFromString(newValue);
+            colorAlignment.setText(String.valueOf(percent));
+            model.setColorAlignment(percent);
+        });
+        model.colorAlignmentProperty().addListener((observable, oldValue, newValue) -> colorAlignment.setText(String.valueOf(newValue)));
+        colorAlignment.setText(String.valueOf(model.getColorAlignment()));
+
+        opacity.textProperty().addListener((observable, oldValue, newValue) -> {
+            int percent = getPercentFromString(newValue);
+            opacity.setText(String.valueOf(percent));
+            model.setOpacity(percent);
+        });
+        model.opacityProperty().addListener((observable, oldValue, newValue) -> opacity.setText(String.valueOf(newValue)));
+        opacity.setText(String.valueOf(model.getOpacity()));
+    }
+
+    private int getPercentFromString(String newValue) {
+        String digitString = newValue.replaceAll("[^\\d]", "");
+        digitString = digitString.substring(0,Math.min(5, digitString.length()));
+        return Math.min(Math.max(0,Integer.parseInt("0" + digitString)),100);
     }
 
 
@@ -267,16 +294,16 @@ public class Controller {
         return Arrays.stream(MosaikImageModelImpl.FILE_EXTENSION).anyMatch(e -> path.toString().toLowerCase().endsWith(".".concat(e.toLowerCase())));
     }
 
-    public void originalCheckAction(ActionEvent actionEvent) {
-        displayOriginalImage.set(originalCheck.isSelected());
-    }
-
     public void reloadImage(ActionEvent actionEvent) {
         drawImage();
     }
 
     public void recalculateImage(ActionEvent actionEvent) {
         model.calculateMosaik();
+    }
+
+    public void originalCheckAction(ActionEvent actionEvent) {
+        displayOriginalImage.set(originalCheck.isSelected());
     }
 
     public void linearModeCheckAction(ActionEvent actionEvent) { model.setLinearMode(linearModeCheck.isSelected()); }
