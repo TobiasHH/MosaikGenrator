@@ -48,7 +48,7 @@ public class MosaikImageModelImpl implements MosaikImageModel {
         imageFile.addListener((observable, oldImageFile, newImageFile) -> loadImage(newImageFile));
         linearModeProperty().addListener((observable, oldValue, newValue) -> calculateMosaik());
         scanSubFolderProperty().addListener(((observable, oldValue, newValue) -> loadMosaikTiles(getMosaikTilesPath())));
-        tilesXProperty().addListener((observable, oldValue, newValue) -> System.out.println("newValue = " + newValue));
+        tilesXProperty().addListener((observable, oldValue, newValue) -> loadImage(getImageFile()));
     }
 
     private void loadMosaikTiles(Path newPath) {
@@ -67,18 +67,20 @@ public class MosaikImageModelImpl implements MosaikImageModel {
     }
 
     private void loadImage(Path imageFile) {
-       try {
-            BufferedImage bufferedImage = ImageIO.read(imageFile.toFile());
+        if(imageFile != null) {
+            try {
+                BufferedImage bufferedImage = ImageIO.read(imageFile.toFile());
 
-            tilesY.set(Math.max(1,getTilesX() * bufferedImage.getHeight() / bufferedImage.getWidth()));
+                tilesY.set(Math.max(1, getTilesX() * bufferedImage.getHeight() / bufferedImage.getWidth()));
 
-            int imageWidth = getTilesX() * getTileSize();
-            int imageHeight = getTilesY() * getTileSize();
+                int imageWidth = getTilesX() * getTileSize();
+                int imageHeight = getTilesY() * getTileSize();
 
-            generateTiles(ImageTools.calculateScaledImage(bufferedImage, imageWidth, imageHeight, true));
-            calculateMosaik();
-        } catch (IOException e) {
-            e.printStackTrace();
+                generateTiles(ImageTools.calculateScaledImage(bufferedImage, imageWidth, imageHeight, true));
+                calculateMosaik();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -101,7 +101,7 @@ public class Controller {
         scrollPane.addEventFilter(ScrollEvent.SCROLL,getScrollEventHandler());
     }
 
-    private EventHandler<MouseEvent>  changeTileEventHandler() {
+    private EventHandler<MouseEvent> changeTileEventHandler() {
         return mouseEvent -> {
             int x = (int) (mouseEvent.getX() / (model.getTileSize() * getScale()));
             int y = (int) (mouseEvent.getY() / (model.getTileSize() * getScale()));
@@ -139,12 +139,14 @@ public class Controller {
         opacity.setText(String.valueOf(model.getOpacity()));
 
         tilesX.textProperty().addListener((observable, oldValue, newValue) -> {
-            int i = getIntFromString(newValue, 1, 100);
+            int i = getIntFromString(newValue, 1, 50);
             tilesX.setText(String.valueOf(i));
             model.setTilesX(i);
         });
         model.tilesXProperty().addListener((observable, oldValue, newValue) -> tilesX.setText(String.valueOf(newValue)));
         tilesX.setText(String.valueOf(model.getTilesX()));
+
+        displayOriginalImage.addListener((observable, oldValue, newValue) -> drawImage());
     }
 
     private int getIntFromString(String value, int min, int max){
@@ -165,21 +167,18 @@ public class Controller {
 
     private void initCanvas() {
         try {
-            String filename = "yoda.jpg";
+            String filename = "test.png";
             model.setImageFile(Path.of(getClass().getResource(filename).toURI()));
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
     }
 
-    private void scaleCanvasPane(BufferedImage image) {
-        canvasPane.setPrefWidth((int)(image.getWidth() * getScale()));
-        canvasPane.setPrefHeight((int)(image.getHeight() * getScale()));
-    }
-
     private void drawImage() {
-         BufferedImage bufferedImage = model.getCompositeImage();
-        scaleCanvasPane(bufferedImage);
+        BufferedImage bufferedImage =  model.getCompositeImage();
+
+        canvasPane.setPrefWidth((int)(bufferedImage.getWidth() * getScale()));
+        canvasPane.setPrefHeight((int)(bufferedImage.getHeight() * getScale()));
 
         Image image = SwingFXUtils.toFXImage(bufferedImage, null);
         GraphicsContext gc = canvas.getGraphicsContext2D();
