@@ -26,7 +26,6 @@ public class MosaikTileLoadTask implements Callable<Optional<MosaikTile>> {
 			}
 		}catch (Exception e)
 		{
-			System.out.println(path.toFile());
 			e.printStackTrace();
 		}
 		return Optional.ofNullable(tile);

@@ -30,8 +30,6 @@ public class PerceptualHashingCoparableImage extends ComparableImage
      */
     @Override
     public void calculateData(BufferedImage dataImage) {
-        System.out.println("PerceptualHashingCoparableImage.calculateData");
-
         if(dataImage.getWidth() != COMPARE_SIZE || dataImage.getHeight() != COMPARE_SIZE) {
             dataImage = new BufferedImage(COMPARE_SIZE, COMPARE_SIZE, BufferedImage.TYPE_INT_RGB);
             dataImage.getGraphics().drawImage(dataImage, 0, 0, COMPARE_SIZE, COMPARE_SIZE, null);

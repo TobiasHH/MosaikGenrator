@@ -61,6 +61,8 @@ public class Controller {
 
     @FXML public TextField opacity;
 
+    @FXML public TextField tilesX;
+
     private static final double SCALE_DEFAULT = 1.0;
     private static final double SCALE_MIN = 0.1;
     private static final double SCALE_MAX = 2;
@@ -81,20 +83,15 @@ public class Controller {
         initEventHandler();
         initBindings();
         initCanvas();
-        initGUI();
-    }
-
-    private void initGUI() {
-        linearModeCheck.setSelected(model.isLinearMode());
     }
 
     private void initBindings() {
         pathLabel.textProperty().bind(Bindings.when(model.mosaikTilesPathProperty().isNull()).then("Kein Pfad gewählt.").otherwise(model.mosaikTilesPathProperty().asString()));
         filesCountLabel.textProperty().bind(model.dstTilesCountProperty().asString());
-
         canvas.widthProperty().bind(canvasPane.prefWidthProperty());
         canvas.heightProperty().bind(canvasPane.prefHeightProperty());
-
+        linearModeCheck.selectedProperty().bindBidirectional(model.linearModeProperty());
+        scanSubfolderCheck.selectedProperty().bindBidirectional(model.scanSubFolderProperty());
     }
 
     private void initEventHandler() {
@@ -126,7 +123,7 @@ public class Controller {
         model.compositeImageProperty().addListener((observable, oldImage, newImage) -> drawImage());
 
         colorAlignment.textProperty().addListener((observable, oldValue, newValue) -> {
-            int percent = getPercentFromString(newValue);
+            int percent = getIntFromString(newValue,0,100);
             colorAlignment.setText(String.valueOf(percent));
             model.setColorAlignment(percent);
         });
@@ -134,18 +131,26 @@ public class Controller {
         colorAlignment.setText(String.valueOf(model.getColorAlignment()));
 
         opacity.textProperty().addListener((observable, oldValue, newValue) -> {
-            int percent = getPercentFromString(newValue);
+            int percent = getIntFromString(newValue,0,100);
             opacity.setText(String.valueOf(percent));
             model.setOpacity(percent);
         });
         model.opacityProperty().addListener((observable, oldValue, newValue) -> opacity.setText(String.valueOf(newValue)));
         opacity.setText(String.valueOf(model.getOpacity()));
+
+        tilesX.textProperty().addListener((observable, oldValue, newValue) -> {
+            int i = getIntFromString(newValue, 1, 100);
+            tilesX.setText(String.valueOf(i));
+            model.setTilesX(i);
+        });
+        model.tilesXProperty().addListener((observable, oldValue, newValue) -> tilesX.setText(String.valueOf(newValue)));
+        tilesX.setText(String.valueOf(model.getTilesX()));
     }
 
-    private int getPercentFromString(String newValue) {
-        String digitString = newValue.replaceAll("[^\\d]", "");
+    private int getIntFromString(String value, int min, int max){
+        String digitString = value.replaceAll("[^\\d]", "");
         digitString = digitString.substring(0,Math.min(5, digitString.length()));
-        return Math.min(Math.max(0,Integer.parseInt("0" + digitString)),100);
+        return Math.min(Math.max(min,Integer.parseInt("0" + digitString)),max);
     }
 
 
@@ -160,7 +165,7 @@ public class Controller {
 
     private void initCanvas() {
         try {
-            String filename = "test.png";
+            String filename = "yoda.jpg";
             model.setImageFile(Path.of(getClass().getResource(filename).toURI()));
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -168,14 +173,12 @@ public class Controller {
     }
 
     private void scaleCanvasPane(BufferedImage image) {
-        System.out.println("Controller.scaleCanvas");
         canvasPane.setPrefWidth((int)(image.getWidth() * getScale()));
         canvasPane.setPrefHeight((int)(image.getHeight() * getScale()));
     }
 
     private void drawImage() {
-        System.out.println("Controller.drawImage");
-        BufferedImage bufferedImage = model.getCompositeImage();
+         BufferedImage bufferedImage = model.getCompositeImage();
         scaleCanvasPane(bufferedImage);
 
         Image image = SwingFXUtils.toFXImage(bufferedImage, null);
@@ -236,7 +239,6 @@ public class Controller {
     public void setDisplayOriginalImage(boolean displayOriginalImage) { this.displayOriginalImage.set(displayOriginalImage); }
 
     public void dragDropped(DragEvent dragEvent) {
-        System.out.println("Controller.dragDropped");
         Dragboard dragboard = dragEvent.getDragboard();
         boolean success = false;
         if (dragboard.hasFiles()) {
@@ -262,14 +264,11 @@ public class Controller {
     }
 
     public void dragOver(DragEvent dragEvent) {
-        System.out.println("Controller.dragOver");
         Dragboard dragboard = dragEvent.getDragboard();
         if(dragEvent.getGestureSource() != scrollPane){
 
             if(dragboard.hasFiles())
             {
-                System.out.println(hasDirectory(dragboard));
-                System.out.println(hasImageFile(dragboard));
 
                 if(hasDirectory(dragboard) || hasImageFile(dragboard))
                 {
@@ -305,8 +304,4 @@ public class Controller {
     public void originalCheckAction(ActionEvent actionEvent) {
         displayOriginalImage.set(originalCheck.isSelected());
     }
-
-    public void linearModeCheckAction(ActionEvent actionEvent) { model.setLinearMode(linearModeCheck.isSelected()); }
-
-    public void scanSubfolderCheckAction(ActionEvent actionEvent) { model.setScanSubFolder(scanSubfolderCheck.isSelected()); }
 }

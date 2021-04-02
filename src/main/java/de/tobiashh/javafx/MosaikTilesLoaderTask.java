@@ -1,7 +1,6 @@
 package de.tobiashh.javafx;
 
 import de.tobiashh.javafx.tiles.MosaikTile;
-import de.tobiashh.javafx.tiles.Tile;
 import javafx.concurrent.Task;
 
 import java.io.IOException;
@@ -16,7 +15,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class MosaikTilesLoaderTask extends Task<List<MosaikTile>> {
     private static final int MAX_THREADS = Math.max(1,Runtime.getRuntime().availableProcessors() - 1);
@@ -36,7 +34,7 @@ public class MosaikTilesLoaderTask extends Task<List<MosaikTile>> {
     }
 
     @Override
-    protected List<MosaikTile> call() throws Exception {
+    protected List<MosaikTile> call() {
         List<MosaikTile> tiles = new ArrayList<>();
 
         try {
@@ -45,27 +43,9 @@ public class MosaikTilesLoaderTask extends Task<List<MosaikTile>> {
                     .map(file -> executor.submit(new MosaikTileLoadTask(file)))
                     .collect(Collectors.toList());
 
-            //for debug
-            System.out.println("image count = " + ((scanSubFolder) ? Files.walk(newPath) : Files.list(newPath))
-                    .filter(this::extentionFilter).count());
-
-            System.out.println("other count = " + ((scanSubFolder) ? Files.walk(newPath) : Files.list(newPath))
-                    .filter(this::notExtentionFilter).count());
-
-            ((scanSubFolder) ? Files.walk(newPath) : Files.list(newPath))
-                    .filter(this::notExtentionFilter).forEach(path -> {
-                        System.out.print("not an image = " + path);
-                try {
-                    System.out.println(" " + Files.isHidden(path));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-
-
             for (Future<Optional<MosaikTile>> future : futures) {
                 try {
-                    future.get().ifPresent(tile -> tiles.add(tile));
+                    future.get().ifPresent(tiles::add);
                     updateProgress(tiles.size(), futures.size());
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();

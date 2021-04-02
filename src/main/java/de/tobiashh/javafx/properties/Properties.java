@@ -60,9 +60,7 @@ public class Properties {
     }
 
     private void initProperties() {
-        System.out.println("Properties.initProperties");
-
-        tilesPath.addListener((observable, oldValue, newValue) -> changeProperty(TILES_PATH_PROPERRY_KEY, newValue.toString()));
+             tilesPath.addListener((observable, oldValue, newValue) -> changeProperty(TILES_PATH_PROPERRY_KEY, newValue.toString()));
         tileSize.addListener((observable, oldValue, newValue) -> changeProperty(TILE_SIZE_PROPERTY_KEY, String.valueOf(newValue.intValue())));
         tilesX.addListener((observable, oldValue, newValue) -> changeProperty(TILES_X_PROPERTY_KEY, String.valueOf(newValue.intValue())));
         linearMode.addListener((observable, oldValue, newValue) -> changeProperty(LINEAR_MODE_PROPERTY_KEY, String.valueOf(newValue)));
@@ -90,17 +88,12 @@ public class Properties {
     }
 
     private void changeProperty(String key, String value) {
-        System.out.println("Properties.changeProperty");
-        System.out.println("key = " + key + ", value = " + value);
-
         properties.setProperty(key, value);
         saveProperties();
     }
 
     private void saveProperties() {
-        System.out.println("Properties.saveProperties");
-
-        try (BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(PROPERTY_FILE.toFile()))) {
+         try (BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(PROPERTY_FILE.toFile()))) {
             properties.store(stream, null);
         } catch (IOException e) {
             e.printStackTrace();
@@ -108,9 +101,7 @@ public class Properties {
     }
 
     private void loadProperties() {
-        System.out.println("Properties.loadProperties");
-
-        if (Files.exists(PROPERTY_FILE)) {
+    if (Files.exists(PROPERTY_FILE)) {
             try (BufferedInputStream stream = new BufferedInputStream(new FileInputStream(PROPERTY_FILE.toFile()))) {
                 properties.load(stream);
             } catch (IOException e) {

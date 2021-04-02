@@ -37,12 +37,14 @@
                <HBox.margin>
                   <Insets />
                </HBox.margin></CheckBox>
-            <CheckBox fx:id="linearModeCheck" layoutX="164.0" layoutY="14.0" mnemonicParsing="false" onAction="#linearModeCheckAction" text="Linear Mode" />
-            <CheckBox fx:id="scanSubfolderCheck" layoutX="497.0" layoutY="14.0" mnemonicParsing="false" onAction="#scanSubfolderCheckAction" text="Scan Subfolder" />
+            <CheckBox fx:id="linearModeCheck" layoutX="164.0" layoutY="14.0" mnemonicParsing="false" text="Linear Mode" />
+            <CheckBox fx:id="scanSubfolderCheck" layoutX="497.0" layoutY="14.0" mnemonicParsing="false" text="Scan Subfolder" />
             <Label text="Color Alignment: " />
-            <TextField prefWidth="50.0" fx:id="colorAlignment"/>
+            <TextField fx:id="colorAlignment" prefWidth="50.0" />
             <Label text="Opacity: " />
-            <TextField prefWidth="50.0" fx:id="opacity"/>
+            <TextField fx:id="opacity" prefWidth="50.0" />
+            <Label layoutX="660.0" layoutY="14.0" text="tilesX" />
+            <TextField fx:id="tilesX" layoutX="695.0" layoutY="10.0" prefWidth="50.0" />
 
          </HBox>
          <ScrollPane fx:id="scrollPane" onDragDropped="#dragDropped" onDragOver="#dragOver" pannable="true" VBox.vgrow="ALWAYS">

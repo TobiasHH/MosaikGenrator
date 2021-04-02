@@ -29,9 +29,6 @@ public class ImageTools {
             int imageWidth = reader.getWidth(0);
             int imageHeight = reader.getHeight(0);
 
-//            System.out.println("imageWidth: " + imageWidth);
-//            System.out.println("imageHeight: " + imageHeight);
-
             int factorWidth = imageWidth / Properties.getInstance().getTileSize();
             int factorHeight = imageHeight / Properties.getInstance().getTileSize();
 
@@ -39,22 +36,13 @@ public class ImageTools {
             int factor = Math.min(factorWidth, factorHeight);
 
             if(factor < 1) {
-//                System.out.println("image " + imageFile.getName() + " smaller than tileDim");
                 factor = 1;
             }
-
-//            System.out.println("factorWidth: " + factorWidth);
-//            System.out.println("factorHeight: " + factorHeight);
-//            System.out.println("factor: " + factor);
 
             param.setSourceSubsampling(factor, factor, 0, 0);
 
             Rectangle sourceRegion = new Rectangle();
             boolean orientationLandscape = imageWidth > imageHeight;
-
-//            System.out.println("orientationLandscape: " + orientationLandscape);
-//            System.out.println("width: " + imageWidth);
-//            System.out.println("height: " +imageHeight);
 
             if(orientationLandscape){
                 sourceRegion.setSize(imageHeight, imageHeight);
@@ -64,13 +52,11 @@ public class ImageTools {
                 sourceRegion.setLocation(0, (imageHeight - imageWidth) / 2);
             }
 
-//            System.out.println(sourceRegion.toString());
-
             param.setSourceRegion(sourceRegion);
 
             retval = reader.read(0, param);
         } else {
-            System.out.println("no compatible reader");
+            System.err.println("no compatible reader");
         }
 
         return retval;

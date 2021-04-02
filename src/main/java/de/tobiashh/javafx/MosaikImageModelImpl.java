@@ -2,21 +2,21 @@ package de.tobiashh.javafx;
 
 import de.tobiashh.javafx.properties.Properties;
 import de.tobiashh.javafx.tiles.MosaikTile;
-import de.tobiashh.javafx.tiles.Tile;
+import de.tobiashh.javafx.tiles.OriginalTile;
 import de.tobiashh.javafx.tools.ImageTools;
 import javafx.application.Platform;
 import javafx.beans.property.*;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Random;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.List;
 
 public class MosaikImageModelImpl implements MosaikImageModel {
     public static final String[] FILE_EXTENSION = {"png", "jpg", "jpeg"};
@@ -27,11 +27,10 @@ public class MosaikImageModelImpl implements MosaikImageModel {
     private final ReadOnlyIntegerWrapper mosaikLoadProgress = new ReadOnlyIntegerWrapper();
 
     private final ObjectProperty<Path> imageFile = new SimpleObjectProperty<>();
-
-    private final ImageComparator imageComparator = new ImageComparator();
-
-    private Tile[][] tiles;
-    private MosaikTile[][] mosaikTiles;
+    
+    private OriginalTile[] mosaikImage;
+    
+    ObservableList<MosaikTile> mosaikTilesList = FXCollections.observableList(new ArrayList<>());
 
     private MosaikTilesLoaderTask task;
 
@@ -42,26 +41,23 @@ public class MosaikImageModelImpl implements MosaikImageModel {
     }
 
     private void initChangeListener() {
-        System.out.println("MosaikImageModelPropsImpl.initChangeListener");
-        imageComparator.destinationTiles.addListener((ListChangeListener<MosaikTile>) c -> Platform.runLater(() -> dstTilesCount.set(imageComparator.destinationTiles.size())));
+        mosaikTilesList.addListener((ListChangeListener<MosaikTile>) c -> Platform.runLater(() -> dstTilesCount.set(mosaikTilesList.size())));
 
         mosaikLoadProgress.addListener((observable, oldValue, newValue) -> dstTilesCount.set(newValue.intValue()));
         mosaikTilesPathProperty().addListener((observableValue, oldPath, newPath) -> loadMosaikTiles(newPath));
         imageFile.addListener((observable, oldImageFile, newImageFile) -> loadImage(newImageFile));
         linearModeProperty().addListener((observable, oldValue, newValue) -> calculateMosaik());
         scanSubFolderProperty().addListener(((observable, oldValue, newValue) -> loadMosaikTiles(getMosaikTilesPath())));
-        colorAlignmentProperty().addListener((observable, oldValue, newValue) -> System.out.println(newValue));
+        tilesXProperty().addListener((observable, oldValue, newValue) -> System.out.println("newValue = " + newValue));
     }
 
     private void loadMosaikTiles(Path newPath) {
-        System.out.println("MosaikImageModelPropsImpl.loadMosaikTiles");
-        System.out.println("newPath = " + newPath);
-
-        if (task != null) task.cancel(true);
+            if (task != null) task.cancel(true);
         task = new MosaikTilesLoaderTask(newPath, isScanSubFolder());
         task.progressProperty().addListener((observable, oldValue, newValue) -> mosaikLoadProgress.set((int) (newValue.doubleValue() * 100)));
         task.setOnSucceeded(event -> {
-            imageComparator.setMosaikTiles(task.getValue());
+           mosaikTilesList.clear();
+           mosaikTilesList.addAll(task.getValue());
             calculateMosaik();
         });
 
@@ -71,12 +67,10 @@ public class MosaikImageModelImpl implements MosaikImageModel {
     }
 
     private void loadImage(Path imageFile) {
-        System.out.println("MosaikImageModelPropsImpl.loadImage");
-        System.out.println("imageFile = " + imageFile);
-        try {
+       try {
             BufferedImage bufferedImage = ImageIO.read(imageFile.toFile());
 
-            tilesY.set(getTilesX() * bufferedImage.getHeight() / bufferedImage.getWidth());
+            tilesY.set(Math.max(1,getTilesX() * bufferedImage.getHeight() / bufferedImage.getWidth()));
 
             int imageWidth = getTilesX() * getTileSize();
             int imageHeight = getTilesY() * getTileSize();
@@ -89,87 +83,153 @@ public class MosaikImageModelImpl implements MosaikImageModel {
     }
 
     private void generateTiles(BufferedImage image) {
-        System.out.println("MosaikImageModelPropsImpl.generateTiles");
-        System.out.println("image = " + image);
-        tiles = new Tile[getTilesX()][getTilesY()];
+        mosaikImage = new OriginalTile[getTilesY() * getTilesX()];
         for (int y = 0; y < getTilesY(); y++) {
             for (int x = 0; x < getTilesX(); x++) {
                 int tileSize = getTileSize();
                 BufferedImage subImage = image.getSubimage(x * tileSize, y * tileSize, tileSize, tileSize);
-                tiles[x][y] = new Tile(subImage);
+                mosaikImage[index(x,y)] = new OriginalTile(subImage);
             }
         }
     }
 
-    private void calculateCompositeImage() {
-        System.out.println("MosaikImageModelImpl.calculateCompositeImage");
+    public void compareTiles(OriginalTile[] mosaikImage, ObservableList<MosaikTile> mosaikTilesList)
+    {
+         for (OriginalTile originalTile : mosaikImage) {
+            Map<Integer, Integer> scores = new HashMap<>();
 
-        BufferedImage retval = new BufferedImage(getTileSize() * getTilesX(), getTileSize() * getTilesY(), BufferedImage.TYPE_INT_RGB);
+            for (int i = 0; i < mosaikTilesList.size(); i++) {
+                scores.put(i, originalTile.compare(mosaikTilesList.get(i)));
+            }
+
+            List<Map.Entry<Integer, Integer>> list = new ArrayList<>(scores.entrySet());
+            list.sort(Map.Entry.comparingByValue());
+            int[] keys = list.stream().mapToInt(Map.Entry::getKey).toArray();
+            originalTile.setMosikTileIDs(keys);
+        }
+    }
+
+    private void calculateCompositeImage() {
+         BufferedImage retval = new BufferedImage(getTileSize() * getTilesX(), getTileSize() * getTilesY(), BufferedImage.TYPE_INT_RGB);
 
         Graphics2D graphics = (Graphics2D) retval.getGraphics();
 
-        graphics.setColor(Color.RED);
+        graphics.setColor(Color.BLACK);
         graphics.fillRect(0, 0, retval.getWidth(), retval.getHeight());
 
         for (int y = 0; y < getTilesY(); y++) {
             for (int x = 0; x < getTilesX(); x++) {
-                MosaikTile mosaikTile = mosaikTiles[x][y];
-                if (mosaikTile != null) {
-                    graphics.drawImage(mosaikTile.getImage(), x * getTileSize(), y * getTileSize(), null);
+                OriginalTile mosaikTile = mosaikImage[index(x,y)];
+                if (mosaikTile.getMosaikTileID()>= 0) {
+                    graphics.drawImage(mosaikTilesList.get(mosaikTile.getMosaikTileID()).getImage(), x * getTileSize(), y * getTileSize(), null);
+                    graphics.drawString(""+ x + "," + y + ":" + mosaikTile.getMosaikTileID(), x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight());
                 } else {
-                    graphics.drawImage(tiles[x][y].getImage(), x * getTileSize(), y * getTileSize(), null);
+                    graphics.drawImage(mosaikTile.getImage(), x * getTileSize(), y * getTileSize(), null);         graphics.drawString(""+ x + "," + y + ":" + mosaikTile.getMosaikTileID(), x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight());
+                    graphics.drawString(""+ x + "," + y + ":ORIG", x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight());
                 }
             }
         }
 
         compositeImage.set(retval);
     }
+    
+    private int index(int x, int y)
+    {
+        return y * getTilesX() + x;
+    }
+    
+    public int getDistinctTileID(OriginalTile actualTile, OriginalTile[] tiles)
+    {
+        System.out.println("MosaikImageModelImpl.getDistinctTileID");
+        boolean notDistinct = true;
+
+        while(notDistinct)
+        {
+            notDistinct = false;
+            if(actualTile.getMosikTileIndex() == -1) actualTile.incrementMosaikTileIndex();
+            int actualID = actualTile.getMosaikTileID();
+
+            for (OriginalTile tile : tiles) {
+                if(actualTile != tile) {
+                    if (tile.getMosaikTileID() == actualID) {
+                         notDistinct = true;
+                        if (!actualTile.incrementMosaikTileIndex()) {
+                                 // TODO wie reagiere ich hier?
+                         return actualTile.getMosikTileIndex();
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+         return actualTile.getMosikTileIndex();
+    }
 
     public void calculateMosaik() {
-        System.out.println("MosaikImageModelImpl.calculateMosaik");
-
-        mosaikTiles = new MosaikTile[getTilesX()][getTilesY()];
+          compareTiles(mosaikImage, mosaikTilesList);
 
         if (isLinearMode()) {
-            generateLinearImage();
+            generateDistinctLinearImage();
         } else {
-            generateRandomImage();
+            generateDistinctRandomImage();
         }
 
         calculateCompositeImage();
     }
 
-    private void generateRandomImage() {
-        System.out.println("MosaikImageModelImpl.generateRandomImage");
-        if (imageComparator.hasDestinationTiles()) {
+    private void generateDistinctRandomImage() {
+       Arrays.stream(mosaikImage).forEach(OriginalTile::resetIndex);
 
+        if (mosaikTilesList.size() > 0) {
             Random rand = new Random();
 
             int x;
             int y;
 
-            while (Arrays.stream(mosaikTiles).flatMap(Arrays::stream).anyMatch(Objects::isNull)) {
-                x = rand.nextInt(getTilesX());
+           while (Arrays.stream(mosaikImage).anyMatch(tile -> !tile.isIndexSet())) {
+
+                 x = rand.nextInt(getTilesX());
                 y = rand.nextInt(getTilesY());
 
-                if (mosaikTiles[x][y] == null) {
-                    mosaikTiles[x][y] = imageComparator.compare(tiles[x][y]);
+                if (!mosaikImage[index(x,y)].isIndexSet()) {
+                    System.out.println(x+ " " + y);
+                    OriginalTile tile = mosaikImage[index(x,y)];
+                    int tileIndex = getDistinctTileID(tile, mosaikImage);
+                    System.out.println("tileIndex = " + tileIndex);
+                    if(tileIndex == -1) tileIndex = 0;
+                    tile.setMosaikTileIndex(tileIndex);
+                    int tileID = tile.getMosaikTileID(tileIndex);
+                    blockID(tileID, tile, mosaikImage);
                 }
             }
         }
     }
 
-    private void generateLinearImage() {
-        System.out.println("MosaikImageModelImpl.generateLinearImage");
-        if (imageComparator.hasDestinationTiles()) {
+    private void generateDistinctLinearImage() {
+        Arrays.stream(mosaikImage).forEach(OriginalTile::resetIndex);
+        if (mosaikTilesList.size() > 0) {
 
             for (int y = 0; y < getTilesY(); y++) {
                 for (int x = 0; x < getTilesX(); x++) {
-                    Tile tile = tiles[x][y];
-                    if (tile != null) {
-                        mosaikTiles[x][y] = imageComparator.compare(tile);
-                    }
-                }
+                    System.out.println(x+ " " + y);
+                    OriginalTile tile = mosaikImage[index(x,y)];
+                    int tileIndex = getDistinctTileID(tile, mosaikImage);
+                    System.out.println("tileIndex = " + tileIndex);
+                    if(tileIndex == -1) tileIndex = 0;
+                    tile.setMosaikTileIndex(tileIndex);
+                    int tileID = tile.getMosaikTileID(tileIndex);
+                    blockID(tileID, tile, mosaikImage);
+                 }
+            }
+        }
+    }
+
+    private void blockID(int id, OriginalTile tile, OriginalTile[] mosaikImage) {
+        for (OriginalTile originalTile : mosaikImage) {
+            if(originalTile != tile)
+            {
+                originalTile.addBlockedIds(id);
             }
         }
     }
@@ -392,9 +452,7 @@ public class MosaikImageModelImpl implements MosaikImageModel {
 
     @Override
     public void deleteTile(int x, int y) {
-        System.out.println("MosaikImageModelImpl.deleteTile");
-        System.out.println("x = " + x + ", y = " + y);
-        mosaikTiles[x][y] = null;
+        mosaikImage[index(x,y)].setMosaikTileIndex(-1);
         calculateCompositeImage();
     }
 }
