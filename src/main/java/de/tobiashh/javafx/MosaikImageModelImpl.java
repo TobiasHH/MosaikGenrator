@@ -4,7 +4,6 @@ import de.tobiashh.javafx.properties.Properties;
 import de.tobiashh.javafx.tiles.MosaikTile;
 import de.tobiashh.javafx.tiles.OriginalTile;
 import de.tobiashh.javafx.tools.ImageTools;
-import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -18,19 +17,18 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.List;
 
-// Todo zugriff auf Properties immer über get set Property methode
-// TODO save function
-// todo private und public prüfen
+// TODO zugriff auf Properties immer über get set Property methode
+// TODO private und public prüfen
 // TODO Methoden vernüftig benennen z.b. was heißt calculate / generate / ...
+// TODO tests
+// TODO caching der scaled Tiles
 // TODO bei Blur ist image schon geladen, daher die methode loadImage entsprechend umdesignen um beim Listener nur nötige sachen zu machen
 // TODO Blur Mode sollte keine neuberechnung des Mosaiks triggern
-// TODO tests
 // TODO scrollpane / canvas nur ausschnitt berechnen (Zoom Problem))
 // TODO reuse
-// TODO caching
-// TODO color alignment must be done before comparision
-// TODO postcoLORalignment und precoloralignment
+// TODO preColorAlignment implementieren
 // TODO areOfIntrest
+// TODO save function
 public class MosaikImageModelImpl implements MosaikImageModel {
     public static final String[] FILE_EXTENSION = {"png", "jpg", "jpeg"};
 
@@ -54,28 +52,30 @@ public class MosaikImageModelImpl implements MosaikImageModel {
         loadMosaikTiles(getMosaikTilesPath());
     }
     private void initChangeListener() {
-        mosaikTilesList.addListener((ListChangeListener<MosaikTile>) c -> Platform.runLater(() -> dstTilesCount.set(mosaikTilesList.size())));
-
         mosaikLoadProgress.addListener((observable, oldValue, newValue) -> dstTilesCount.set(newValue.intValue()));
-        mosaikTilesPathProperty().addListener((observableValue, oldPath, newPath) -> loadMosaikTiles(newPath));
-        imageFile.addListener((observable, oldImageFile, newImageFile) -> loadImage(newImageFile));
+        mosaikTilesList.addListener((ListChangeListener<MosaikTile>) change -> dstTilesCount.set(change.getList().size()));
+
         linearModeProperty().addListener((observable, oldValue, newValue) -> calculateMosaikImage());
+
+        mosaikTilesPathProperty().addListener((observableValue, oldPath, newPath) -> loadMosaikTiles(newPath));
         scanSubFolderProperty().addListener(((observable, oldValue, newValue) -> loadMosaikTiles(getMosaikTilesPath())));
 
-        blurModeProperty().addListener((observable, oldValue, newValue) -> loadImage(getImageFile()));
-        tilesXProperty().addListener((observable, oldValue, newValue) -> loadImage(getImageFile()));
         opacityProperty().addListener((observable, oldValue, newValue) -> calculateCompositeImage());
         postColorAlignmentProperty().addListener((observable, oldValue, newValue) -> calculateCompositeImage());
+
+        imageFile.addListener((observable, oldImageFile, newImageFile) -> loadImage(newImageFile));
+        blurModeProperty().addListener((observable, oldValue, newValue) -> loadImage(getImageFile()));
+        tilesXProperty().addListener((observable, oldValue, newValue) -> loadImage(getImageFile()));
     }
 
     private void loadMosaikTiles(Path newPath) {
-            if (task != null) task.cancel(true);
+        if (task != null) task.cancel(true);
         task = new MosaikTilesLoaderTask(newPath, isScanSubFolder(), getTileSize());
         task.progressProperty().addListener((observable, oldValue, newValue) -> mosaikLoadProgress.set((int) (newValue.doubleValue() * 100)));
         task.setOnSucceeded(event -> {
            mosaikTilesList.clear();
            mosaikTilesList.addAll(task.getValue());
-            calculateMosaikImage();
+           calculateMosaikImage();
         });
 
         Thread thread = new Thread(task);
@@ -90,11 +90,10 @@ public class MosaikImageModelImpl implements MosaikImageModel {
 
                 tilesY.set(Math.max(1, getTilesX() * bufferedImage.getHeight() / bufferedImage.getWidth()));
 
-                int imageWidth = getTilesX() * getTileSize();
-                int imageHeight = getTilesY() * getTileSize();
-
-
-                BufferedImage image = ImageTools.calculateScaledImage(bufferedImage, imageWidth, imageHeight, true);
+                BufferedImage image = ImageTools.calculateScaledImage(bufferedImage,
+                        getTilesX() * getTileSize(),
+                        getTilesY() * getTileSize(),
+                        true);
 
                 generateTiles((isBlurMode()?ImageTools.blurImage(image): image));
                 calculateOriginalImage();
