@@ -78,9 +78,6 @@ public class ImageTools {
 
         BufferedImage retval = new BufferedImage(width, height,	BufferedImage.TYPE_INT_RGB);
 
-        System.out.println("width = " + width);
-        System.out.println("height = " + height);
-
         long sr1 = 0;
         long sg1 = 0;
         long sb1 = 0;

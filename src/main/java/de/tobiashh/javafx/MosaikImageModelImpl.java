@@ -19,6 +19,8 @@ import java.util.*;
 import java.util.List;
 
 // Todo zugriff auf Properties immer über get set Property methode
+// TODO save function
+// todo private und public prüfen
 public class MosaikImageModelImpl implements MosaikImageModel {
     public static final String[] FILE_EXTENSION = {"png", "jpg", "jpeg"};
 
@@ -57,6 +59,7 @@ public class MosaikImageModelImpl implements MosaikImageModel {
         blurModeProperty().addListener((observable, oldValue, newValue) -> loadImage(getImageFile()));
         tilesXProperty().addListener((observable, oldValue, newValue) -> loadImage(getImageFile()));
         opacityProperty().addListener((observable, oldValue, newValue) -> calculateCompositeImage());
+        postColorAlignmentProperty().addListener((observable, oldValue, newValue) -> calculateCompositeImage());
     }
 
     // TODO tests
@@ -164,7 +167,9 @@ public class MosaikImageModelImpl implements MosaikImageModel {
                 OriginalTile mosaikTile = mosaikImage[index(x,y)];
                 if (mosaikTile.getMosaikTileID()>= 0) {
                     BufferedImage mosaikTileImage = mosaikTilesList.get(mosaikTile.getMosaikTileID()).getImage();
-                    graphics.drawImage(ImageTools.opacityAdaption(mosaikTileImage, mosaikTile.getImage(), getOpacity()), x * getTileSize(), y * getTileSize(), null);
+                    BufferedImage postColorAlignmentImage = ImageTools.colorAlignment(mosaikTileImage, mosaikTile.getImage(),getPostColorAlignment());
+
+                    graphics.drawImage(ImageTools.opacityAdaption(postColorAlignmentImage, mosaikTile.getImage(), getOpacity()), x * getTileSize(), y * getTileSize(), null);
                     graphics.drawString(""+ x + "," + y + ":" + mosaikTile.getMosaikTileID(), x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight());
                     graphics.drawString("index:" + mosaikTile.getMosikTileIndex(), x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight() * 2);
                 } else {
@@ -182,9 +187,8 @@ public class MosaikImageModelImpl implements MosaikImageModel {
         return y * getTilesX() + x;
     }
     
-    public int getDistinctTileID(OriginalTile actualTile, OriginalTile[] tiles)
+    private int getDistinctTileID(OriginalTile actualTile, OriginalTile[] tiles)
     {
-        System.out.println("MosaikImageModelImpl.getDistinctTileID");
         boolean notDistinct = true;
 
         while(notDistinct)
@@ -237,14 +241,7 @@ public class MosaikImageModelImpl implements MosaikImageModel {
                 y = rand.nextInt(getTilesY());
 
                 if (!mosaikImage[index(x,y)].isIndexSet()) {
-                    System.out.println(x+ " " + y);
-                    OriginalTile tile = mosaikImage[index(x,y)];
-                    int tileIndex = getDistinctTileID(tile, mosaikImage);
-                    System.out.println("tileIndex = " + tileIndex);
-                    if(tileIndex == -1) return;
-                    tile.setMosaikTileIndex(tileIndex);
-                    int tileID = tile.getMosaikTileID(tileIndex);
-                    blockID(tileID, tile, mosaikImage);
+                    if (setDistinctTile(mosaikImage[index(x, y)])) return;
                 }
             }
         }
@@ -256,17 +253,19 @@ public class MosaikImageModelImpl implements MosaikImageModel {
 
             for (int y = 0; y < getTilesY(); y++) {
                 for (int x = 0; x < getTilesX(); x++) {
-                    System.out.println(x+ " " + y);
-                    OriginalTile tile = mosaikImage[index(x,y)];
-                    int tileIndex = getDistinctTileID(tile, mosaikImage);
-                    System.out.println("tileIndex = " + tileIndex);
-                    if(tileIndex == -1) return;
-                    tile.setMosaikTileIndex(tileIndex);
-                    int tileID = tile.getMosaikTileID(tileIndex);
-                    blockID(tileID, tile, mosaikImage);
-                 }
+                    if (setDistinctTile(mosaikImage[index(x, y)])) return;
+                }
             }
         }
+    }
+
+    private boolean setDistinctTile(OriginalTile tile) {
+        int tileIndex = getDistinctTileID(tile, mosaikImage);
+        if (tileIndex == -1) return true;
+        tile.setMosaikTileIndex(tileIndex);
+        int tileID = tile.getMosaikTileID(tileIndex);
+        blockID(tileID, tile, mosaikImage);
+        return false;
     }
 
     private void blockID(int id, OriginalTile tile, OriginalTile[] mosaikImage) {
