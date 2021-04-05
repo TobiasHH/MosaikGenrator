@@ -13,7 +13,8 @@ public class Properties {
     private static final String LINEAR_MODE_PROPERTY_KEY = "linearMode";
     private static final String COMPARE_SIZE_PROPERTY_KEY = "compareSize";
     private static final String OPACITY_PROPERTY_KEY = "opacity";
-    private static final String COLOR_ALIGNMENT_PROPERTY_KEY = "colorAlignment";
+    private static final String PRE_COLOR_ALIGNMENT_PROPERTY_KEY = "preColorAlignment";
+    private static final String POST_COLOR_ALIGNMENT_PROPERTY_KEY = "postColorAlignment";
     private static final String BLUR_MODE_PROPERTY_KEY = "blurMode";
     private static final String MAX_REUSES_PROPERTY_KEY = "maxReuses";
     private static final String REUSE_DISTANCE_PROPERTY_KEY = "reuseDistance";
@@ -40,7 +41,8 @@ public class Properties {
     private final BooleanProperty linearMode = new SimpleBooleanProperty();
     private final IntegerProperty compareSize = new SimpleIntegerProperty();
     private final IntegerProperty opacity = new SimpleIntegerProperty();
-    private final IntegerProperty colorAlignment = new SimpleIntegerProperty();
+    private final IntegerProperty preColorAlignment = new SimpleIntegerProperty();
+    private final IntegerProperty postColorAlignment = new SimpleIntegerProperty();
     private final BooleanProperty blurMode = new SimpleBooleanProperty();
     private final IntegerProperty maxReuses = new SimpleIntegerProperty();
     private final IntegerProperty reuseDistance = new SimpleIntegerProperty();
@@ -66,7 +68,8 @@ public class Properties {
         linearMode.addListener((observable, oldValue, newValue) -> changeProperty(LINEAR_MODE_PROPERTY_KEY, String.valueOf(newValue)));
         compareSize.addListener((observable, oldValue, newValue) -> changeProperty(COMPARE_SIZE_PROPERTY_KEY, String.valueOf(newValue)));
         opacity.addListener((observable, oldValue, newValue) -> changeProperty(OPACITY_PROPERTY_KEY, String.valueOf(newValue)));
-        colorAlignment.addListener((observable, oldValue, newValue) -> changeProperty(COLOR_ALIGNMENT_PROPERTY_KEY, String.valueOf(newValue)));
+        preColorAlignment.addListener((observable, oldValue, newValue) -> changeProperty(PRE_COLOR_ALIGNMENT_PROPERTY_KEY, String.valueOf(newValue)));
+        postColorAlignment.addListener((observable, oldValue, newValue) -> changeProperty(POST_COLOR_ALIGNMENT_PROPERTY_KEY, String.valueOf(newValue)));
         blurMode.addListener((observable, oldValue, newValue) -> changeProperty(BLUR_MODE_PROPERTY_KEY, String.valueOf(newValue)));
         maxReuses.addListener((observable, oldValue, newValue) -> changeProperty(MAX_REUSES_PROPERTY_KEY, String.valueOf(newValue)));
         reuseDistance.addListener((observable, oldValue, newValue) -> changeProperty(REUSE_DISTANCE_PROPERTY_KEY, String.valueOf(newValue)));
@@ -80,7 +83,8 @@ public class Properties {
         setLinearMode(Boolean.parseBoolean(properties.getProperty(LINEAR_MODE_PROPERTY_KEY, String.valueOf(LINEAR_MODE_DEFAULT))));
         setCompareSize(Integer.parseInt(properties.getProperty(COMPARE_SIZE_PROPERTY_KEY, String.valueOf(COMPARE_SIZE_DEFAULT))));
         setOpacity(Integer.parseInt(properties.getProperty(OPACITY_PROPERTY_KEY, String.valueOf(OPACITY_DEFAULT))));
-        setColorAlignment(Integer.parseInt(properties.getProperty(COLOR_ALIGNMENT_PROPERTY_KEY, String.valueOf(COLOR_ALIGNMENT_DEFAULT))));
+        setPreColorAlignment(Integer.parseInt(properties.getProperty(PRE_COLOR_ALIGNMENT_PROPERTY_KEY, String.valueOf(COLOR_ALIGNMENT_DEFAULT))));
+        setPostColorAlignment(Integer.parseInt(properties.getProperty(POST_COLOR_ALIGNMENT_PROPERTY_KEY, String.valueOf(COLOR_ALIGNMENT_DEFAULT))));
         setBlurMode(Boolean.parseBoolean(properties.getProperty(BLUR_MODE_PROPERTY_KEY, String.valueOf(BLUR_MODE_DEFAULT))));
         setMaxReuses(Integer.parseInt(properties.getProperty(MAX_REUSES_PROPERTY_KEY, String.valueOf(MAX_REUSES_DEFAULT))));
         setReuseDistance(Integer.parseInt(properties.getProperty(REUSE_DISTANCE_PROPERTY_KEY, String.valueOf(REUSE_DISTANCE_DEFAULT))));
@@ -180,16 +184,28 @@ public class Properties {
         this.opacity.set(opacity);
     }
 
-    public IntegerProperty colorAlignmentProperty() {
-        return colorAlignment;
+    public IntegerProperty preColorAlignmentProperty() {
+        return preColorAlignment;
     }
 
-    public int getColorAlignment() {
-        return colorAlignment.get();
+    public int getPreColorAlignment() {
+        return preColorAlignment.get();
     }
 
-    public void setColorAlignment(int colorAlignment) {
-        this.colorAlignment.set(colorAlignment);
+    public void setPreColorAlignment(int colorAlignment) {
+        this.preColorAlignment.set(colorAlignment);
+    }
+
+    public IntegerProperty postColorAlignmentProperty() {
+        return postColorAlignment;
+    }
+
+    public int getPostColorAlignment() {
+        return postColorAlignment.get();
+    }
+
+    public void setPostColorAlignment(int colorAlignment) {
+        this.postColorAlignment.set(colorAlignment);
     }
 
     public BooleanProperty blurModeProperty() {
