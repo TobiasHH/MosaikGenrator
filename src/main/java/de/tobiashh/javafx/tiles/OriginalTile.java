@@ -90,8 +90,6 @@ public class OriginalTile extends SimpleSquareCoparableImage {
     }
 
     public boolean incrementMosaikTileIndex() {
-        System.out.println("old: " + getMosikTileIndex());
-
         int nextIndex = getMosikTileIndex() + 1;
         while(nextIndex < mosaikTileIDs.length)
         {

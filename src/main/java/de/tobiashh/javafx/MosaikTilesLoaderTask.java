@@ -27,10 +27,12 @@ public class MosaikTilesLoaderTask extends Task<List<MosaikTile>> {
 
     private final Path newPath;
     private final boolean scanSubFolder;
+    private final int tileSize;
 
-    public MosaikTilesLoaderTask(Path newPath, boolean scanSubFolder) {
+    public MosaikTilesLoaderTask(Path newPath, boolean scanSubFolder, int tileSize) {
         this.newPath = newPath;
         this.scanSubFolder = scanSubFolder;
+        this.tileSize = tileSize;
     }
 
     @Override
@@ -40,7 +42,7 @@ public class MosaikTilesLoaderTask extends Task<List<MosaikTile>> {
         try {
             List<Future<Optional<MosaikTile>>> futures = ((scanSubFolder) ? Files.walk(newPath) : Files.list(newPath))
                     .filter(this::extentionFilter)
-                    .map(file -> executor.submit(new MosaikTileLoadTask(file)))
+                    .map(file -> executor.submit(new MosaikTileLoadTask(file, tileSize)))
                     .collect(Collectors.toList());
 
             for (Future<Optional<MosaikTile>> future : futures) {

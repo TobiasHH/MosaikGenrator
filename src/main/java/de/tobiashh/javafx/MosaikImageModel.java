@@ -9,6 +9,9 @@ public interface MosaikImageModel {
     ReadOnlyObjectProperty<BufferedImage> compositeImageProperty();
     BufferedImage getCompositeImage();
 
+    ReadOnlyObjectProperty<BufferedImage> originalImageProperty();
+    BufferedImage getOriginalImage();
+
     ReadOnlyIntegerProperty dstTilesCountProperty();
     int getDstTilesCount();
 
@@ -61,5 +64,5 @@ public interface MosaikImageModel {
     void setTilesX(int tileCount);
 
     void deleteTile(int x, int y);
-    void calculateMosaik();
+    void calculateMosaikImage();
 }

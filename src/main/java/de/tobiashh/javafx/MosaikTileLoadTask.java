@@ -11,9 +11,11 @@ import java.util.concurrent.Callable;
 
 public class MosaikTileLoadTask implements Callable<Optional<MosaikTile>> {
 	private final Path path;
+	private final int tileSize;
 
-	public MosaikTileLoadTask(Path mosaikTilesPath) {
+	public MosaikTileLoadTask(Path mosaikTilesPath, int tileSize) {
 		this.path = mosaikTilesPath;
+		this.tileSize = tileSize;
 	}
 
 	@Override
@@ -22,7 +24,7 @@ public class MosaikTileLoadTask implements Callable<Optional<MosaikTile>> {
 		try {
 			BufferedImage image = ImageTools.loadTileImage(path.toFile());
 			if (image != null) {
-				tile = new MosaikTile(ImageTools.calculateScaledImage(image, Properties.getInstance().getTileSize(), Properties.getInstance().getTileSize(), false));
+				tile = new MosaikTile(ImageTools.calculateScaledImage(image, tileSize, tileSize, false));
 			}
 		}catch (Exception e)
 		{

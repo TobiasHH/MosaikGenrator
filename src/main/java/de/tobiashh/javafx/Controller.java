@@ -57,11 +57,14 @@ public class Controller {
 
     @FXML public CheckBox scanSubfolderCheck;
 
+    @FXML public CheckBox blurCheck;
+
     @FXML public TextField colorAlignment;
 
     @FXML public TextField opacity;
 
     @FXML public TextField tilesX;
+
 
     private static final double SCALE_DEFAULT = 1.0;
     private static final double SCALE_MIN = 0.1;
@@ -92,6 +95,7 @@ public class Controller {
         canvas.heightProperty().bind(canvasPane.prefHeightProperty());
         linearModeCheck.selectedProperty().bindBidirectional(model.linearModeProperty());
         scanSubfolderCheck.selectedProperty().bindBidirectional(model.scanSubFolderProperty());
+        blurCheck.selectedProperty().bindBidirectional(model.blurModeProperty());
     }
 
     private void initEventHandler() {
@@ -175,7 +179,7 @@ public class Controller {
     }
 
     private void drawImage() {
-        BufferedImage bufferedImage =  model.getCompositeImage();
+        BufferedImage bufferedImage = (isDisplayOriginalImage())? model.getOriginalImage() : model.getCompositeImage();
 
         canvasPane.setPrefWidth((int)(bufferedImage.getWidth() * getScale()));
         canvasPane.setPrefHeight((int)(bufferedImage.getHeight() * getScale()));
@@ -233,7 +237,7 @@ public class Controller {
 
     public BooleanProperty displayOriginalImageProperty(){ return displayOriginalImage; }
 
-    public boolean getDisplayOriginalImage() { return displayOriginalImage.get(); }
+    public boolean isDisplayOriginalImage() { return displayOriginalImage.get(); }
 
     public void setDisplayOriginalImage(boolean displayOriginalImage) { this.displayOriginalImage.set(displayOriginalImage); }
 
@@ -292,15 +296,13 @@ public class Controller {
         return Arrays.stream(MosaikImageModelImpl.FILE_EXTENSION).anyMatch(e -> path.toString().toLowerCase().endsWith(".".concat(e.toLowerCase())));
     }
 
-    public void reloadImage(ActionEvent actionEvent) {
-        drawImage();
-    }
-
     public void recalculateImage(ActionEvent actionEvent) {
-        model.calculateMosaik();
+        model.calculateMosaikImage();
     }
 
     public void originalCheckAction(ActionEvent actionEvent) {
         displayOriginalImage.set(originalCheck.isSelected());
     }
+
+    // TODO hovering a tile display tile informations like path ...
 }
