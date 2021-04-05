@@ -24,7 +24,7 @@ public class MosaikTileLoadTask implements Callable<Optional<MosaikTile>> {
 		try {
 			BufferedImage image = ImageTools.loadTileImage(path.toFile());
 			if (image != null) {
-				tile = new MosaikTile(ImageTools.calculateScaledImage(image, tileSize, tileSize, false));
+				tile = new MosaikTile(ImageTools.calculateScaledImage(image, tileSize, tileSize, false), path.getFileName().toString());
 			}
 		}catch (Exception e)
 		{

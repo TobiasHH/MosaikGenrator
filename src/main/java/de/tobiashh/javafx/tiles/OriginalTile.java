@@ -58,15 +58,6 @@ public class OriginalTile extends SimpleSquareCoparableImage {
         }
     }
 
-    public int getMosaikTileID(int id)
-    {
-        if(id < 0 || id >= mosaikTileIDs.length)
-        {
-            return -1;
-        }
-        return mosaikTileIDs[id];
-    }
-
     public BufferedImage getImage() {
         return srcImage;
     }

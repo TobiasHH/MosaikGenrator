@@ -21,6 +21,16 @@ import java.util.List;
 // Todo zugriff auf Properties immer über get set Property methode
 // TODO save function
 // todo private und public prüfen
+// TODO Methoden vernüftig benennen z.b. was heißt calculate / generate / ...
+// TODO bei Blur ist image schon geladen, daher die methode loadImage entsprechend umdesignen um beim Listener nur nötige sachen zu machen
+// TODO Blur Mode sollte keine neuberechnung des Mosaiks triggern
+// TODO tests
+// TODO scrollpane / canvas nur ausschnitt berechnen (Zoom Problem))
+// TODO reuse
+// TODO caching
+// TODO color alignment must be done before comparision
+// TODO postcoLORalignment und precoloralignment
+// TODO areOfIntrest
 public class MosaikImageModelImpl implements MosaikImageModel {
     public static final String[] FILE_EXTENSION = {"png", "jpg", "jpeg"};
 
@@ -43,8 +53,6 @@ public class MosaikImageModelImpl implements MosaikImageModel {
         initChangeListener();
         loadMosaikTiles(getMosaikTilesPath());
     }
-
-    // TODO Methoden vernüftig benennen z.b. was heißt calculate / generate / ...
     private void initChangeListener() {
         mosaikTilesList.addListener((ListChangeListener<MosaikTile>) c -> Platform.runLater(() -> dstTilesCount.set(mosaikTilesList.size())));
 
@@ -54,21 +62,12 @@ public class MosaikImageModelImpl implements MosaikImageModel {
         linearModeProperty().addListener((observable, oldValue, newValue) -> calculateMosaikImage());
         scanSubFolderProperty().addListener(((observable, oldValue, newValue) -> loadMosaikTiles(getMosaikTilesPath())));
 
-        // TODO image ist schon geladen, daher die methode entsprechend umdesignen
-        // TODO Blur Mode sollte keine neuberechnung des Mosaiks triggern
         blurModeProperty().addListener((observable, oldValue, newValue) -> loadImage(getImageFile()));
         tilesXProperty().addListener((observable, oldValue, newValue) -> loadImage(getImageFile()));
         opacityProperty().addListener((observable, oldValue, newValue) -> calculateCompositeImage());
         postColorAlignmentProperty().addListener((observable, oldValue, newValue) -> calculateCompositeImage());
     }
 
-    // TODO tests
-    // TODO scrollpane / canvas nur ausschnitt berechnen (Zoom Problem))
-    // TODO reuse
-    // TODO caching
-    // TODO color alignment must be done before comparision
-    // TODO postcoLORalignment und precoloralignment
-    // TODO areOfIntrest
     private void loadMosaikTiles(Path newPath) {
             if (task != null) task.cancel(true);
         task = new MosaikTilesLoaderTask(newPath, isScanSubFolder(), getTileSize());
@@ -164,17 +163,18 @@ public class MosaikImageModelImpl implements MosaikImageModel {
 
         for (int y = 0; y < getTilesY(); y++) {
             for (int x = 0; x < getTilesX(); x++) {
-                OriginalTile mosaikTile = mosaikImage[index(x,y)];
-                if (mosaikTile.getMosaikTileID()>= 0) {
-                    BufferedImage mosaikTileImage = mosaikTilesList.get(mosaikTile.getMosaikTileID()).getImage();
-                    BufferedImage postColorAlignmentImage = ImageTools.colorAlignment(mosaikTileImage, mosaikTile.getImage(),getPostColorAlignment());
+                OriginalTile originalTile = mosaikImage[index(x,y)];
+                if (originalTile.getMosaikTileID()>= 0) {
+                    MosaikTile mosaikTile = mosaikTilesList.get(originalTile.getMosaikTileID());
+                    BufferedImage postColorAlignmentImage = ImageTools.colorAlignment( mosaikTile.getImage(), originalTile.getImage(),getPostColorAlignment());
 
-                    graphics.drawImage(ImageTools.opacityAdaption(postColorAlignmentImage, mosaikTile.getImage(), getOpacity()), x * getTileSize(), y * getTileSize(), null);
-                    graphics.drawString(""+ x + "," + y + ":" + mosaikTile.getMosaikTileID(), x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight());
-                    graphics.drawString("index:" + mosaikTile.getMosikTileIndex(), x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight() * 2);
+                    graphics.drawImage(ImageTools.opacityAdaption(postColorAlignmentImage, originalTile.getImage(), getOpacity()), x * getTileSize(), y * getTileSize(), null);
+                    graphics.drawString(""+ x + "," + y + ":" + originalTile.getMosaikTileID(), x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight());
+                    graphics.drawString("index:" + originalTile.getMosikTileIndex(), x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight() * 2);
+                    graphics.drawString("fn:" + mosaikTile.getFilename(), x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight() * 3);
                 } else {
-                    graphics.drawImage(mosaikTile.getImage(), x * getTileSize(), y * getTileSize(), null);         graphics.drawString(""+ x + "," + y + ":" + mosaikTile.getMosaikTileID(), x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight());
-                    graphics.drawString(""+ x + "," + y + ":ORIG", x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight());
+                    graphics.drawImage(originalTile.getImage(), x * getTileSize(), y * getTileSize(), null);
+                     graphics.drawString(""+ x + "," + y + ":ORIG", x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight());
                 }
             }
         }
@@ -202,7 +202,6 @@ public class MosaikImageModelImpl implements MosaikImageModel {
                     if (tile.getMosaikTileID() == actualID) {
                          notDistinct = true;
                         if (!actualTile.incrementMosaikTileIndex()) {
-                            // TODO wie reagiere ich hier am besten wenn kein increment möglich
                               return actualTile.getMosikTileIndex();
                         }
                         break;
@@ -224,6 +223,12 @@ public class MosaikImageModelImpl implements MosaikImageModel {
         }
 
         calculateCompositeImage();
+    }
+
+    @Override
+    public String getMosaikTileInformation(int x, int y) {
+        if(!mosaikTilesList.isEmpty()) {return mosaikTilesList.get(mosaikImage[index(x,y)].getMosaikTileID()).getFilename();}
+        return "";
     }
 
     private void generateDistinctRandomImage() {
@@ -263,7 +268,7 @@ public class MosaikImageModelImpl implements MosaikImageModel {
         int tileIndex = getDistinctTileID(tile, mosaikImage);
         if (tileIndex == -1) return true;
         tile.setMosaikTileIndex(tileIndex);
-        int tileID = tile.getMosaikTileID(tileIndex);
+        int tileID = tile.getMosaikTileID();
         blockID(tileID, tile, mosaikImage);
         return false;
     }

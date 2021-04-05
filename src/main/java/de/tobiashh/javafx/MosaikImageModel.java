@@ -69,4 +69,6 @@ public interface MosaikImageModel {
 
     void deleteTile(int x, int y);
     void calculateMosaikImage();
+
+    String getMosaikTileInformation(int x, int y);
 }

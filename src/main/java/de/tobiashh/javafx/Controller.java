@@ -49,6 +49,8 @@ public class Controller {
 
     @FXML public Label tileHoverLabel;
 
+    @FXML public Label tileImageInformations;
+
     @FXML public Pane canvasPane;
 
     @FXML public CheckBox originalCheck;
@@ -66,7 +68,6 @@ public class Controller {
     @FXML public TextField opacity;
 
     @FXML public TextField tilesX;
-
 
     private static final double SCALE_DEFAULT = 1.0;
     private static final double SCALE_MIN = 0.1;
@@ -103,6 +104,7 @@ public class Controller {
     private void initEventHandler() {
         canvas.addEventHandler(MouseEvent.MOUSE_MOVED, getCursorPositionEventHandler());
         canvas.addEventHandler(MouseEvent.MOUSE_MOVED, getTileHoverEventHandler());
+        canvas.addEventHandler(MouseEvent.MOUSE_MOVED, getTileImageInformationEventHandler());
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, changeTileEventHandler());
         scrollPane.addEventFilter(ScrollEvent.SCROLL,getScrollEventHandler());
     }
@@ -120,7 +122,19 @@ public class Controller {
     }
 
     private EventHandler<MouseEvent> getTileHoverEventHandler() {
-        return mouseEvent -> tileHoverLabel.setText("x:" + (int) (mouseEvent.getX() / (model.getTileSize() * getScale())) + " y:" + (int) (mouseEvent.getY() / (model.getTileSize()  * getScale())));
+        return mouseEvent -> {
+            int tileX = (int) (mouseEvent.getX() / (model.getTileSize() * getScale()));
+            int tileY =(int)( mouseEvent.getY() / (model.getTileSize() * getScale()));
+            tileHoverLabel.setText("x:" + tileX + " y:" + tileY);
+        };
+    }
+
+    private EventHandler<MouseEvent> getTileImageInformationEventHandler() {
+        return mouseEvent -> {
+            int tileX = (int) (mouseEvent.getX() / (model.getTileSize() * getScale()));
+            int tileY =(int)( mouseEvent.getY() / (model.getTileSize() * getScale()));
+            tileImageInformations.setText(model.getMosaikTileInformation(tileX, tileY));
+        };
     }
 
 
@@ -313,6 +327,4 @@ public class Controller {
     public void originalCheckAction(ActionEvent actionEvent) {
         displayOriginalImage.set(originalCheck.isSelected());
     }
-
-    // TODO hovering a tile display tile informations like path ...
 }
