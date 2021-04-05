@@ -31,9 +31,13 @@ public interface MosaikImageModel {
     int getOpacity();
     void setOpacity(int opacity);
 
-    IntegerProperty colorAlignmentProperty();
-    int getColorAlignment();
-    void setColorAlignment(int colorAlignment);
+    IntegerProperty postColorAlignmentProperty();
+    int getPostColorAlignment();
+    void setPostColorAlignment(int colorAlignment);
+
+    IntegerProperty preColorAlignmentProperty();
+    int getPreColorAlignment();
+    void setPreColorAlignment(int colorAlignment);
 
     BooleanProperty blurModeProperty();
     boolean isBlurMode();

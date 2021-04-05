@@ -59,7 +59,9 @@ public class Controller {
 
     @FXML public CheckBox blurCheck;
 
-    @FXML public TextField colorAlignment;
+    @FXML public TextField preColorAlignment;
+
+    @FXML public TextField postColorAlignment;
 
     @FXML public TextField opacity;
 
@@ -126,13 +128,21 @@ public class Controller {
         scale.addListener((observable, oldValue, newValue) -> drawImage());
         model.compositeImageProperty().addListener((observable, oldImage, newImage) -> drawImage());
 
-        colorAlignment.textProperty().addListener((observable, oldValue, newValue) -> {
+        preColorAlignment.textProperty().addListener((observable, oldValue, newValue) -> {
             int percent = getIntFromString(newValue,0,100);
-            colorAlignment.setText(String.valueOf(percent));
-            model.setColorAlignment(percent);
+            preColorAlignment.setText(String.valueOf(percent));
+            model.setPreColorAlignment(percent);
         });
-        model.colorAlignmentProperty().addListener((observable, oldValue, newValue) -> colorAlignment.setText(String.valueOf(newValue)));
-        colorAlignment.setText(String.valueOf(model.getColorAlignment()));
+        model.preColorAlignmentProperty().addListener((observable, oldValue, newValue) -> preColorAlignment.setText(String.valueOf(newValue)));
+        preColorAlignment.setText(String.valueOf(model.getPreColorAlignment()));
+
+        postColorAlignment.textProperty().addListener((observable, oldValue, newValue) -> {
+            int percent = getIntFromString(newValue,0,100);
+            postColorAlignment.setText(String.valueOf(percent));
+            model.setPostColorAlignment(percent);
+        });
+        model.postColorAlignmentProperty().addListener((observable, oldValue, newValue) -> postColorAlignment.setText(String.valueOf(newValue)));
+        postColorAlignment.setText(String.valueOf(model.getPostColorAlignment()));
 
         opacity.textProperty().addListener((observable, oldValue, newValue) -> {
             int percent = getIntFromString(newValue,0,100);

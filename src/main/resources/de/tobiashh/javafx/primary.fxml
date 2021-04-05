@@ -27,8 +27,10 @@
             <CheckBox fx:id="blurCheck" layoutX="154.0" layoutY="14.0" mnemonicParsing="false" text="Blur" />
             <CheckBox fx:id="linearModeCheck" layoutX="164.0" layoutY="14.0" mnemonicParsing="false" text="Linear Mode" />
             <CheckBox fx:id="scanSubfolderCheck" layoutX="497.0" layoutY="14.0" mnemonicParsing="false" text="Scan Subfolder" />
-            <Label text="Color Alignment: " />
-            <TextField fx:id="colorAlignment" prefWidth="50.0" />
+            <Label text="Pre Color Alignment: " />
+            <TextField fx:id="preColorAlignment" prefWidth="50.0" />
+            <Label text="Post Color Alignment: " />
+            <TextField fx:id="postColorAlignment" prefWidth="50.0" />
             <Label text="Opacity: " />
             <TextField fx:id="opacity" prefWidth="50.0" />
             <Label layoutX="660.0" layoutY="14.0" text="tilesX" />

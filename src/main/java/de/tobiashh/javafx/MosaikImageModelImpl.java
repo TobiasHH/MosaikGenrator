@@ -385,18 +385,33 @@ public class MosaikImageModelImpl implements MosaikImageModel {
     }
 
     @Override
-    public IntegerProperty colorAlignmentProperty() {
-        return Properties.getInstance().colorAlignmentProperty();
+    public IntegerProperty preColorAlignmentProperty() {
+        return Properties.getInstance().preColorAlignmentProperty();
     }
 
     @Override
-    public int getColorAlignment() {
-        return Properties.getInstance().getColorAlignment();
+    public int getPreColorAlignment() {
+        return Properties.getInstance().getPreColorAlignment();
     }
 
     @Override
-    public void setColorAlignment(int colorAlignment) {
-        Properties.getInstance().setColorAlignment(colorAlignment);
+    public void setPreColorAlignment(int preColorAlignment) {
+        Properties.getInstance().setPreColorAlignment(preColorAlignment);
+    }
+
+    @Override
+    public IntegerProperty postColorAlignmentProperty() {
+        return Properties.getInstance().postColorAlignmentProperty();
+    }
+
+    @Override
+    public int getPostColorAlignment() {
+        return Properties.getInstance().getPostColorAlignment();
+    }
+
+    @Override
+    public void setPostColorAlignment(int postColorAlignment) {
+        Properties.getInstance().setPostColorAlignment(postColorAlignment);
     }
 
     @Override
