@@ -327,4 +327,8 @@ public class Controller {
     public void originalCheckAction(ActionEvent actionEvent) {
         displayOriginalImage.set(originalCheck.isSelected());
     }
+
+    public void processSave(ActionEvent actionEvent) {
+        model.saveImage();
+    }
 }

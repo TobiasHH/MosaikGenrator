@@ -1,5 +1,7 @@
 package de.tobiashh.javafx.tiles;
 
+import de.tobiashh.javafx.compareable.PHashCoparableImage;
+import de.tobiashh.javafx.compareable.PerceptualHashingCoparableImage;
 import de.tobiashh.javafx.compareable.SimpleSquareCoparableImage;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;

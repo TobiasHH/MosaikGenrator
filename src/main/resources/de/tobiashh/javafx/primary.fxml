@@ -10,7 +10,7 @@
          <Menu text="Datei">
             <MenuItem onAction="#processOpen" text="Öffnen" />
             <MenuItem onAction="#processTilesPath" text="Tiles Pfad" />
-            <MenuItem text="Speichern" />
+            <MenuItem onAction="#processSave" text="Speichern" />
             <SeparatorMenuItem />
             <MenuItem onAction="#processExit" text="Beenden" />
          </Menu>

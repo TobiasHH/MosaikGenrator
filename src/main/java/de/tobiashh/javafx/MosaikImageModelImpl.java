@@ -1,6 +1,7 @@
 package de.tobiashh.javafx;
 
 import de.tobiashh.javafx.properties.Properties;
+import de.tobiashh.javafx.save.ImageSaver;
 import de.tobiashh.javafx.tiles.MosaikTile;
 import de.tobiashh.javafx.tiles.OriginalTile;
 import de.tobiashh.javafx.tools.ImageTools;
@@ -12,6 +13,7 @@ import javafx.collections.ObservableList;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
@@ -21,14 +23,18 @@ import java.util.List;
 // TODO private und public prüfen
 // TODO Methoden vernüftig benennen z.b. was heißt calculate / generate / ...
 // TODO tests
+// TODO save function / BackgroundImage / TileImage
+// TODO Step Feedbackl in der Statusbar implementieren
 // TODO caching der scaled Tiles
+// TODO Logger
 // TODO bei Blur ist image schon geladen, daher die methode loadImage entsprechend umdesignen um beim Listener nur nötige sachen zu machen
 // TODO Blur Mode sollte keine neuberechnung des Mosaiks triggern
 // TODO scrollpane / canvas nur ausschnitt berechnen (Zoom Problem))
 // TODO reuse
 // TODO preColorAlignment implementieren
 // TODO areOfIntrest
-// TODO save function
+// TODO Gibt es bessere Vergleichsalgorhytmen? die z.b. stärker auf kontruren / Details achten? z.b. kantenerkennung und diese kanten mit einbeziehen
+
 public class MosaikImageModelImpl implements MosaikImageModel {
     public static final String[] FILE_EXTENSION = {"png", "jpg", "jpeg"};
 
@@ -180,7 +186,7 @@ public class MosaikImageModelImpl implements MosaikImageModel {
 
         compositeImage.set(retval);
     }
-    
+
     private int index(int x, int y)
     {
         return y * getTilesX() + x;
@@ -228,6 +234,14 @@ public class MosaikImageModelImpl implements MosaikImageModel {
     public String getMosaikTileInformation(int x, int y) {
         if(!mosaikTilesList.isEmpty()) {return mosaikTilesList.get(mosaikImage[index(x,y)].getMosaikTileID()).getFilename();}
         return "";
+    }
+
+    @Override
+    public void saveImage() {
+        // TODO Path statt File
+        Thread thread = new Thread(new ImageSaver(new File("test.png"), mosaikImage, getTilesX(), getTilesY(), getTileSize()));
+        thread.setDaemon(true);
+        thread.start();
     }
 
     private void generateDistinctRandomImage() {

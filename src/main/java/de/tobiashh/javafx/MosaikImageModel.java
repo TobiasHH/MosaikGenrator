@@ -71,4 +71,6 @@ public interface MosaikImageModel {
     void calculateMosaikImage();
 
     String getMosaikTileInformation(int x, int y);
+
+    void saveImage();
 }
