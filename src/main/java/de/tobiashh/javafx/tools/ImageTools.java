@@ -48,9 +48,11 @@ public class ImageTools {
             boolean orientationLandscape = imageWidth > imageHeight;
 
             if (orientationLandscape) {
+                //noinspection SuspiciousNameCombination
                 sourceRegion.setSize(imageHeight, imageHeight);
                 sourceRegion.setLocation((imageWidth - imageHeight) / 2, 0);
             } else {
+                //noinspection SuspiciousNameCombination
                 sourceRegion.setSize(imageWidth, imageWidth);
                 sourceRegion.setLocation(0, (imageHeight - imageWidth) / 2);
             }
