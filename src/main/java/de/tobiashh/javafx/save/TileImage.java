@@ -19,7 +19,6 @@ public class TileImage implements RenderedImage {
 	private int tilesY;
 	private int tileSize;
 	private OriginalTile[] tiles;
-//	private boolean[] usedState;
 	
 	public TileImage(int tilesX, int tilesY, int tileSize, OriginalTile[] tiles) {
 		this.tilesX = tilesX;
@@ -27,17 +26,7 @@ public class TileImage implements RenderedImage {
 
 		this.tileSize = tileSize;
 		this.tiles = tiles;
-		
-	//	usedState = new boolean[tiles.length];
-		
-//		for (int y = 0; y < tilesY; y++)
-//		{
-//			for (int x = 0; x < tilesX; x++)
-//			{
-//				usedState[index(x,y)] = false;
-//			}
-//		}
-		
+
 		sm = new SinglePixelPackedSampleModel(DataBuffer.TYPE_INT, tilesX * tileSize, tilesY * tileSize, new int[] { 0x00FF0000, 0x0000FF00, 0x000000FF });
 		cm = new DirectColorModel(24, 0xff0000, 0xff00, 0xff);
 	}
@@ -88,18 +77,7 @@ public class TileImage implements RenderedImage {
 				wr.setPixel(x, y, tdata);
 			}
 		}
-		
-//		for (int y = 0; y < tilesX; y++)
-//		{
-//			for (int x = 0; x < tilesY; x++)
-//			{
-//				if (usedState[index(x,y)] == true)
-//				{
-//					usedState[index(x,y)] = false;
-//				}
-//			}
-//		}
-				
+
 		return wr;
 	}
 
