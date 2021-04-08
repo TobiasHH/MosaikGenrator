@@ -11,16 +11,16 @@ import java.util.Vector;
  * @author tsc
  * 
  */
-public class TileImage implements RenderedImage {
+public class TileRenderImage implements RenderedImage {
 
-	private DirectColorModel cm;
-	private SinglePixelPackedSampleModel sm;
-	private int tilesX;
-	private int tilesY;
-	private int tileSize;
-	private OriginalTile[] tiles;
+	private final DirectColorModel cm;
+	private final SinglePixelPackedSampleModel sm;
+	private final int tilesX;
+	private final int tilesY;
+	private final int tileSize;
+	private final OriginalTile[] tiles;
 	
-	public TileImage(int tilesX, int tilesY, int tileSize, OriginalTile[] tiles) {
+	public TileRenderImage(int tilesX, int tilesY, int tileSize, OriginalTile[] tiles) {
 		this.tilesX = tilesX;
 		this.tilesY = tilesY;
 

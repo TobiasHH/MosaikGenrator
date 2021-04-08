@@ -59,9 +59,8 @@ public class ImageTools {
 
             retval = reader.read(0, param);
 
-            // TODO HACK für PNG da diese bei save probleme machen
-            if (retval.getColorModel().hasAlpha())
-            {
+             if (retval.getType() != BufferedImage.TYPE_INT_RGB)
+           {
                 BufferedImage noAlphaImage = new BufferedImage(retval.getWidth(), retval.getHeight(), BufferedImage.TYPE_INT_RGB);
                 Graphics2D g2d = (Graphics2D) noAlphaImage.getGraphics();
                 g2d.addRenderingHints(getHighQualityRenderingHints());

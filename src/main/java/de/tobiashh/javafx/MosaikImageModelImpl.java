@@ -267,8 +267,7 @@ public class MosaikImageModelImpl implements MosaikImageModel {
 
     @Override
     public void saveImage() {
-        // TODO Path statt File
-        Thread thread = new Thread(new ImageSaver(new File("test.png"), mosaikImage, getTilesX(), getTilesY(), getTileSize()));
+        Thread thread = new Thread(new ImageSaver(Path.of("test.png"), mosaikImage, getTilesX(), getTilesY(), getTileSize()));
         thread.setDaemon(true);
         thread.start();
     }
