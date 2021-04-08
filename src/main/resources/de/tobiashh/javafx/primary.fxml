@@ -25,15 +25,15 @@
             <Button layoutX="37.0" layoutY="10.0" mnemonicParsing="false" onAction="#recalculateImage" text="Neu berechnen" />
             <CheckBox fx:id="originalCheck" mnemonicParsing="false" onAction="#originalCheckAction" text="Original" />
             <CheckBox fx:id="blurCheck" layoutX="154.0" layoutY="14.0" mnemonicParsing="false" text="Blur" />
-            <CheckBox fx:id="linearModeCheck" layoutX="164.0" layoutY="14.0" mnemonicParsing="false" text="Linear Mode" />
-            <CheckBox fx:id="scanSubfolderCheck" layoutX="497.0" layoutY="14.0" mnemonicParsing="false" text="Scan Subfolder" />
-            <Label text="Pre Color Alignment: " />
+            <CheckBox fx:id="linearModeCheck" layoutX="164.0" layoutY="14.0" mnemonicParsing="false" text="Linearer Modus" />
+            <CheckBox fx:id="scanSubfolderCheck" layoutX="497.0" layoutY="14.0" mnemonicParsing="false" text="Unterordner einbeziehen" />
+            <Label text="Pre Farbanpassung: " />
             <TextField fx:id="preColorAlignment" prefWidth="50.0" />
-            <Label text="Post Color Alignment: " />
+            <Label text="Post Farbanpassung: " />
             <TextField fx:id="postColorAlignment" prefWidth="50.0" />
-            <Label text="Opacity: " />
+            <Label text="Deckkraft: " />
             <TextField fx:id="opacity" prefWidth="50.0" />
-            <Label layoutX="660.0" layoutY="14.0" text="tilesX" />
+            <Label layoutX="660.0" layoutY="14.0" text="Tiles X: " />
             <TextField fx:id="tilesX" layoutX="695.0" layoutY="10.0" prefWidth="50.0" />
          </HBox>
          <ScrollPane fx:id="scrollPane" onDragDropped="#dragDropped" onDragOver="#dragOver" pannable="true" VBox.vgrow="ALWAYS">
