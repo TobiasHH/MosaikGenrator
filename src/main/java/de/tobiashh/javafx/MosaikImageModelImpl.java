@@ -19,12 +19,13 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.List;
 
+// TODO Naming srcImage / srcTiles / dstTiles ...
 // TODO zugriff auf Properties immer über get set Property methode
 // TODO private und public prüfen
 // TODO Methoden vernüftig benennen z.b. was heißt calculate / generate / ...
 // TODO tests
-// TODO save function / BackgroundImage / TileImage
-// TODO Step Feedbackl in der Statusbar implementieren
+// TODO save function / BackgroundImage
+// TODO Step Feedback in der Statusbar implementieren
 // TODO caching der scaled Tiles
 // TODO Logger
 // TODO bei Blur ist image schon geladen, daher die methode loadImage entsprechend umdesignen um beim Listener nur nötige sachen zu machen
@@ -57,6 +58,7 @@ public class MosaikImageModelImpl implements MosaikImageModel {
         initChangeListener();
         loadMosaikTiles(getMosaikTilesPath());
     }
+
     private void initChangeListener() {
         mosaikLoadProgress.addListener((observable, oldValue, newValue) -> dstTilesCount.set(newValue.intValue()));
         mosaikTilesList.addListener((ListChangeListener<MosaikTile>) change -> dstTilesCount.set(change.getList().size()));
@@ -66,12 +68,28 @@ public class MosaikImageModelImpl implements MosaikImageModel {
         mosaikTilesPathProperty().addListener((observableValue, oldPath, newPath) -> loadMosaikTiles(newPath));
         scanSubFolderProperty().addListener(((observable, oldValue, newValue) -> loadMosaikTiles(getMosaikTilesPath())));
 
-        opacityProperty().addListener((observable, oldValue, newValue) -> calculateCompositeImage());
-        postColorAlignmentProperty().addListener((observable, oldValue, newValue) -> calculateCompositeImage());
+        opacityProperty().addListener((observable, oldValue, newValue) -> setOpacityInTiles(newValue.intValue()));
+        postColorAlignmentProperty().addListener((observable, oldValue, newValue) -> setPostColorAlignmentInTiles(newValue.intValue()));
 
         imageFile.addListener((observable, oldImageFile, newImageFile) -> loadImage(newImageFile));
         blurModeProperty().addListener((observable, oldValue, newValue) -> loadImage(getImageFile()));
         tilesXProperty().addListener((observable, oldValue, newValue) -> loadImage(getImageFile()));
+    }
+
+    private void setPostColorAlignmentInTiles(int postColorAlignment) {
+        for (OriginalTile originalTile : mosaikImage) {
+            originalTile.setPostColorAlignment(postColorAlignment);
+        }
+
+        calculateCompositeImage();
+    }
+
+    private void setOpacityInTiles(int opacity) {
+        for (OriginalTile originalTile : mosaikImage) {
+            originalTile.setOpacity(opacity);
+        }
+
+        calculateCompositeImage();
     }
 
     private void loadMosaikTiles(Path newPath) {
@@ -149,7 +167,7 @@ public class MosaikImageModelImpl implements MosaikImageModel {
             for (int x = 0; x < getTilesX(); x++) {
                 OriginalTile mosaikTile = mosaikImage[index(x,y)];
 
-                    graphics.drawImage(mosaikTile.getImage(), x * getTileSize(), y * getTileSize(), null);         graphics.drawString(""+ x + "," + y + ":" + mosaikTile.getMosaikTileID(), x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight());
+                    graphics.drawImage(mosaikTile.getSrcImage(), x * getTileSize(), y * getTileSize(), null);         graphics.drawString(""+ x + "," + y + ":" + mosaikTile.getMosaikTileID(), x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight());
                     graphics.drawString(""+ x + "," + y + ":ORIG", x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight());
             }
         }
@@ -171,14 +189,12 @@ public class MosaikImageModelImpl implements MosaikImageModel {
                 OriginalTile originalTile = mosaikImage[index(x,y)];
                 if (originalTile.getMosaikTileID()>= 0) {
                     MosaikTile mosaikTile = mosaikTilesList.get(originalTile.getMosaikTileID());
-                    BufferedImage postColorAlignmentImage = ImageTools.colorAlignment( mosaikTile.getImage(), originalTile.getImage(),getPostColorAlignment());
-
-                    graphics.drawImage(ImageTools.opacityAdaption(postColorAlignmentImage, originalTile.getImage(), getOpacity()), x * getTileSize(), y * getTileSize(), null);
+                    graphics.drawImage(originalTile.getComposedImage(), x * getTileSize(), y * getTileSize(), null);
                     graphics.drawString(""+ x + "," + y + ":" + originalTile.getMosaikTileID(), x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight());
                     graphics.drawString("index:" + originalTile.getMosikTileIndex(), x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight() * 2);
                     graphics.drawString("fn:" + mosaikTile.getFilename(), x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight() * 3);
                 } else {
-                    graphics.drawImage(originalTile.getImage(), x * getTileSize(), y * getTileSize(), null);
+                    graphics.drawImage(originalTile.getSrcImage(), x * getTileSize(), y * getTileSize(), null);
                      graphics.drawString(""+ x + "," + y + ":ORIG", x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight());
                 }
             }
@@ -219,7 +235,11 @@ public class MosaikImageModelImpl implements MosaikImageModel {
     }
 
     public void calculateMosaikImage() {
-          compareTiles(mosaikImage, mosaikTilesList);
+        compareTiles(mosaikImage, mosaikTilesList);
+
+        for (OriginalTile originalTile : mosaikImage) {
+            originalTile.setDstImage(null);
+        }
 
         if (isLinearMode()) {
             generateDistinctLinearImage();
@@ -227,12 +247,21 @@ public class MosaikImageModelImpl implements MosaikImageModel {
             generateDistinctRandomImage();
         }
 
+        for (OriginalTile originalTile : mosaikImage) {
+            int mosaikTileID = originalTile.getMosaikTileID();
+            if(mosaikTileID >= 0) {
+                originalTile.setOpacity(getOpacity());
+                originalTile.setPostColorAlignment(getPostColorAlignment());
+                originalTile.setDstImage(mosaikTilesList.get(mosaikTileID).getImage());
+            }
+        }
+
         calculateCompositeImage();
     }
 
     @Override
     public String getMosaikTileInformation(int x, int y) {
-        if(!mosaikTilesList.isEmpty()) {return mosaikTilesList.get(mosaikImage[index(x,y)].getMosaikTileID()).getFilename();}
+        if(!mosaikTilesList.isEmpty() && mosaikImage[index(x,y)].getMosaikTileID() >= 0) {return mosaikTilesList.get(mosaikImage[index(x,y)].getMosaikTileID()).getFilename();}
         return "";
     }
 

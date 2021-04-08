@@ -3,13 +3,22 @@ package de.tobiashh.javafx.tiles;
 import de.tobiashh.javafx.compareable.PHashCoparableImage;
 import de.tobiashh.javafx.compareable.PerceptualHashingCoparableImage;
 import de.tobiashh.javafx.compareable.SimpleSquareCoparableImage;
+import de.tobiashh.javafx.tools.ImageTools;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 
 import java.awt.image.BufferedImage;
+import java.lang.ref.WeakReference;
+import java.nio.file.Path;
 
 public class OriginalTile extends SimpleSquareCoparableImage {
-    BufferedImage srcImage;
+    private final ObjectProperty<BufferedImage> srcImage = new SimpleObjectProperty<>();
+    private final ObjectProperty<BufferedImage> dstImage = new SimpleObjectProperty<>();
+
+    private int opacity = 100;
+    private int postColorAlignment = 100;
 
     // A List of IDs in the order from the best fitting to the worst fitting mosaik tile
     int[] mosaikTileIDs;
@@ -17,10 +26,56 @@ public class OriginalTile extends SimpleSquareCoparableImage {
 
     IntegerProperty mosikTileIndex = new SimpleIntegerProperty( -1);
 
-    public OriginalTile(BufferedImage image)
+    WeakReference<BufferedImage> composedImage = new WeakReference<>(null);
+
+    public OriginalTile(BufferedImage srcImage)
     {
-        setDataImage(image);
-        this.srcImage = image;
+        setDataImage(srcImage);
+        this.srcImage.set(srcImage);
+        initChangeListener();
+    }
+
+    private void initChangeListener() {
+        srcImage.addListener((observable, oldValue, newValue) -> composedImage.clear());
+        dstImage.addListener((observable, oldValue, newValue) -> composedImage.clear());
+    }
+
+    public BufferedImage getComposedImage()
+    {
+        BufferedImage srcImage = this.srcImage.get();
+        if(srcImage == null)
+        {
+            return null;
+        }
+        else
+        {
+            BufferedImage dstImage = this.dstImage.get();
+
+            if(dstImage == null)
+            {
+                return srcImage;
+            }
+
+            BufferedImage retval = composedImage.get();
+
+            if(retval == null) {
+                retval = dstImage;
+
+                if(postColorAlignment > 0)
+                {
+                   retval = ImageTools.colorAlignment(retval,srcImage,postColorAlignment);
+                }
+
+                if(opacity < 100)
+                {
+                    retval = ImageTools.opacityAdaption(retval,srcImage, opacity);
+                }
+
+                composedImage = new WeakReference<>(retval);
+            }
+
+            return retval;
+        }
     }
 
     public void addBlockedIds(int ... ids)
@@ -58,10 +113,6 @@ public class OriginalTile extends SimpleSquareCoparableImage {
         else {
             return mosaikTileIDs[mosikTileIndex];
         }
-    }
-
-    public BufferedImage getImage() {
-        return srcImage;
     }
 
     public IntegerProperty mosikTileIndexProperty() {
@@ -105,4 +156,32 @@ public class OriginalTile extends SimpleSquareCoparableImage {
     public boolean isIndexSet() {
         return getMosikTileIndex() >= 0;
     }
+
+    public void setOpacity(int opacity)
+    {
+        this.opacity = opacity;
+        composedImage.clear();
+    }
+
+    public void setPostColorAlignment(int postColorAlignment) {
+        this.postColorAlignment = postColorAlignment;
+        composedImage.clear();
+    }
+
+    public ObjectProperty<BufferedImage> srcImageProperty() {
+        return srcImage;
+    }
+
+    public BufferedImage getSrcImage() { return srcImage.get(); }
+
+    public void setSrcImage(BufferedImage image) { srcImage.set(image); }
+
+    public ObjectProperty<BufferedImage> dstImageProperty() {
+        return dstImage;
+    }
+
+    public BufferedImage getDstImage() {return dstImage.get(); }
+
+    public void setDstImage(BufferedImage image) { dstImage.set(image); }
+
 }

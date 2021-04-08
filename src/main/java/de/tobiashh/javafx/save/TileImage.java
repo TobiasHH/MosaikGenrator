@@ -64,7 +64,7 @@ public class TileImage implements RenderedImage {
 		{
 			for (int x = startX; x < startX + width; x++)
 			{
-				raster = tiles[index(x / tileSize, y / tileSize)].getImage().getRaster();
+				raster = tiles[index(x / tileSize, y / tileSize)].getComposedImage().getRaster();
 				tdata = raster.getPixel(x % tileSize, y % tileSize, tdata);
 				wr.setPixel(x, y, tdata);
 			}
