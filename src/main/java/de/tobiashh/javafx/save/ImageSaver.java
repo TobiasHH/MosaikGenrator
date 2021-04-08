@@ -13,11 +13,11 @@ import java.util.logging.Logger;
 public class ImageSaver implements Runnable {
 	private final static Logger LOGGER = Logger.getLogger(ImageSaver.class.getName());
 	
-	File file;
-	OriginalTile[] tiles;
-	private int tileSize;
-	private int tilesX;
-	private int tilesY;
+	private File file;
+	private OriginalTile[] tiles;
+	private final int tileSize;
+	private final int tilesX;
+	private final int tilesY;
 
 	public ImageSaver(File file, OriginalTile[] tiles, int tilesX, int tilesY, int tileSize) {
 		this.tiles = tiles;
@@ -39,7 +39,7 @@ public class ImageSaver implements Runnable {
 			if (writers.hasNext())
 			{
 				
-				ImageWriter writer = (ImageWriter) writers.next();
+				ImageWriter writer = writers.next();
 				
 				ImageOutputStream ios = ImageIO.createImageOutputStream(file);
 				writer.setOutput(ios);
