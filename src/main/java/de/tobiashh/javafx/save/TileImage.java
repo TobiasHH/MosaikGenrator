@@ -43,7 +43,7 @@ public class TileImage implements RenderedImage {
 	
 	@Override
 	public Raster getData() {
-		return getData(null);
+		return getData(new Rectangle(0, 0, getWidth(), getHeight()));
 	}
 	
 	@Override
@@ -56,23 +56,15 @@ public class TileImage implements RenderedImage {
 		int height = rect.height;
 		int startX = rect.x;
 		int startY = rect.y;
-		
+
 		int[] tdata = null;
-		
 		Raster raster;
-		OriginalTile tile;
-		int tilePosX;
-		int tilePosY;
 		
 		for (int y = startY; y < startY + height; y++)
 		{
 			for (int x = startX; x < startX + width; x++)
 			{
-				tilePosX = x / tileSize;
-				tilePosY = y / tileSize;
-				tile = tiles[index(tilePosX, tilePosY)];
-//				usedState[index(tilePosX, tilePosY)] = true;
-				raster = tile.getImage().getRaster();
+				raster = tiles[index(x / tileSize, y / tileSize)].getImage().getRaster();
 				tdata = raster.getPixel(x % tileSize, y % tileSize, tdata);
 				wr.setPixel(x, y, tdata);
 			}
@@ -114,12 +106,12 @@ public class TileImage implements RenderedImage {
 
 	@Override
 	public int getNumXTiles() {
-		return 0;
+		return tilesX;
 	}
 
 	@Override
 	public int getNumYTiles() {
-		return 0;
+		return tilesY;
 	}
 
 	@Override
