@@ -38,7 +38,7 @@ public class ImageTools {
             ImageReadParam param = new ImageReadParam();
             int factor = Math.min(factorWidth, factorHeight);
 
-            if(factor < 1) {
+            if (factor < 1) {
                 factor = 1;
             }
 
@@ -47,7 +47,7 @@ public class ImageTools {
             Rectangle sourceRegion = new Rectangle();
             boolean orientationLandscape = imageWidth > imageHeight;
 
-            if(orientationLandscape){
+            if (orientationLandscape) {
                 sourceRegion.setSize(imageHeight, imageHeight);
                 sourceRegion.setLocation((imageWidth - imageHeight) / 2, 0);
             } else {
@@ -58,10 +58,23 @@ public class ImageTools {
             param.setSourceRegion(sourceRegion);
 
             retval = reader.read(0, param);
-        } else {
-            System.err.println("no compatible reader");
-        }
 
+            // TODO HACK für PNG da diese bei save probleme machen
+            if (retval.getColorModel().hasAlpha())
+            {
+                BufferedImage noAlphaImage = new BufferedImage(retval.getWidth(), retval.getHeight(), BufferedImage.TYPE_INT_RGB);
+                Graphics2D g2d = (Graphics2D) noAlphaImage.getGraphics();
+                g2d.addRenderingHints(getHighQualityRenderingHints());
+                g2d.drawImage(retval, 0, 0, retval.getWidth(), retval.getHeight(), null);
+                retval = noAlphaImage;
+            }
+        } else {
+            // TODO Kommen hier die gleichen Dateien raus wie bei ImageIO ?
+//            no compatible reader for: C:\Users\luech\Dropbox\Docs and Images\Interessante Bilder Dropbox\XXX\2D\f93d67d40c3de303deb1ccd3b1e0b98356303b34.jpg
+//            no compatible reader for: C:\Users\luech\Dropbox\Docs and Images\Interessante Bilder Dropbox\XXX\2D\playful-promises-corsets-waspies-playful-promises-anneliese-black-lace-curve-waspie-15779894624304_1024x1024_3eceabba-5bd7-4b83-beb8-3aea0672fcd0.jpg
+
+            System.err.println("no compatible reader for: " + imageFile);
+        }
         return retval;
     }
 
