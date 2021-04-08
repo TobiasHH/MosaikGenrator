@@ -69,6 +69,10 @@ public class Controller {
 
     @FXML public TextField tilesX;
 
+    @FXML public TextField maxReuses;
+
+    @FXML public TextField reuseDistance;
+
     private static final double SCALE_DEFAULT = 1.0;
     private static final double SCALE_MIN = 0.1;
     private static final double SCALE_MAX = 2;
@@ -173,6 +177,23 @@ public class Controller {
         });
         model.tilesXProperty().addListener((observable, oldValue, newValue) -> tilesX.setText(String.valueOf(newValue)));
         tilesX.setText(String.valueOf(model.getTilesX()));
+
+        maxReuses.textProperty().addListener((observable, oldValue, newValue) -> {
+
+            int i = getIntFromString(newValue, 0, 5000);
+            maxReuses.setText(String.valueOf(i));
+            model.setMaxReuses(i);
+        });
+        model.maxReusesProperty().addListener((observable, oldValue, newValue) -> maxReuses.setText(String.valueOf(newValue)));
+        maxReuses.setText(String.valueOf(model.getMaxReuses()));
+
+        reuseDistance.textProperty().addListener((observable, oldValue, newValue) -> {
+            int i = getIntFromString(newValue, 1, 50);
+            reuseDistance.setText(String.valueOf(i));
+            model.setReuseDistance(i);
+        });
+        model.reuseDistanceProperty().addListener((observable, oldValue, newValue) -> reuseDistance.setText(String.valueOf(newValue)));
+        reuseDistance.setText(String.valueOf(model.getReuseDistance()));
 
         displayOriginalImage.addListener((observable, oldValue, newValue) -> drawImage());
     }

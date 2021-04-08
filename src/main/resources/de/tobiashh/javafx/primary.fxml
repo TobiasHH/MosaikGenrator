@@ -27,14 +27,20 @@
             <CheckBox fx:id="blurCheck" layoutX="154.0" layoutY="14.0" mnemonicParsing="false" text="Blur" />
             <CheckBox fx:id="linearModeCheck" layoutX="164.0" layoutY="14.0" mnemonicParsing="false" text="Linearer Modus" />
             <CheckBox fx:id="scanSubfolderCheck" layoutX="497.0" layoutY="14.0" mnemonicParsing="false" text="Unterordner einbeziehen" />
-            <Label text="Pre Farbanpassung: " />
+         </HBox>
+         <HBox alignment="CENTER" spacing="5.0">
+            <Label text="Pre Farbanpassung:" />
             <TextField fx:id="preColorAlignment" prefWidth="50.0" />
-            <Label text="Post Farbanpassung: " />
+            <Label text="Post Farbanpassung:" />
             <TextField fx:id="postColorAlignment" prefWidth="50.0" />
-            <Label text="Deckkraft: " />
+            <Label text="Deckkraft:" />
             <TextField fx:id="opacity" prefWidth="50.0" />
-            <Label layoutX="660.0" layoutY="14.0" text="Tiles X: " />
+            <Label layoutX="660.0" layoutY="14.0" text="Tiles X:" />
             <TextField fx:id="tilesX" layoutX="695.0" layoutY="10.0" prefWidth="50.0" />
+            <Label layoutX="660.0" layoutY="14.0" text="Reuses:" />
+            <TextField fx:id="maxReuses" layoutX="695.0" layoutY="10.0" prefWidth="50.0" />
+            <Label layoutX="660.0" layoutY="14.0" text="ReuseDistance:" />
+            <TextField fx:id="reuseDistance" layoutX="695.0" layoutY="10.0" prefWidth="50.0" />
          </HBox>
          <ScrollPane fx:id="scrollPane" onDragDropped="#dragDropped" onDragOver="#dragOver" pannable="true" VBox.vgrow="ALWAYS">
             <Pane fx:id="canvasPane">

@@ -62,7 +62,7 @@ public class Properties {
     }
 
     private void initProperties() {
-             tilesPath.addListener((observable, oldValue, newValue) -> changeProperty(TILES_PATH_PROPERRY_KEY, newValue.toString()));
+        tilesPath.addListener((observable, oldValue, newValue) -> changeProperty(TILES_PATH_PROPERRY_KEY, newValue.toString()));
         tileSize.addListener((observable, oldValue, newValue) -> changeProperty(TILE_SIZE_PROPERTY_KEY, String.valueOf(newValue.intValue())));
         tilesX.addListener((observable, oldValue, newValue) -> changeProperty(TILES_X_PROPERTY_KEY, String.valueOf(newValue.intValue())));
         linearMode.addListener((observable, oldValue, newValue) -> changeProperty(LINEAR_MODE_PROPERTY_KEY, String.valueOf(newValue)));

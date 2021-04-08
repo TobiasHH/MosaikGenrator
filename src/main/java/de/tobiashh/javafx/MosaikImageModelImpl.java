@@ -491,7 +491,7 @@ public class MosaikImageModelImpl implements MosaikImageModel {
 
     @Override
     public IntegerProperty reuseDistanceProperty() {
-        return Properties.getInstance().maxReusesProperty();
+        return Properties.getInstance().reuseDistanceProperty();
     }
 
     @Override
