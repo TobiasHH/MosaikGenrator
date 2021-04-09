@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.IntStream;
 
+// TODO Pfad kann in Properties nciht gesetzt sein, führt z ueiner Exception
 // TODO Naming srcImage / srcTiles / dstTiles ...
 // TODO zugriff auf Properties immer über get set Property methode
 // TODO private und public prüfen
