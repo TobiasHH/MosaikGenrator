@@ -35,7 +35,7 @@
             <TextField fx:id="postColorAlignment" prefWidth="50.0" />
             <Label text="Deckkraft:" />
             <TextField fx:id="opacity" prefWidth="50.0" />
-            <Label layoutX="660.0" layoutY="14.0" text="Tiles pro Spalte:" />
+            <Label layoutX="660.0" layoutY="14.0" text="Tiles in Zeile:" />
             <TextField fx:id="tilesPerRow" layoutX="695.0" layoutY="10.0" prefWidth="50.0" />
             <Label layoutX="660.0" layoutY="14.0" text="Reuses:" />
             <TextField fx:id="maxReuses" layoutX="695.0" layoutY="10.0" prefWidth="50.0" />
