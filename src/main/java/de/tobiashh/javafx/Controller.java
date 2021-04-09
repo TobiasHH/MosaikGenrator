@@ -4,7 +4,6 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -20,9 +19,6 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
-import javafx.util.converter.NumberStringConverter;
-import javafx.util.converter.PercentageStringConverter;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -31,7 +27,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 public class Controller {
-    private final MosaikImageModel model;
+    private final MosaicImageModel model;
 
     @FXML public MenuBar menuBar;
 
@@ -67,7 +63,7 @@ public class Controller {
 
     @FXML public TextField opacity;
 
-    @FXML public TextField tilesX;
+    @FXML public TextField tilesPerRow;
 
     @FXML public TextField maxReuses;
 
@@ -83,7 +79,7 @@ public class Controller {
 
     private final BooleanProperty displayOriginalImage = new SimpleBooleanProperty();
 
-    public Controller(MosaikImageModel model) {
+    public Controller(MosaicImageModel model) {
         this.model = model;
     }
 
@@ -96,7 +92,7 @@ public class Controller {
     }
 
     private void initBindings() {
-        pathLabel.textProperty().bind(Bindings.when(model.mosaikTilesPathProperty().isNull()).then("Kein Pfad gewählt.").otherwise(model.mosaikTilesPathProperty().asString()));
+        pathLabel.textProperty().bind(Bindings.when(model.mosaicTilesPathProperty().isNull()).then("Kein Pfad gewählt.").otherwise(model.mosaicTilesPathProperty().asString()));
         filesCountLabel.textProperty().bind(model.dstTilesCountProperty().asString());
         canvas.widthProperty().bind(canvasPane.prefWidthProperty());
         canvas.heightProperty().bind(canvasPane.prefHeightProperty());
@@ -137,7 +133,7 @@ public class Controller {
         return mouseEvent -> {
             int tileX = (int) (mouseEvent.getX() / (model.getTileSize() * getScale()));
             int tileY =(int)( mouseEvent.getY() / (model.getTileSize() * getScale()));
-            tileImageInformations.setText(model.getMosaikTileInformation(tileX, tileY));
+            tileImageInformations.setText(model.getMosaicTileInformation(tileX, tileY));
         };
     }
 
@@ -170,13 +166,13 @@ public class Controller {
         model.opacityProperty().addListener((observable, oldValue, newValue) -> opacity.setText(String.valueOf(newValue)));
         opacity.setText(String.valueOf(model.getOpacity()));
 
-        tilesX.textProperty().addListener((observable, oldValue, newValue) -> {
+        tilesPerRow.textProperty().addListener((observable, oldValue, newValue) -> {
             int i = getIntFromString(newValue, 1, 50);
-            tilesX.setText(String.valueOf(i));
-            model.setTilesX(i);
+            tilesPerRow.setText(String.valueOf(i));
+            model.setTilesPerRow(i);
         });
-        model.tilesXProperty().addListener((observable, oldValue, newValue) -> tilesX.setText(String.valueOf(newValue)));
-        tilesX.setText(String.valueOf(model.getTilesX()));
+        model.tilesPerRowProperty().addListener((observable, oldValue, newValue) -> tilesPerRow.setText(String.valueOf(newValue)));
+        tilesPerRow.setText(String.valueOf(model.getTilesPerRow()));
 
         maxReuses.textProperty().addListener((observable, oldValue, newValue) -> {
 
@@ -235,12 +231,11 @@ public class Controller {
         gc.drawImage(image, 0,0, canvas.getWidth(),canvas.getHeight());
     }
 
-    public void processExit(ActionEvent actionEvent) {
+    @FXML public void processExit() {
         Platform.exit();
     }
 
-    @FXML
-    public void showAboutDialog(ActionEvent actionEvent) {
+    @FXML public void showAboutDialog() {
         final Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.initOwner(menuBar.getScene().getWindow());
@@ -251,49 +246,41 @@ public class Controller {
         dialog.show();
     }
 
-    public void processOpen(ActionEvent actionEvent) {
+    @FXML public void processOpen() {
         FileChooser fileChooser = new FileChooser();
         if(getImagePath() != null) fileChooser.setInitialDirectory(getImagePath().toFile());
         fileChooser.setTitle("Öffne Bild");
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Bilder", Arrays.stream(MosaikImageModelImpl.FILE_EXTENSION).map("*."::concat).toArray(String[]::new)));
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Bilder", Arrays.stream(MosaicImageModelImpl.FILE_EXTENSION).map("*."::concat).toArray(String[]::new)));
         Path image = fileChooser.showOpenDialog(menuBar.getScene().getWindow()).toPath();
         model.setImageFile(image);
         setImagePath(image.getParent());
     }
 
-    public void processTilesPath(ActionEvent actionEvent) {
+     @FXML public void processTilesPath() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Wähle Mosaik Tile Pfad");
-        directoryChooser.setInitialDirectory(model.getMosaikTilesPath().toFile());
-        model.setMosaikTilesPath(directoryChooser.showDialog(menuBar.getScene().getWindow()).toPath());
+        directoryChooser.setInitialDirectory(model.getMosaicTilesPath().toFile());
+        model.setMosaicTilesPath(directoryChooser.showDialog(menuBar.getScene().getWindow()).toPath());
     }
-
-    public DoubleProperty scaleProperty() { return scale; }
 
     public double getScale() { return scale.get(); }
 
     public void setScale(double scale) { this.scale.set(Math.max(Math.min(scale, SCALE_MAX), SCALE_MIN)); }
 
-    public ObjectProperty<Path>  imagePathProperty(){ return imagePath; }
-
     public Path getImagePath() { return imagePath.get(); }
 
     public void setImagePath(Path imagePath) { this.imagePath.set(imagePath); }
 
-    public BooleanProperty displayOriginalImageProperty(){ return displayOriginalImage; }
-
     public boolean isDisplayOriginalImage() { return displayOriginalImage.get(); }
 
-    public void setDisplayOriginalImage(boolean displayOriginalImage) { this.displayOriginalImage.set(displayOriginalImage); }
-
-    public void dragDropped(DragEvent dragEvent) {
+    @FXML public void dragDropped(DragEvent dragEvent) {
         Dragboard dragboard = dragEvent.getDragboard();
         boolean success = false;
         if (dragboard.hasFiles()) {
             if(hasDirectory(dragboard))
             {
                 File folder = dragboard.getFiles().get(0);
-                model.setMosaikTilesPath(folder.toPath());
+                model.setMosaicTilesPath(folder.toPath());
                 success = true;
             }
             else if (hasImageFile(dragboard))
@@ -311,7 +298,7 @@ public class Controller {
         dragEvent.consume();
     }
 
-    public void dragOver(DragEvent dragEvent) {
+    @FXML public void dragOver(DragEvent dragEvent) {
         Dragboard dragboard = dragEvent.getDragboard();
         if(dragEvent.getGestureSource() != scrollPane){
 
@@ -338,18 +325,18 @@ public class Controller {
     }
 
     private boolean isImage(Path path) {
-        return Arrays.stream(MosaikImageModelImpl.FILE_EXTENSION).anyMatch(e -> path.toString().toLowerCase().endsWith(".".concat(e.toLowerCase())));
+        return Arrays.stream(MosaicImageModelImpl.FILE_EXTENSION).anyMatch(e -> path.toString().toLowerCase().endsWith(".".concat(e.toLowerCase())));
     }
 
-    public void recalculateImage(ActionEvent actionEvent) {
-        model.calculateMosaikImage();
+    @FXML public void recalculateImage() {
+        model.calculateMosaicImage();
     }
 
-    public void originalCheckAction(ActionEvent actionEvent) {
+    @FXML public void originalCheckAction() {
         displayOriginalImage.set(originalCheck.isSelected());
     }
 
-    public void processSave(ActionEvent actionEvent) {
+    @FXML public void processSave() {
         model.saveImage();
     }
 }

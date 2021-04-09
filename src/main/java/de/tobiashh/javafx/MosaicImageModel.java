@@ -5,27 +5,18 @@ import javafx.beans.property.*;
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 
-public interface MosaikImageModel {
+public interface MosaicImageModel {
     ReadOnlyObjectProperty<BufferedImage> compositeImageProperty();
     BufferedImage getCompositeImage();
 
-    ReadOnlyObjectProperty<BufferedImage> originalImageProperty();
     BufferedImage getOriginalImage();
 
     ReadOnlyIntegerProperty dstTilesCountProperty();
-    int getDstTilesCount();
 
     BooleanProperty linearModeProperty();
     boolean isLinearMode();
-    void setLinearMode(boolean linearMode);
 
-    IntegerProperty tileSizeProperty();
     int getTileSize();
-    void setTileSize(int tileSize);
-
-    IntegerProperty compareSizeProperty();
-    int getCompareSize();
-    void setCompareSize(int compareSize);
 
     IntegerProperty opacityProperty();
     int getOpacity();
@@ -41,7 +32,6 @@ public interface MosaikImageModel {
 
     BooleanProperty blurModeProperty();
     boolean isBlurMode();
-    void setBlurMode(boolean blurMode);
 
     IntegerProperty maxReusesProperty();
     int getMaxReuses();
@@ -53,24 +43,22 @@ public interface MosaikImageModel {
 
     BooleanProperty scanSubFolderProperty();
     boolean isScanSubFolder();
-    void setScanSubFolder(boolean scanSubFolder);
 
-    ObjectProperty<Path> imageFileProperty();
     Path getImageFile();
     void setImageFile(Path file);
 
-    ObjectProperty<Path> mosaikTilesPathProperty();
-    Path getMosaikTilesPath();
-    void setMosaikTilesPath(Path mosaikTilesPath);
+    ObjectProperty<Path> mosaicTilesPathProperty();
+    Path getMosaicTilesPath();
+    void setMosaicTilesPath(Path mosaicTilesPath);
 
-    IntegerProperty tilesXProperty();
-    int getTilesX();
-    void setTilesX(int tileCount);
+    IntegerProperty tilesPerRowProperty();
+    int getTilesPerRow();
+    void setTilesPerRow(int tileCount);
 
     void deleteTile(int x, int y);
-    void calculateMosaikImage();
+    void calculateMosaicImage();
 
-    String getMosaikTileInformation(int x, int y);
+    String getMosaicTileInformation(int x, int y);
 
     void saveImage();
 }

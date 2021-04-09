@@ -16,14 +16,14 @@ public class ImageSaver implements Runnable {
 	private final Path file;
 	private final OriginalTile[] tiles;
 	private final int tileSize;
-	private final int tilesX;
-	private final int tilesY;
+	private final int tilesPerRow;
+	private final int tilesPerColumn;
 
-	public ImageSaver(Path file, OriginalTile[] tiles, int tilesX, int tilesY, int tileSize) {
+	public ImageSaver(Path file, OriginalTile[] tiles, int tilesPerRow, int tilesPerColumn, int tileSize) {
 		this.tiles = tiles;
 		this.tileSize = tileSize;
-		this.tilesX = tilesX;
-		this.tilesY = tilesY;
+		this.tilesPerRow = tilesPerRow;
+		this.tilesPerColumn = tilesPerColumn;
 		this.file = file;
 	}
 	
@@ -46,7 +46,7 @@ public class ImageSaver implements Runnable {
 				
 				LOGGER.warning("write image to file");
 				
-				TileRenderImage tm = new TileRenderImage(tilesX, tilesY, tileSize,tiles);
+				TileRenderImage tm = new TileRenderImage(tilesPerRow, tilesPerColumn, tileSize,tiles);
 				writer.write(tm);
 				writer.dispose();
 				ios.close();

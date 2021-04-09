@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 /**
  * Created by ts on 31.01.2017.
  */
-public class PHashCoparableImage
+public class PHashComparableImage
 {
     /**
      * http://www.hackerfactor.com/blog/?/archives/432-Looks-Like-It.html
@@ -27,20 +27,10 @@ public class PHashCoparableImage
      *
      * As with the Average Hash, pHash values can be compared using the same Hamming distance algorithm. (Just compare each bit position and count the number of differences.)
      *
-     * @param dataImage
+     * @param dataImage image with data
      */
-    public PHashCoparableImage(BufferedImage dataImage)
+    public PHashComparableImage(BufferedImage dataImage)
     {
-
-    }
-
-    protected void calculateData(BufferedImage compareImage)
-    {
-
-    }
-
-    public long compare(ComparableImage mosaikImage)
-    {
-        return 0;
+        System.out.println(dataImage);
     }
 }

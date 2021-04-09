@@ -1,16 +1,15 @@
 package de.tobiashh.javafx.tiles;
 
-import de.tobiashh.javafx.compareable.SimpleSquareCoparableImage;
+import de.tobiashh.javafx.compareable.SimpleSquareComparableImage;
 
 import java.awt.image.BufferedImage;
-import java.nio.file.Path;
 
-public class MosaikTile extends SimpleSquareCoparableImage {
+public class MosaicTile extends SimpleSquareComparableImage {
     BufferedImage srcImage;
-    // Actual only used for MosaikTileInformation
+    // Actual only used for MosaicTileInformation
     String filename;
 
-    public MosaikTile(BufferedImage image, String filename)
+    public MosaicTile(BufferedImage image, String filename)
     {
         setDataImage(image);
         this.srcImage = image;
@@ -20,5 +19,6 @@ public class MosaikTile extends SimpleSquareCoparableImage {
     public BufferedImage getImage() {
         return srcImage;
     }
+
     public String getFilename(){ return filename;}
 }

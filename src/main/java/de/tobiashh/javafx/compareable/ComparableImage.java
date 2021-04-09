@@ -1,7 +1,7 @@
 package de.tobiashh.javafx.compareable;
 
 import de.tobiashh.javafx.tools.ImageTools;
-import de.tobiashh.javafx.properties.Properties;
+import de.tobiashh.javafx.properties.PropertiesManager;
 
 import java.awt.image.BufferedImage;
 
@@ -11,7 +11,7 @@ public abstract class ComparableImage {
 	protected int[] green;
 	protected int[] blue;
 	
-	public static final int COMPARE_SIZE = Properties.getInstance().getCompareSize();
+	public static final int COMPARE_SIZE = PropertiesManager.getInstance().getCompareSize();
 	
 	public void setDataImage(BufferedImage dataImage) {
 		calculateData(dataImage);

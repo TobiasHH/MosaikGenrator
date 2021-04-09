@@ -1,16 +1,16 @@
 package de.tobiashh.javafx.compareable;
 
 import de.tobiashh.javafx.tools.ImageTools;
-import de.tobiashh.javafx.properties.Properties;
+import de.tobiashh.javafx.properties.PropertiesManager;
 
 import java.awt.image.BufferedImage;
 /**
  * Created by ts on 31.01.2017.
  */
-public class PerceptualHashingCoparableImage extends ComparableImage
+public class PerceptualHashingComparableImage extends ComparableImage
 {
 
-    public static final int COMPARE_SIZE = Properties.getInstance().getCompareSize();
+    public static final int COMPARE_SIZE = PropertiesManager.getInstance().getCompareSize();
 
     /**
      * http://www.hackerfactor.com/blog/?/archives/432-Looks-Like-It.html
@@ -20,7 +20,6 @@ public class PerceptualHashingCoparableImage extends ComparableImage
      * Average the colors. Compute the mean value of the 64 colors.
      * Compute the bits. This is the fun part. Each bit is simply set based on whether the color value is above or below the mean.
      * Construct the hash. Set the 64 bits into a 64-bit integer. The order does not matter, just as long as you are consistent. (I set the bits from left to right, top to bottom using big-endian.)
-     * = = 8f373714acfcf4d0
      *
      * The resulting hash won't change if the image is scaled or the aspect ratio changes. Increasing or decreasing the brightness or contrast, or even altering the colors won't dramatically change the hash value. And best of all: this is FAST!
      *

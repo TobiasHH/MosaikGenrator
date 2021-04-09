@@ -1,6 +1,6 @@
 package de.tobiashh.javafx;
 
-import de.tobiashh.javafx.tiles.MosaikTile;
+import de.tobiashh.javafx.tiles.MosaicTile;
 import javafx.concurrent.Task;
 
 import java.io.IOException;
@@ -16,7 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
-public class MosaikTilesLoaderTask extends Task<List<MosaikTile>> {
+public class MosaicTilesLoaderTask extends Task<List<MosaicTile>> {
     private static final int MAX_THREADS = Math.max(1,Runtime.getRuntime().availableProcessors() - 1);
 
     ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS, runnable -> {
@@ -29,23 +29,23 @@ public class MosaikTilesLoaderTask extends Task<List<MosaikTile>> {
     private final boolean scanSubFolder;
     private final int tileSize;
 
-    public MosaikTilesLoaderTask(Path newPath, boolean scanSubFolder, int tileSize) {
+    public MosaicTilesLoaderTask(Path newPath, boolean scanSubFolder, int tileSize) {
         this.newPath = newPath;
         this.scanSubFolder = scanSubFolder;
         this.tileSize = tileSize;
     }
 
     @Override
-    protected List<MosaikTile> call() {
-        List<MosaikTile> tiles = new ArrayList<>();
+    protected List<MosaicTile> call() {
+        List<MosaicTile> tiles = new ArrayList<>();
 
         try {
-            List<Future<Optional<MosaikTile>>> futures = ((scanSubFolder) ? Files.walk(newPath) : Files.list(newPath))
-                    .filter(this::extentionFilter)
-                    .map(file -> executor.submit(new MosaikTileLoadTask(file, tileSize)))
+            List<Future<Optional<MosaicTile>>> futures = ((scanSubFolder) ? Files.walk(newPath) : Files.list(newPath))
+                    .filter(this::extensionFilter)
+                    .map(file -> executor.submit(new MosaicTileLoadTask(file, tileSize)))
                     .collect(Collectors.toList());
 
-            for (Future<Optional<MosaikTile>> future : futures) {
+            for (Future<Optional<MosaicTile>> future : futures) {
                 try {
                     future.get().ifPresent(tiles::add);
                     updateProgress(tiles.size(), futures.size());
@@ -65,16 +65,9 @@ public class MosaikTilesLoaderTask extends Task<List<MosaikTile>> {
         return super.cancel(mayInterruptIfRunning);
     }
 
-    private boolean extentionFilter(Path path) {
+    private boolean extensionFilter(Path path) {
         return Arrays
-                .stream(MosaikImageModelImpl.FILE_EXTENSION)
+                .stream(MosaicImageModelImpl.FILE_EXTENSION)
                 .anyMatch(e -> path.toString().toLowerCase().endsWith(".".concat(e.toLowerCase())));
     }
-
-    private boolean notExtentionFilter(Path path) {
-        return Arrays
-                .stream(MosaikImageModelImpl.FILE_EXTENSION)
-                .noneMatch(e -> path.toString().toLowerCase().endsWith(".".concat(e.toLowerCase())));
-    }
-
 }

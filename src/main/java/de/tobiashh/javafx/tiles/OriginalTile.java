@@ -1,8 +1,6 @@
 package de.tobiashh.javafx.tiles;
 
-import de.tobiashh.javafx.compareable.PHashCoparableImage;
-import de.tobiashh.javafx.compareable.PerceptualHashingCoparableImage;
-import de.tobiashh.javafx.compareable.SimpleSquareCoparableImage;
+import de.tobiashh.javafx.compareable.SimpleSquareComparableImage;
 import de.tobiashh.javafx.tools.ImageTools;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -11,20 +9,19 @@ import javafx.beans.property.SimpleObjectProperty;
 
 import java.awt.image.BufferedImage;
 import java.lang.ref.WeakReference;
-import java.nio.file.Path;
 
-public class OriginalTile extends SimpleSquareCoparableImage {
+public class OriginalTile extends SimpleSquareComparableImage {
     private final ObjectProperty<BufferedImage> srcImage = new SimpleObjectProperty<>();
     private final ObjectProperty<BufferedImage> dstImage = new SimpleObjectProperty<>();
 
     private int opacity = 100;
     private int postColorAlignment = 100;
 
-    // A List of IDs in the order from the best fitting to the worst fitting mosaik tile
-    int[] mosaikTileIDs;
+    // A List of IDs in the order from the best fitting to the worst fitting mosaic tile
+    int[] mosaicTileIDs;
     boolean[] blockedIds;
 
-    IntegerProperty mosikTileIndex = new SimpleIntegerProperty( -1);
+    IntegerProperty mosaicTileIndex = new SimpleIntegerProperty( -1);
 
     WeakReference<BufferedImage> composedImage = new WeakReference<>(null);
 
@@ -56,33 +53,33 @@ public class OriginalTile extends SimpleSquareCoparableImage {
                 return srcImage;
             }
 
-            BufferedImage retval = composedImage.get();
+            BufferedImage returnValue = composedImage.get();
 
-            if(retval == null) {
-                retval = dstImage;
+            if(returnValue == null) {
+                returnValue = dstImage;
 
                 if(postColorAlignment > 0)
                 {
-                   retval = ImageTools.colorAlignment(retval,srcImage,postColorAlignment);
+                   returnValue = ImageTools.colorAlignment(returnValue,srcImage,postColorAlignment);
                 }
 
                 if(opacity < 100)
                 {
-                    retval = ImageTools.opacityAdaption(retval,srcImage, opacity);
+                    returnValue = ImageTools.opacityAdaption(returnValue,srcImage, opacity);
                 }
 
-                composedImage = new WeakReference<>(retval);
+                composedImage = new WeakReference<>(returnValue);
             }
 
-            return retval;
+            return returnValue;
         }
     }
 
     public void addBlockedIds(int ... ids)
     {
         for (int id : ids) {
-            for (int i = 0; i < mosaikTileIDs.length; i++) {
-                if(id == mosaikTileIDs[i])
+            for (int i = 0; i < mosaicTileIDs.length; i++) {
+                if(id == mosaicTileIDs[i])
                 {
                     blockedIds[i] = true;
                 }
@@ -90,56 +87,46 @@ public class OriginalTile extends SimpleSquareCoparableImage {
         }
     }
 
-    public void setMosikTileIDs(int ... ids)
+    public void setMosaicTileIDs(int ... ids)
     {
-        mosaikTileIDs = new int[ids.length];
+        mosaicTileIDs = new int[ids.length];
         blockedIds = new boolean[ids.length];
 
         for (int i = 0; i < ids.length; i++) {
-            mosaikTileIDs[i] = ids[i];
+            mosaicTileIDs[i] = ids[i];
             blockedIds[i] = false;
         }
 
-        setMosaikTileIndex(-1);
+        setMosaicTileIndex(-1);
     }
 
-    public int getMosaikTileID()
+    public int getMosaicTileID()
     {
-        int mosaikTileIndex = getMosaikTileIndex();
+        int mosaicTileIndex = getMosaicTileIndex();
 
-        if(mosaikTileIndex == -1 || mosaikTileIDs == null || mosaikTileIndex >= mosaikTileIDs.length){
+        if(mosaicTileIndex == -1 || mosaicTileIDs == null || mosaicTileIndex >= mosaicTileIDs.length){
             return -1;
         }
         else {
-            return mosaikTileIDs[mosaikTileIndex];
+            return mosaicTileIDs[mosaicTileIndex];
         }
     }
 
-    public IntegerProperty mosaikTileIndexProperty() {
-        return mosikTileIndex;
+    public int getMosaicTileIndex() {
+        return mosaicTileIndex.get();
     }
 
-    public int getMosaikTileIndex() {
-        return mosikTileIndex.get();
+    public void setMosaicTileIndex(int mosaicTileIndex) {
+            this.mosaicTileIndex.set(mosaicTileIndex);
     }
 
-    public boolean setMosaikTileIndex(int mosikTileIndex) {
-        if(mosikTileIndex >= mosaikTileIDs.length)
-        {
-            return false;
-        }
-
-        this.mosikTileIndex.set(mosikTileIndex);
-        return true;
-    }
-
-    public boolean incrementMosaikTileIndex() {
-        int nextIndex = getMosaikTileIndex() + 1;
-        while(nextIndex < mosaikTileIDs.length)
+    public boolean incrementMosaicTileIndex() {
+        int nextIndex = getMosaicTileIndex() + 1;
+        while(nextIndex < mosaicTileIDs.length)
         {
             if(!blockedIds[nextIndex])
             {
-                setMosaikTileIndex(nextIndex);
+                setMosaicTileIndex(nextIndex);
                 return true;
             }
 
@@ -150,11 +137,11 @@ public class OriginalTile extends SimpleSquareCoparableImage {
     }
 
     public void resetIndex() {
-          setMosaikTileIndex(-1);
+          setMosaicTileIndex(-1);
     }
 
     public boolean isIndexSet() {
-        return getMosaikTileIndex() >= 0;
+        return getMosaicTileIndex() >= 0;
     }
 
     public void setOpacity(int opacity)
@@ -168,19 +155,7 @@ public class OriginalTile extends SimpleSquareCoparableImage {
         composedImage.clear();
     }
 
-    public ObjectProperty<BufferedImage> srcImageProperty() {
-        return srcImage;
-    }
-
     public BufferedImage getSrcImage() { return srcImage.get(); }
-
-    public void setSrcImage(BufferedImage image) { srcImage.set(image); }
-
-    public ObjectProperty<BufferedImage> dstImageProperty() {
-        return dstImage;
-    }
-
-    public BufferedImage getDstImage() {return dstImage.get(); }
 
     public void setDstImage(BufferedImage image) { dstImage.set(image); }
 

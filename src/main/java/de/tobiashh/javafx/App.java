@@ -13,19 +13,17 @@ import java.io.IOException;
  */
 public class App extends Application {
 
-    private static Scene scene;
-
     @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("primary"), 640, 480);
+        Scene scene = new Scene(loadFXML(), 640, 480);
         stage.setScene(scene);
         stage.setMaximized(true);
         stage.show();
     }
 
-    private static Parent loadFXML(String fxml) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml + ".fxml"));
-        MosaikImageModel model = new MosaikImageModelImpl();
+    private static Parent loadFXML() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("primary.fxml"));
+        MosaicImageModel model = new MosaicImageModelImpl();
         fxmlLoader.setControllerFactory(c -> new Controller(model));
         return fxmlLoader.load();
     }

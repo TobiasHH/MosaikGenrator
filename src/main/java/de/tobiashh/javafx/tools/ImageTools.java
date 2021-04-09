@@ -1,6 +1,6 @@
 package de.tobiashh.javafx.tools;
 
-import de.tobiashh.javafx.properties.Properties;
+import de.tobiashh.javafx.properties.PropertiesManager;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
@@ -21,19 +21,19 @@ public class ImageTools {
 
     public static BufferedImage loadTileImage(File imageFile)
             throws IOException {
-        BufferedImage retval = null;
+        BufferedImage returnValue = null;
 
         ImageInputStream iis = ImageIO.createImageInputStream(imageFile);
-        Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
+        Iterator<ImageReader> iterator = ImageIO.getImageReaders(iis);
 
-        if (iter.hasNext()) {
-            ImageReader reader = iter.next();
+        if (iterator.hasNext()) {
+            ImageReader reader = iterator.next();
             reader.setInput(iis, true, true);
             int imageWidth = reader.getWidth(0);
             int imageHeight = reader.getHeight(0);
 
-            int factorWidth = imageWidth / Properties.getInstance().getTileSize();
-            int factorHeight = imageHeight / Properties.getInstance().getTileSize();
+            int factorWidth = imageWidth / PropertiesManager.getInstance().getTileSize();
+            int factorHeight = imageHeight / PropertiesManager.getInstance().getTileSize();
 
             ImageReadParam param = new ImageReadParam();
             int factor = Math.min(factorWidth, factorHeight);
@@ -59,15 +59,15 @@ public class ImageTools {
 
             param.setSourceRegion(sourceRegion);
 
-            retval = reader.read(0, param);
+            returnValue = reader.read(0, param);
 
-             if (retval.getType() != BufferedImage.TYPE_INT_RGB)
+             if (returnValue.getType() != BufferedImage.TYPE_INT_RGB)
            {
-                BufferedImage noAlphaImage = new BufferedImage(retval.getWidth(), retval.getHeight(), BufferedImage.TYPE_INT_RGB);
+                BufferedImage noAlphaImage = new BufferedImage(returnValue.getWidth(), returnValue.getHeight(), BufferedImage.TYPE_INT_RGB);
                 Graphics2D g2d = (Graphics2D) noAlphaImage.getGraphics();
                 g2d.addRenderingHints(getHighQualityRenderingHints());
-                g2d.drawImage(retval, 0, 0, retval.getWidth(), retval.getHeight(), null);
-                retval = noAlphaImage;
+                g2d.drawImage(returnValue, 0, 0, returnValue.getWidth(), returnValue.getHeight(), null);
+                returnValue = noAlphaImage;
             }
         } else {
             // TODO Kommen hier die gleichen Dateien raus wie bei ImageIO ?
@@ -76,21 +76,21 @@ public class ImageTools {
 
             System.err.println("no compatible reader for: " + imageFile);
         }
-        return retval;
+        return returnValue;
     }
 
-    public static BufferedImage colorAlignment(BufferedImage mosaik,
-                                               BufferedImage original, int prozent) {
-        if (prozent == 0)
-            return mosaik;
-        if (mosaik.getWidth() != original.getWidth()
-                || mosaik.getHeight() != original.getHeight())
-            return mosaik;
+    public static BufferedImage colorAlignment(BufferedImage mosaic,
+                                               BufferedImage original, int percent) {
+        if (percent == 0)
+            return mosaic;
+        if (mosaic.getWidth() != original.getWidth()
+                || mosaic.getHeight() != original.getHeight())
+            return mosaic;
 
-        int width = mosaik.getWidth();
-        int height = mosaik.getHeight();
+        int width = mosaic.getWidth();
+        int height = mosaic.getHeight();
 
-        BufferedImage retval = new BufferedImage(width, height,	BufferedImage.TYPE_INT_RGB);
+        BufferedImage returnValue = new BufferedImage(width, height,	BufferedImage.TYPE_INT_RGB);
 
         long sr1 = 0;
         long sg1 = 0;
@@ -104,7 +104,7 @@ public class ImageTools {
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                rgb1 = mosaik.getRGB(x, y);
+                rgb1 = mosaic.getRGB(x, y);
                 rgb2 = original.getRGB(x, y);
 
                 sr1 += red(rgb1);
@@ -131,11 +131,11 @@ public class ImageTools {
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                rgb1 = mosaik.getRGB(x, y);
+                rgb1 = mosaic.getRGB(x, y);
 
-                red = (int) (red(rgb1) - (sr1 - sr2) * prozent / 100);
-                green = (int) (green(rgb1) - (sg1 - sg2) * prozent / 100);
-                blue = (int) (blue(rgb1) - (sb1 - sb2) * prozent / 100);
+                red = (int) (red(rgb1) - (sr1 - sr2) * percent / 100);
+                green = (int) (green(rgb1) - (sg1 - sg2) * percent / 100);
+                blue = (int) (blue(rgb1) - (sb1 - sb2) * percent / 100);
 
                 if (red < 0)
                     red = 0;
@@ -150,28 +150,28 @@ public class ImageTools {
                 if (blue > 255)
                     blue = 255;
 
-                retval.setRGB(x, y, new Color(red, green, blue).getRGB());
+                returnValue.setRGB(x, y, new Color(red, green, blue).getRGB());
             }
         }
 
-        return retval;
+        return returnValue;
     }
 
-    public static BufferedImage opacityAdaption(BufferedImage mosaik,
-                                                BufferedImage original, int prozent) {
-        if (prozent == 100)
-            return mosaik;
-        if (prozent == 0)
+    public static BufferedImage opacityAdaption(BufferedImage mosaic,
+                                                BufferedImage original, int percent) {
+        if (percent == 100)
+            return mosaic;
+        if (percent == 0)
             return original;
 
-        if (mosaik.getWidth() != original.getWidth()
-                || mosaik.getHeight() != original.getHeight())
-            return mosaik;
+        if (mosaic.getWidth() != original.getWidth()
+                || mosaic.getHeight() != original.getHeight())
+            return mosaic;
 
-        int width = mosaik.getWidth();
-        int height = mosaik.getHeight();
+        int width = mosaic.getWidth();
+        int height = mosaic.getHeight();
 
-        BufferedImage retval = new BufferedImage(width, height,
+        BufferedImage returnValue = new BufferedImage(width, height,
                 BufferedImage.TYPE_INT_RGB);
 
         int rgb1;
@@ -183,29 +183,29 @@ public class ImageTools {
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                rgb1 = mosaik.getRGB(x, y);
+                rgb1 = mosaic.getRGB(x, y);
                 rgb2 = original.getRGB(x, y);
 
-                red = red(rgb2) + (red(rgb1) - red(rgb2)) * prozent / 100;
-                green = green(rgb2) + (green(rgb1) - green(rgb2)) * prozent
+                red = red(rgb2) + (red(rgb1) - red(rgb2)) * percent / 100;
+                green = green(rgb2) + (green(rgb1) - green(rgb2)) * percent
                         / 100;
-                blue = blue(rgb2) + (blue(rgb1) - blue(rgb2)) * prozent / 100;
+                blue = blue(rgb2) + (blue(rgb1) - blue(rgb2)) * percent / 100;
 
-                retval.setRGB(x, y, new Color(red, green, blue).getRGB());
+                returnValue.setRGB(x, y, new Color(red, green, blue).getRGB());
             }
         }
-        return retval;
+        return returnValue;
     }
 
     public static BufferedImage calculateScaledImage(BufferedImage bImage, int width, int height, boolean highQuality) {
         if (bImage.getWidth() == width && bImage.getHeight() == height) return bImage;
 
-        BufferedImage retval = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2d = (Graphics2D) retval.getGraphics();
+        BufferedImage returnValue = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = (Graphics2D) returnValue.getGraphics();
         g2d.addRenderingHints((highQuality) ? getHighQualityRenderingHints() : getLowQualityRenderingHints());
         g2d.drawImage(bImage, 0, 0, width, height, null);
 
-        return retval;
+        return returnValue;
     }
 
     public static RenderingHints getHighQualityRenderingHints() {

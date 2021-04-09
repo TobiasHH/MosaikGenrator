@@ -1,8 +1,6 @@
 package de.tobiashh.javafx.compareable;
 
-import java.awt.image.BufferedImage;
-
-public class SimpleSquareCoparableImage extends ComparableImage {
+public class SimpleSquareComparableImage extends ComparableImage {
 
 	@Override
 	public int compare(ComparableImage ci) {

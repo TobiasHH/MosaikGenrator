@@ -5,11 +5,12 @@ import javafx.beans.property.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Properties;
 
-public class Properties {
-    private static final String TILES_X_PROPERTY_KEY = "tilesX";
+public class PropertiesManager {
+    private static final String TILES_PER_ROW_PROPERTY_KEY = "tilesPerRow";
     private static final String TILE_SIZE_PROPERTY_KEY = "tileSize";
-    private static final String TILES_PATH_PROPERRY_KEY = "tilesPath";
+    private static final String TILES_PATH_PROPERTY_KEY = "tilesPath";
     private static final String LINEAR_MODE_PROPERTY_KEY = "linearMode";
     private static final String COMPARE_SIZE_PROPERTY_KEY = "compareSize";
     private static final String OPACITY_PROPERTY_KEY = "opacity";
@@ -20,7 +21,7 @@ public class Properties {
     private static final String REUSE_DISTANCE_PROPERTY_KEY = "reuseDistance";
     private static final String SCAN_SUB_FOLDER_PROPERTY_KEY = "scanSubFolder";
 
-    private static final int TILES_X_DEFAULT = 20;
+    private static final int TILES_PER_ROW_DEFAULT = 20;
     private static final int TILE_SIZE_DEFAULT = 128;
     private static final String TILES_PATH_DEFAULT = "tiles";
     private static final boolean LINEAR_MODE_DEFAULT = false;
@@ -37,7 +38,7 @@ public class Properties {
 
     private final ObjectProperty<Path> tilesPath = new SimpleObjectProperty<>();
     private final IntegerProperty tileSize = new SimpleIntegerProperty();
-    private final IntegerProperty tilesX = new SimpleIntegerProperty();
+    private final IntegerProperty tilesPerRow = new SimpleIntegerProperty();
     private final BooleanProperty linearMode = new SimpleBooleanProperty();
     private final IntegerProperty compareSize = new SimpleIntegerProperty();
     private final IntegerProperty opacity = new SimpleIntegerProperty();
@@ -48,23 +49,24 @@ public class Properties {
     private final IntegerProperty reuseDistance = new SimpleIntegerProperty();
     private final BooleanProperty scanSubFolder = new SimpleBooleanProperty();
 
-    private java.util.Properties properties = new java.util.Properties();
-    private static final Path PROPERTY_FILE = Path.of("mosaik.properties");
+    private final Properties properties = new Properties();
 
-    private static final Properties OBJ = new Properties();
+    private static final Path PROPERTY_FILE = Path.of("mosaic.properties");
 
-    public Properties() {
+    private static final PropertiesManager OBJ = new PropertiesManager();
+
+    public PropertiesManager() {
         initProperties();
     }
 
-    public static Properties getInstance() {
+    public static PropertiesManager getInstance() {
         return OBJ;
     }
 
     private void initProperties() {
-        tilesPath.addListener((observable, oldValue, newValue) -> changeProperty(TILES_PATH_PROPERRY_KEY, newValue.toString()));
+        tilesPath.addListener((observable, oldValue, newValue) -> changeProperty(TILES_PATH_PROPERTY_KEY, newValue.toString()));
         tileSize.addListener((observable, oldValue, newValue) -> changeProperty(TILE_SIZE_PROPERTY_KEY, String.valueOf(newValue.intValue())));
-        tilesX.addListener((observable, oldValue, newValue) -> changeProperty(TILES_X_PROPERTY_KEY, String.valueOf(newValue.intValue())));
+        tilesPerRow.addListener((observable, oldValue, newValue) -> changeProperty(TILES_PER_ROW_PROPERTY_KEY, String.valueOf(newValue.intValue())));
         linearMode.addListener((observable, oldValue, newValue) -> changeProperty(LINEAR_MODE_PROPERTY_KEY, String.valueOf(newValue)));
         compareSize.addListener((observable, oldValue, newValue) -> changeProperty(COMPARE_SIZE_PROPERTY_KEY, String.valueOf(newValue)));
         opacity.addListener((observable, oldValue, newValue) -> changeProperty(OPACITY_PROPERTY_KEY, String.valueOf(newValue)));
@@ -78,8 +80,8 @@ public class Properties {
         loadProperties();
 
         setTileSize(Integer.parseInt(properties.getProperty(TILE_SIZE_PROPERTY_KEY, String.valueOf(TILE_SIZE_DEFAULT))));
-        setTilesX(Integer.parseInt(properties.getProperty(TILES_X_PROPERTY_KEY, String.valueOf(TILES_X_DEFAULT))));
-        setTilesPath(Path.of(properties.getProperty(TILES_PATH_PROPERRY_KEY, TILES_PATH_DEFAULT)));
+        setTilesPerRow(Integer.parseInt(properties.getProperty(TILES_PER_ROW_PROPERTY_KEY, String.valueOf(TILES_PER_ROW_DEFAULT))));
+        setTilesPath(Path.of(properties.getProperty(TILES_PATH_PROPERTY_KEY, TILES_PATH_DEFAULT)));
         setLinearMode(Boolean.parseBoolean(properties.getProperty(LINEAR_MODE_PROPERTY_KEY, String.valueOf(LINEAR_MODE_DEFAULT))));
         setCompareSize(Integer.parseInt(properties.getProperty(COMPARE_SIZE_PROPERTY_KEY, String.valueOf(COMPARE_SIZE_DEFAULT))));
         setOpacity(Integer.parseInt(properties.getProperty(OPACITY_PROPERTY_KEY, String.valueOf(OPACITY_DEFAULT))));
@@ -114,10 +116,6 @@ public class Properties {
         }
     }
 
-    public IntegerProperty tileSizeProperty() {
-        return tileSize;
-    }
-
     public int getTileSize() {
         return tileSize.get();
     }
@@ -136,16 +134,16 @@ public class Properties {
         this.tilesPath.set(tilesPath);
     }
 
-    public IntegerProperty tilesXProperty() {
-        return tilesX;
+    public IntegerProperty tilesPerRowProperty() {
+        return tilesPerRow;
     }
 
-    public int getTilesX() {
-        return tilesX.get();
+    public int getTilesPerRow() {
+        return tilesPerRow.get();
     }
 
-    public void setTilesX(int length) {
-        tilesX.set(length);
+    public void setTilesPerRow(int length) {
+        tilesPerRow.set(length);
     }
 
     public BooleanProperty linearModeProperty() {
@@ -158,10 +156,6 @@ public class Properties {
 
     public void setLinearMode(boolean linearMode) {
         this.linearMode.set(linearMode);
-    }
-
-    public IntegerProperty compareSizeProperty() {
-        return compareSize;
     }
 
     public int getCompareSize() {

@@ -15,19 +15,19 @@ public class TileRenderImage implements RenderedImage {
 
 	private final DirectColorModel cm;
 	private final SinglePixelPackedSampleModel sm;
-	private final int tilesX;
-	private final int tilesY;
+	private final int tilesPerRow;
+	private final int tilesPerColumn;
 	private final int tileSize;
 	private final OriginalTile[] tiles;
 	
-	public TileRenderImage(int tilesX, int tilesY, int tileSize, OriginalTile[] tiles) {
-		this.tilesX = tilesX;
-		this.tilesY = tilesY;
+	public TileRenderImage(int tilesPerRow, int tilesPerColumn, int tileSize, OriginalTile[] tiles) {
+		this.tilesPerRow = tilesPerRow;
+		this.tilesPerColumn = tilesPerColumn;
 
 		this.tileSize = tileSize;
 		this.tiles = tiles;
 
-		sm = new SinglePixelPackedSampleModel(DataBuffer.TYPE_INT, tilesX * tileSize, tilesY * tileSize, new int[] { 0x00FF0000, 0x0000FF00, 0x000000FF });
+		sm = new SinglePixelPackedSampleModel(DataBuffer.TYPE_INT, tilesPerRow * tileSize, tilesPerColumn * tileSize, new int[] { 0x00FF0000, 0x0000FF00, 0x000000FF });
 		cm = new DirectColorModel(24, 0xff0000, 0xff00, 0xff);
 	}
 	
@@ -57,7 +57,7 @@ public class TileRenderImage implements RenderedImage {
 		int startX = rect.x;
 		int startY = rect.y;
 
-		int[] tdata = null;
+		int[] data = null;
 		Raster raster;
 		
 		for (int y = startY; y < startY + height; y++)
@@ -65,8 +65,8 @@ public class TileRenderImage implements RenderedImage {
 			for (int x = startX; x < startX + width; x++)
 			{
 				raster = tiles[index(x / tileSize, y / tileSize)].getComposedImage().getRaster();
-				tdata = raster.getPixel(x % tileSize, y % tileSize, tdata);
-				wr.setPixel(x, y, tdata);
+				data = raster.getPixel(x % tileSize, y % tileSize, data);
+				wr.setPixel(x, y, data);
 			}
 		}
 
@@ -75,13 +75,13 @@ public class TileRenderImage implements RenderedImage {
 
 	private int index(int x, int y)
 	{
-		return y * tilesX + x;
+		return y * tilesPerRow + x;
 	}
 
 
 	@Override
 	public int getHeight() {
-		return tilesY * tileSize;
+		return tilesPerColumn * tileSize;
 	}
 
 	@Override
@@ -106,12 +106,12 @@ public class TileRenderImage implements RenderedImage {
 
 	@Override
 	public int getNumXTiles() {
-		return tilesX;
+		return tilesPerRow;
 	}
 
 	@Override
 	public int getNumYTiles() {
-		return tilesY;
+		return tilesPerColumn;
 	}
 
 	@Override
@@ -161,7 +161,7 @@ public class TileRenderImage implements RenderedImage {
 
 	@Override
 	public int getWidth() {
-		return tilesX * tileSize;
+		return tilesPerRow * tileSize;
 	}
 
 }
