@@ -32,9 +32,8 @@ import java.util.stream.IntStream;
 // TODO bei Blur ist image schon geladen, daher die methode loadImage entsprechend umdesignen um beim Listener nur nötige sachen zu machen
 // TODO Blur Mode sollte keine neuberechnung des Mosaics triggern
 // TODO scrollpane / canvas nur ausschnitt berechnen (Zoom Problem))
-// TODO reuse
 // TODO preColorAlignment implementieren
-// TODO areOfIntrest
+// TODO areaOfIntrest
 // TODO Gibt es bessere Vergleichsalgorhytmen? die z.b. stärker auf kontruren / Details achten? z.b. kantenerkennung und diese kanten mit einbeziehen
 
 public class MosaicImageModelImpl implements MosaicImageModel {
