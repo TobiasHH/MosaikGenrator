@@ -12,8 +12,17 @@ class OriginalTileTest {
     void setMosikTileIDs() {
         OriginalTile tile = new OriginalTile(new BufferedImage(1,1,BufferedImage.TYPE_INT_RGB));
         tile.setMosikTileIDs(1, 2, 3);
-        assertThat(tile.getMosikTileIndex(), is(-1));
+        assertThat(tile.getMosaikTileIndex(), is(-1));
         assertThat(tile.getMosaikTileID(), is(-1));
+        tile.incrementMosaikTileIndex();
+        assertThat(tile.getMosaikTileIndex(), is(0));
+        assertThat(tile.getMosaikTileID(), is(1));
+        tile.incrementMosaikTileIndex();
+        assertThat(tile.getMosaikTileIndex(), is(1));
+        assertThat(tile.getMosaikTileID(), is(2));
+        tile.incrementMosaikTileIndex();
+        assertThat(tile.getMosaikTileIndex(), is(2));
+        assertThat(tile.getMosaikTileID(), is(3));
     }
 
     @Test
@@ -31,24 +40,24 @@ class OriginalTileTest {
     void incrementIndex() {
         OriginalTile tile = new OriginalTile(new BufferedImage(1,1,BufferedImage.TYPE_INT_RGB));
         tile.setMosikTileIDs(1, 2, 3);
-        assertThat(tile.getMosikTileIndex(), is(-1));
+        assertThat(tile.getMosaikTileIndex(), is(-1));
         assertThat(tile.incrementMosaikTileIndex(), is(true));
-        assertThat(tile.getMosikTileIndex(), is(0));
+        assertThat(tile.getMosaikTileIndex(), is(0));
         assertThat(tile.incrementMosaikTileIndex(), is(true));
-        assertThat(tile.getMosikTileIndex(), is(1));
+        assertThat(tile.getMosaikTileIndex(), is(1));
         assertThat(tile.incrementMosaikTileIndex(), is(true));
-        assertThat(tile.getMosikTileIndex(), is(2));
+        assertThat(tile.getMosaikTileIndex(), is(2));
         assertThat(tile.incrementMosaikTileIndex(), is(false));
-        assertThat(tile.getMosikTileIndex(), is(2));
+        assertThat(tile.getMosaikTileIndex(), is(2));
         tile.resetIndex();
-        assertThat(tile.getMosikTileIndex(), is(-1));
+        assertThat(tile.getMosaikTileIndex(), is(-1));
         tile.addBlockedIds(2);
-        assertThat(tile.getMosikTileIndex(), is(-1));
+        assertThat(tile.getMosaikTileIndex(), is(-1));
         assertThat(tile.incrementMosaikTileIndex(), is(true));
-        assertThat(tile.getMosikTileIndex(), is(0));
+        assertThat(tile.getMosaikTileIndex(), is(0));
         assertThat(tile.incrementMosaikTileIndex(), is(true));
-        assertThat(tile.getMosikTileIndex(), is(2));
+        assertThat(tile.getMosaikTileIndex(), is(2));
         assertThat(tile.incrementMosaikTileIndex(), is(false));
-        assertThat(tile.getMosikTileIndex(), is(2));
+        assertThat(tile.getMosaikTileIndex(), is(2));
     }
 }

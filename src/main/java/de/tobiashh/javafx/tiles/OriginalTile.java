@@ -95,7 +95,7 @@ public class OriginalTile extends SimpleSquareCoparableImage {
         mosaikTileIDs = new int[ids.length];
         blockedIds = new boolean[ids.length];
 
-        for (int i = 0; i < ids.length - 1; i++) {
+        for (int i = 0; i < ids.length; i++) {
             mosaikTileIDs[i] = ids[i];
             blockedIds[i] = false;
         }
@@ -105,21 +105,21 @@ public class OriginalTile extends SimpleSquareCoparableImage {
 
     public int getMosaikTileID()
     {
-        int mosikTileIndex = getMosikTileIndex();
+        int mosaikTileIndex = getMosaikTileIndex();
 
-        if(mosikTileIndex == -1 || mosaikTileIDs == null || mosikTileIndex >= mosaikTileIDs.length){
+        if(mosaikTileIndex == -1 || mosaikTileIDs == null || mosaikTileIndex >= mosaikTileIDs.length){
             return -1;
         }
         else {
-            return mosaikTileIDs[mosikTileIndex];
+            return mosaikTileIDs[mosaikTileIndex];
         }
     }
 
-    public IntegerProperty mosikTileIndexProperty() {
+    public IntegerProperty mosaikTileIndexProperty() {
         return mosikTileIndex;
     }
 
-    public int getMosikTileIndex() {
+    public int getMosaikTileIndex() {
         return mosikTileIndex.get();
     }
 
@@ -134,7 +134,7 @@ public class OriginalTile extends SimpleSquareCoparableImage {
     }
 
     public boolean incrementMosaikTileIndex() {
-        int nextIndex = getMosikTileIndex() + 1;
+        int nextIndex = getMosaikTileIndex() + 1;
         while(nextIndex < mosaikTileIDs.length)
         {
             if(!blockedIds[nextIndex])
@@ -154,7 +154,7 @@ public class OriginalTile extends SimpleSquareCoparableImage {
     }
 
     public boolean isIndexSet() {
-        return getMosikTileIndex() >= 0;
+        return getMosaikTileIndex() >= 0;
     }
 
     public void setOpacity(int opacity)

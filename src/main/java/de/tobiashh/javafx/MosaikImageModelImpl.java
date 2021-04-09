@@ -181,7 +181,7 @@ public class MosaikImageModelImpl implements MosaikImageModel {
 
         Graphics2D graphics = (Graphics2D) retval.getGraphics();
 
-        graphics.setColor(Color.BLACK);
+        graphics.setColor(Color.GREEN);
         graphics.fillRect(0, 0, retval.getWidth(), retval.getHeight());
 
         for (int y = 0; y < getTilesY(); y++) {
@@ -190,8 +190,8 @@ public class MosaikImageModelImpl implements MosaikImageModel {
                 if (originalTile.getMosaikTileID()>= 0) {
                     MosaikTile mosaikTile = mosaikTilesList.get(originalTile.getMosaikTileID());
                     graphics.drawImage(originalTile.getComposedImage(), x * getTileSize(), y * getTileSize(), null);
-                    graphics.drawString(""+ x + "," + y + ":" + originalTile.getMosaikTileID(), x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight());
-                    graphics.drawString("index:" + originalTile.getMosikTileIndex(), x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight() * 2);
+                    graphics.drawString("x:"+ x + " y:" + y + " ID:" + originalTile.getMosaikTileID(), x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight());
+                    graphics.drawString("index:" + originalTile.getMosaikTileIndex(), x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight() * 2);
                     graphics.drawString("fn:" + mosaikTile.getFilename(), x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight() * 3);
                 } else {
                     graphics.drawImage(originalTile.getSrcImage(), x * getTileSize(), y * getTileSize(), null);
@@ -207,31 +207,23 @@ public class MosaikImageModelImpl implements MosaikImageModel {
     {
         return y * getTilesX() + x;
     }
-    
-    private int getDistinctTileID(OriginalTile actualTile, OriginalTile[] tiles)
+
+    private boolean setMosaikTileIndex(OriginalTile actualTile, OriginalTile[] tiles)
     {
-        boolean notDistinct = true;
+        if(actualTile.getMosaikTileIndex() > -1) return false;
 
-        while(notDistinct)
+        actualTile.incrementMosaikTileIndex();
+
+        if(actualTile.getMosaikTileIndex() == -1) return false;
+
+        int tileID = actualTile.getMosaikTileID();
+
+        if(Arrays.stream(mosaikImage).filter(t -> t.getMosaikTileID() == tileID).count() > getMaxReuses())
         {
-            notDistinct = false;
-            if(actualTile.getMosikTileIndex() == -1) actualTile.incrementMosaikTileIndex();
-            int actualID = actualTile.getMosaikTileID();
-
-            for (OriginalTile tile : tiles) {
-                if(actualTile != tile) {
-                    if (tile.getMosaikTileID() == actualID) {
-                         notDistinct = true;
-                        if (!actualTile.incrementMosaikTileIndex()) {
-                              return actualTile.getMosikTileIndex();
-                        }
-                        break;
-                    }
-                }
-            }
+            blockID(tileID, actualTile, tiles);
         }
 
-         return actualTile.getMosikTileIndex();
+        return true;
     }
 
     public void calculateMosaikImage() {
@@ -287,10 +279,14 @@ public class MosaikImageModelImpl implements MosaikImageModel {
                 y = rand.nextInt(getTilesY());
 
                 if (!mosaikImage[index(x,y)].isIndexSet()) {
-                    if (setDistinctTile(mosaikImage[index(x, y)])) return;
+                    if (!setMosaikTileIndex(mosaikImage[index(x, y)], mosaikImage)) return;
                 }
             }
         }
+    }
+
+    public int getDistance(int pos1, int pos2, int tilesX){
+        return Math.abs(pos1 % tilesX - pos2 % tilesX) + Math.abs(pos1 / tilesX - pos2 / tilesX);
     }
 
     private void generateDistinctLinearImage() {
@@ -299,19 +295,10 @@ public class MosaikImageModelImpl implements MosaikImageModel {
 
             for (int y = 0; y < getTilesY(); y++) {
                 for (int x = 0; x < getTilesX(); x++) {
-                    if (setDistinctTile(mosaikImage[index(x, y)])) return;
+                    if (!setMosaikTileIndex(mosaikImage[index(x, y)], mosaikImage)) return;
                 }
             }
         }
-    }
-
-    private boolean setDistinctTile(OriginalTile tile) {
-        int tileIndex = getDistinctTileID(tile, mosaikImage);
-        if (tileIndex == -1) return true;
-        tile.setMosaikTileIndex(tileIndex);
-        int tileID = tile.getMosaikTileID();
-        blockID(tileID, tile, mosaikImage);
-        return false;
     }
 
     private void blockID(int id, OriginalTile tile, OriginalTile[] mosaikImage) {
