@@ -13,11 +13,11 @@ import javafx.collections.ObservableList;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.List;
+import java.util.stream.IntStream;
 
 // TODO Naming srcImage / srcTiles / dstTiles ...
 // TODO zugriff auf Properties immer über get set Property methode
@@ -208,6 +208,7 @@ public class MosaikImageModelImpl implements MosaikImageModel {
         return y * getTilesX() + x;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean setMosaikTileIndex(OriginalTile actualTile, OriginalTile[] tiles)
     {
         if(actualTile.getMosaikTileIndex() > -1) return false;
@@ -222,6 +223,13 @@ public class MosaikImageModelImpl implements MosaikImageModel {
         {
             blockID(tileID, actualTile, tiles);
         }
+
+        int actualIndex = IntStream.range(0, tiles.length).filter(i -> tiles[i] == actualTile).findFirst().orElse(-1);
+        IntStream.range(0, tiles.length).forEach(i -> {
+            if(getDistance(actualIndex, i, getTilesX()) < getReuseDistance()) {
+                tiles[i].addBlockedIds(tileID);
+            }
+        });
 
         return true;
     }
@@ -279,6 +287,7 @@ public class MosaikImageModelImpl implements MosaikImageModel {
                 y = rand.nextInt(getTilesY());
 
                 if (!mosaikImage[index(x,y)].isIndexSet()) {
+                    //
                     if (!setMosaikTileIndex(mosaikImage[index(x, y)], mosaikImage)) return;
                 }
             }
