@@ -227,7 +227,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
         int actualIndex = IntStream.range(0, tiles.length).filter(i -> tiles[i] == actualTile).findFirst().orElse(-1);
         IntStream.range(0, tiles.length).forEach(i -> {
-            if(getDistance(actualIndex, i) < getReuseDistance()) {
+            if(getTileDistance(actualIndex, i) < getReuseDistance()) {
                 tiles[i].addBlockedIds(tileID);
             }
         });
@@ -295,15 +295,15 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         }
     }
 
-    public int getDistance(int index1, int index2){
-        return Math.abs(getPositionX(index1) - getPositionX(index2)) + Math.abs(getPositionY(index1) - getPositionY(index2));
+    public int getTileDistance(int index1, int index2){
+        return Math.abs(getTilePositionX(index1) - getTilePositionX(index2)) + Math.abs(getTilePositionY(index1) - getTilePositionY(index2));
     }
 
-    private int getPositionX(int index) {
+    private int getTilePositionX(int index) {
         return index % getTilesPerRow();
     }
 
-    private int getPositionY(int index) {
+    private int getTilePositionY(int index) {
         return index / getTilesPerRow();
     }
 
