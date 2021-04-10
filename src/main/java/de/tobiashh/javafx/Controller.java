@@ -249,11 +249,17 @@ public class Controller {
     @FXML public void processOpen() {
         FileChooser fileChooser = new FileChooser();
         if(getImagePath() != null) fileChooser.setInitialDirectory(getImagePath().toFile());
-        fileChooser.setTitle("Öffne Bild");
+        fileChooser.setTitle("Bild öffnen");
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Bilder", Arrays.stream(MosaicImageModelImpl.FILE_EXTENSION).map("*."::concat).toArray(String[]::new)));
-        Path image = fileChooser.showOpenDialog(menuBar.getScene().getWindow()).toPath();
-        model.setImageFile(image);
-        setImagePath(image.getParent());
+        File file = fileChooser.showOpenDialog(menuBar.getScene().getWindow());
+        if(file != null)
+        {
+            Path path = file.toPath();
+            if(Arrays.stream(MosaicImageModelImpl.FILE_EXTENSION).anyMatch(e -> path.endsWith("." + e))){
+                model.setImageFile(path);
+                setImagePath(path.getParent());
+            }
+        }
     }
 
      @FXML public void processTilesPath() {
@@ -289,6 +295,7 @@ public class Controller {
                 if(isImage(path))
                 {
                     model.setImageFile(path);
+                    setImagePath(path.getParent());
                 }
             }
         }
@@ -337,6 +344,19 @@ public class Controller {
     }
 
     @FXML public void processSave() {
-        model.saveImage();
+        FileChooser fileChooser = new FileChooser();
+        if(getImagePath() != null) fileChooser.setInitialDirectory(getImagePath().toFile());
+        fileChooser.setTitle("Bild speichern");
+        if(getImagePath() != null) fileChooser.setInitialDirectory(getImagePath().toFile());
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Bilder", Arrays.stream(MosaicImageModelImpl.FILE_EXTENSION).map("*."::concat).toArray(String[]::new)));
+        File file = fileChooser.showSaveDialog(menuBar.getScene().getWindow());
+        if(file != null)
+        {
+            Path path = file.toPath();
+            if(Arrays.stream(MosaicImageModelImpl.FILE_EXTENSION).anyMatch(e -> path.endsWith("." + e))){
+                model.saveImage(path);
+                setImagePath(path.getParent());
+            }
+        }
     }
 }

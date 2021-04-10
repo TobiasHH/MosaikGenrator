@@ -60,5 +60,5 @@ public interface MosaicImageModel {
 
     String getMosaicTileInformation(int x, int y);
 
-    void saveImage();
+    void saveImage(Path path);
 }

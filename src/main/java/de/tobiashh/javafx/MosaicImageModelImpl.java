@@ -25,13 +25,13 @@ import java.util.stream.IntStream;
 // TODO private und public prüfen
 // TODO Methoden vernüftig benennen z.b. was heißt calculate / generate / ...
 // TODO tests
-// TODO save function / BackgroundImage
+// TODO BufferedImageSave implementieren
 // TODO Step Feedback in der Statusbar implementieren
 // TODO caching der scaled Tiles
 // TODO Logger
 // TODO bei Blur ist image schon geladen, daher die methode loadImage entsprechend umdesignen um beim Listener nur nötige sachen zu machen
 // TODO Blur Mode sollte keine neuberechnung des Mosaics triggern
-// TODO scrollpane / canvas nur ausschnitt berechnen (Zoom Problem))
+// TODO scrollpane / canvas nur ausschnitt berechnen (Zoom Problem)) durch canvas tiles mit z.b. 1000 x 1000 px
 // TODO preColorAlignment implementieren
 // TODO areaOfIntrest
 // TODO Gibt es bessere Vergleichsalgorhytmen? die z.b. stärker auf kontruren / Details achten? z.b. kantenerkennung und diese kanten mit einbeziehen
@@ -266,8 +266,8 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     }
 
     @Override
-    public void saveImage() {
-        Thread thread = new Thread(new ImageSaver(Path.of("test.png"), mosaicImage, getTilesPerRow(), getTilesPerColumn(), getTileSize()));
+    public void saveImage(Path path) {
+        Thread thread = new Thread(new ImageSaver(path, mosaicImage, getTilesPerRow(), getTilesPerColumn(), getTileSize()));
         thread.setDaemon(true);
         thread.start();
     }
