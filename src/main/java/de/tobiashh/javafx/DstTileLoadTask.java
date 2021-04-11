@@ -1,6 +1,5 @@
 package de.tobiashh.javafx;
 
-import de.tobiashh.javafx.properties.PropertiesManager;
 import de.tobiashh.javafx.tiles.DstTile;
 import de.tobiashh.javafx.tools.ImageTools;
 

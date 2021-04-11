@@ -55,7 +55,7 @@ public class PropertiesManager {
 
     private static final PropertiesManager OBJ = new PropertiesManager();
 
-    public PropertiesManager() {
+    private PropertiesManager() {
         initProperties();
     }
 

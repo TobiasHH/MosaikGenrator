@@ -19,10 +19,10 @@ public class OriginalTile extends SimpleSquareComparableImage {
     private int postColorAlignment = 100;
 
     // A List of IDs in the order from the best fitting to the worst fitting mosaic tile
-    int[] dstTileIDs;
-    boolean[] blockedIds;
+    private int[] dstTileIDs;
+    private boolean[] blockedIds;
 
-    WeakReference<BufferedImage> composedImage = new WeakReference<>(null);
+    private WeakReference<BufferedImage> composedImage = new WeakReference<>(null);
 
     public OriginalTile(BufferedImage srcImage, int compareSize)
     {

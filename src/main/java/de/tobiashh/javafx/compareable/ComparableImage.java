@@ -12,7 +12,7 @@ public abstract class ComparableImage {
 	
 	private int compareSize;
 
-	public void setDataImage(BufferedImage dataImage, int compareSize) {
+	protected void setDataImage(BufferedImage dataImage, int compareSize) {
 		this.compareSize = compareSize;
 		calculateData(dataImage);
 	}

@@ -19,7 +19,6 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.IntStream;
 
-// TODO private und public prüfen
 // TODO Methoden vernüftig benennen z.b. was heißt calculate / generate / ...
 // TODO tests
 // TODO BufferedImageSave implementieren
@@ -35,7 +34,6 @@ import java.util.stream.IntStream;
 
 public class MosaicImageModelImpl implements MosaicImageModel {
     public static final String[] FILE_EXTENSION = {"png", "jpg", "jpeg"};
-    public static final int COMPARE_SIZE = PropertiesManager.getInstance().getCompareSize();
 
     private final ReadOnlyIntegerWrapper dstTilesCount = new ReadOnlyIntegerWrapper();
     private final ReadOnlyObjectWrapper<BufferedImage> compositeImage = new ReadOnlyObjectWrapper<>();
@@ -47,7 +45,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     
     private OriginalTile[] mosaicImage;
     
-    ObservableList<DstTile> dstTilesList = FXCollections.observableList(new ArrayList<>());
+    private final ObservableList<DstTile> dstTilesList = FXCollections.observableList(new ArrayList<>());
 
     private DstTilesLoaderTask task;
 
@@ -94,7 +92,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
     private void loadDstTiles(Path newPath) {
         if (task != null) task.cancel(true);
-        task = new DstTilesLoaderTask(newPath, isScanSubFolder(), getTileSize(), COMPARE_SIZE);
+        task = new DstTilesLoaderTask(newPath, isScanSubFolder(), getTileSize(), getCompareSize());
         task.progressProperty().addListener((observable, oldValue, newValue) -> dstTilesLoadProgress.set((int) (newValue.doubleValue() * 100)));
         task.setOnSucceeded(event -> {
            dstTilesList.clear();
@@ -134,12 +132,12 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             for (int x = 0; x < getTilesPerRow(); x++) {
                 int tileSize = getTileSize();
                 BufferedImage subImage = image.getSubimage(x * tileSize, y * tileSize, tileSize, tileSize);
-                mosaicImage[index(x,y)] = new OriginalTile(subImage, COMPARE_SIZE);
+                mosaicImage[index(x,y)] = new OriginalTile(subImage, getCompareSize());
             }
         }
     }
 
-    public void compareTiles(OriginalTile[] mosaicImage, ObservableList<DstTile> dstTilesList)
+    private void compareTiles(OriginalTile[] mosaicImage, ObservableList<DstTile> dstTilesList)
     {
          for (OriginalTile originalTile : mosaicImage) {
             Map<Integer, Integer> scores = new HashMap<>();
@@ -234,6 +232,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         return true;
     }
 
+    @Override
     public void calculateMosaicImage() {
         compareTiles(mosaicImage, dstTilesList);
 
@@ -294,7 +293,8 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         }
     }
 
-    public int getTileDistance(int index1, int index2){
+    // How test is when it is private?
+    protected int getTileDistance(int index1, int index2){
         return Math.abs(getTilePositionX(index1) - getTilePositionX(index2)) + Math.abs(getTilePositionY(index1) - getTilePositionY(index2));
     }
 
@@ -327,9 +327,9 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         }
     }
 
-    public ReadOnlyIntegerProperty dstTilesLoadProgressProperty() { return dstTilesLoadProgress.getReadOnlyProperty(); }
+    private ReadOnlyIntegerProperty dstTilesLoadProgressProperty() { return dstTilesLoadProgress.getReadOnlyProperty(); }
 
-    public int getTilesPerColumn() {
+    private int getTilesPerColumn() {
         return tilesPerColumn.get();
     }
     
@@ -367,12 +367,17 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     public int getTileSize() {
         return PropertiesManager.getInstance().getTileSize();
     }
-    
+
+    @Override
+    public int getCompareSize() {
+        return PropertiesManager.getInstance().getCompareSize();
+    }
+
     @Override
     public IntegerProperty opacityProperty() {
         return PropertiesManager.getInstance().opacityProperty();
     }
-    
+
     @Override
     public int getOpacity() {
         return PropertiesManager.getInstance().getOpacity();

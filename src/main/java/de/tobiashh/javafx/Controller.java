@@ -29,45 +29,45 @@ import java.util.Arrays;
 public class Controller {
     private final MosaicImageModel model;
 
-    @FXML public MenuBar menuBar;
+    @FXML private MenuBar menuBar;
 
-    @FXML public Canvas canvas;
+    @FXML private Canvas canvas;
 
-    @FXML public ScrollPane scrollPane;
+    @FXML private ScrollPane scrollPane;
 
-    @FXML public Label cursorPositionLabel;
+    @FXML private Label cursorPositionLabel;
 
-    @FXML public Label fileLabel;
+    @FXML private Label fileLabel;
 
-    @FXML public Label pathLabel;
+    @FXML private Label pathLabel;
 
-    @FXML public Label filesCountLabel;
+    @FXML private Label filesCountLabel;
 
-    @FXML public Label tileHoverLabel;
+    @FXML private Label tileHoverLabel;
 
-    @FXML public Label tileImageInformations;
+    @FXML private Label tileImageInformations;
 
-    @FXML public Pane canvasPane;
+    @FXML private Pane canvasPane;
 
-    @FXML public CheckBox originalCheck;
+    @FXML private CheckBox originalCheck;
 
-    @FXML public CheckBox linearModeCheck;
+    @FXML private CheckBox linearModeCheck;
 
-    @FXML public CheckBox scanSubfolderCheck;
+    @FXML private CheckBox scanSubfolderCheck;
 
-    @FXML public CheckBox blurCheck;
+    @FXML private CheckBox blurCheck;
 
-    @FXML public TextField preColorAlignment;
+    @FXML private TextField preColorAlignment;
 
-    @FXML public TextField postColorAlignment;
+    @FXML private TextField postColorAlignment;
 
-    @FXML public TextField opacity;
+    @FXML private TextField opacity;
 
-    @FXML public TextField tilesPerRow;
+    @FXML private TextField tilesPerRow;
 
-    @FXML public TextField maxReuses;
+    @FXML private TextField maxReuses;
 
-    @FXML public TextField reuseDistance;
+    @FXML private TextField reuseDistance;
 
     private static final double SCALE_DEFAULT = 1.0;
     private static final double SCALE_MIN = 0.1;
@@ -84,7 +84,7 @@ public class Controller {
     }
 
     @FXML
-    public void initialize() {
+    private void initialize() {
         initChangeListener();
         initEventHandler();
         initBindings();
@@ -136,7 +136,6 @@ public class Controller {
             tileImageInformations.setText(model.getDstTileInformation(tileX, tileY));
         };
     }
-
 
     private void initChangeListener() {
         scaleProperty().addListener((observable, oldValue, newValue) -> drawImage());
@@ -231,11 +230,11 @@ public class Controller {
         gc.drawImage(image, 0,0, canvas.getWidth(),canvas.getHeight());
     }
 
-    @FXML public void processExit() {
+    @FXML private void processExit() {
         Platform.exit();
     }
 
-    @FXML public void showAboutDialog() {
+    @FXML private void showAboutDialog() {
         final Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.initOwner(menuBar.getScene().getWindow());
@@ -246,7 +245,7 @@ public class Controller {
         dialog.show();
     }
 
-    @FXML public void processOpen() {
+    @FXML private void processOpen() {
         FileChooser fileChooser = new FileChooser();
         if(getImagePath() != null) fileChooser.setInitialDirectory(getImagePath().toFile());
         fileChooser.setTitle("Bild öffnen");
@@ -262,14 +261,14 @@ public class Controller {
         }
     }
 
-     @FXML public void processTilesPath() {
+     @FXML private void processTilesPath() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Wähle Mosaik Tile Pfad");
         directoryChooser.setInitialDirectory(model.getDstTilesPath().toFile());
         model.setDstTilesPath(directoryChooser.showDialog(menuBar.getScene().getWindow()).toPath());
     }
 
-    @FXML public void dragDropped(DragEvent dragEvent) {
+    @FXML private void dragDropped(DragEvent dragEvent) {
         Dragboard dragboard = dragEvent.getDragboard();
         boolean success = false;
         if (dragboard.hasFiles()) {
@@ -295,7 +294,7 @@ public class Controller {
         dragEvent.consume();
     }
 
-    @FXML public void dragOver(DragEvent dragEvent) {
+    @FXML private void dragOver(DragEvent dragEvent) {
         Dragboard dragboard = dragEvent.getDragboard();
         if(dragEvent.getGestureSource() != scrollPane){
 
@@ -325,15 +324,15 @@ public class Controller {
         return Arrays.stream(MosaicImageModelImpl.FILE_EXTENSION).anyMatch(e -> path.toString().toLowerCase().endsWith(".".concat(e.toLowerCase())));
     }
 
-    @FXML public void recalculateImage() {
+    @FXML private void recalculateImage() {
         model.calculateMosaicImage();
     }
 
-    @FXML public void originalCheckAction() {
+    @FXML private void originalCheckAction() {
         setDisplayOriginalImage(originalCheck.isSelected());
     }
 
-    @FXML public void processSave() {
+    @FXML private void processSave() {
         FileChooser fileChooser = new FileChooser();
         if(getImagePath() != null) fileChooser.setInitialDirectory(getImagePath().toFile());
         fileChooser.setTitle("Bild speichern");
@@ -350,19 +349,19 @@ public class Controller {
         }
     }
 
-    public DoubleProperty scaleProperty() { return scale; }
+    private DoubleProperty scaleProperty() { return scale; }
 
-    public double getScale() { return scale.get(); }
+    private double getScale() { return scale.get(); }
 
-    public void setScale(double scale) { this.scale.set(Math.max(Math.min(scale, SCALE_MAX), SCALE_MIN)); }
+    private void setScale(double scale) { this.scale.set(Math.max(Math.min(scale, SCALE_MAX), SCALE_MIN)); }
 
-    public Path getImagePath() { return imagePath.get(); }
+    private Path getImagePath() { return imagePath.get(); }
 
-    public void setImagePath(Path imagePath) { this.imagePath.set(imagePath); }
+    private void setImagePath(Path imagePath) { this.imagePath.set(imagePath); }
 
-    public BooleanProperty displayOriginalImageProperty() { return displayOriginalImage; }
+    private BooleanProperty displayOriginalImageProperty() { return displayOriginalImage; }
 
-    public boolean isDisplayOriginalImage() { return displayOriginalImage.get(); }
+    private boolean isDisplayOriginalImage() { return displayOriginalImage.get(); }
 
-    public void setDisplayOriginalImage(boolean value) { displayOriginalImage.set(value); }
+    private void setDisplayOriginalImage(boolean value) { displayOriginalImage.set(value); }
 }

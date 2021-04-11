@@ -5,9 +5,9 @@ import de.tobiashh.javafx.compareable.SimpleSquareComparableImage;
 import java.awt.image.BufferedImage;
 
 public class DstTile extends SimpleSquareComparableImage {
-    BufferedImage srcImage;
+    private final BufferedImage srcImage;
     // Actual only used for DstTileInformation
-    String filename;
+    private final String filename;
 
     public DstTile(BufferedImage image, String filename, int compareSize)
     {

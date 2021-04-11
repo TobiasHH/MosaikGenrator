@@ -18,6 +18,8 @@ public interface MosaicImageModel {
 
     int getTileSize();
 
+    int getCompareSize();
+
     IntegerProperty opacityProperty();
     int getOpacity();
     void setOpacity(int opacity);
