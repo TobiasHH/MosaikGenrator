@@ -3,8 +3,10 @@ package de.tobiashh.javafx.compareable;
 import de.tobiashh.javafx.tools.ImageTools;
 
 import java.awt.image.BufferedImage;
+import java.util.logging.Logger;
 
 public abstract class ComparableImage {
+	private final static Logger LOGGER = Logger.getLogger(ComparableImage.class.getName());
 
 	protected int[] red;
 	protected int[] green;
@@ -13,11 +15,13 @@ public abstract class ComparableImage {
 	private int compareSize;
 
 	protected void setDataImage(BufferedImage dataImage, int compareSize) {
+		LOGGER.info("ComparableImage.setDataImage");
 		this.compareSize = compareSize;
 		calculateData(dataImage);
 	}
 
 	protected void calculateData(BufferedImage compareImage) {
+		LOGGER.info("ComparableImage.compareColor");
 		BufferedImage dataImage = compareImage;
 
 		if(compareImage.getWidth() != compareSize || compareImage.getHeight() != compareSize) {

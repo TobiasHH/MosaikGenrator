@@ -20,6 +20,7 @@ public class ImageSaver implements Runnable {
 	private final int tilesPerColumn;
 
 	public ImageSaver(Path file, OriginalTile[] tiles, int tilesPerRow, int tilesPerColumn, int tileSize) {
+		LOGGER.info("ImageSaver.ImageSaver");
 		this.tiles = tiles;
 		this.tileSize = tileSize;
 		this.tilesPerRow = tilesPerRow;
@@ -43,8 +44,6 @@ public class ImageSaver implements Runnable {
 				
 				ImageOutputStream ios = ImageIO.createImageOutputStream(file.toFile());
 				writer.setOutput(ios);
-				
-				LOGGER.warning("write image to file");
 				
 				TileRenderImage tm = new TileRenderImage(tilesPerRow, tilesPerColumn, tileSize,tiles);
 				writer.write(tm);

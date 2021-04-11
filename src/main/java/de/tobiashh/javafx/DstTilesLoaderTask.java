@@ -14,9 +14,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class DstTilesLoaderTask extends Task<List<DstTile>> {
+    private final static Logger LOGGER = Logger.getLogger(DstTilesLoaderTask.class.getName());
+
     private static final int MAX_THREADS = Math.max(1,Runtime.getRuntime().availableProcessors() - 1);
 
     private final ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS, runnable -> {
@@ -31,6 +34,7 @@ public class DstTilesLoaderTask extends Task<List<DstTile>> {
     private final int compareSize;
 
     public DstTilesLoaderTask(Path newPath, boolean scanSubFolder, int tileSize, int compareSize) {
+        LOGGER.info("DstTilesLoaderTask.DstTilesLoaderTask");
         this.newPath = newPath;
         this.scanSubFolder = scanSubFolder;
         this.tileSize = tileSize;
@@ -39,6 +43,8 @@ public class DstTilesLoaderTask extends Task<List<DstTile>> {
 
     @Override
     protected List<DstTile> call() {
+        LOGGER.info("Load Tile: " + newPath.getFileName());
+
         List<DstTile> tiles = new ArrayList<>();
 
         try {
@@ -58,6 +64,8 @@ public class DstTilesLoaderTask extends Task<List<DstTile>> {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        LOGGER.info("Tiles loaded");
         return tiles;
     }
 

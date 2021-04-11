@@ -6,8 +6,11 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 public class PropertiesManager {
+    private final static Logger LOGGER = Logger.getLogger(PropertiesManager.class.getName());
+
     private static final String TILES_PER_ROW_PROPERTY_KEY = "tilesPerRow";
     private static final String TILE_SIZE_PROPERTY_KEY = "tileSize";
     private static final String TILES_PATH_PROPERTY_KEY = "tilesPath";
@@ -56,6 +59,7 @@ public class PropertiesManager {
     private static final PropertiesManager OBJ = new PropertiesManager();
 
     private PropertiesManager() {
+        LOGGER.info("PropertiesManager.PropertiesManager");
         initProperties();
     }
 
@@ -64,6 +68,7 @@ public class PropertiesManager {
     }
 
     private void initProperties() {
+        LOGGER.info("PropertiesManager.initProperties");
         tilesPathProperty().addListener((observable, oldValue, newValue) -> changeProperty(TILES_PATH_PROPERTY_KEY, newValue.toString()));
         tileSizeProperty().addListener((observable, oldValue, newValue) -> changeProperty(TILE_SIZE_PROPERTY_KEY, String.valueOf(newValue.intValue())));
         tilesPerRowProperty().addListener((observable, oldValue, newValue) -> changeProperty(TILES_PER_ROW_PROPERTY_KEY, String.valueOf(newValue.intValue())));
@@ -96,6 +101,7 @@ public class PropertiesManager {
     }
 
     private void createDefaultTilesPathIfNotExist() {
+        LOGGER.info("PropertiesManager.createDefaultTilesPathIfNotExist");
         if(getTilesPath().toString().equals(TILES_PATH_DEFAULT) && Files.notExists(Path.of(TILES_PATH_DEFAULT)))
         {
             try {
@@ -107,11 +113,13 @@ public class PropertiesManager {
     }
 
     private void changeProperty(String key, String value) {
+        LOGGER.info("PropertiesManager.changeProperty with " + key + " to " + value);
         properties.setProperty(key, value);
         saveProperties();
     }
 
     private void saveProperties() {
+        LOGGER.info("PropertiesManager.saveProperties");
          try (BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(PROPERTY_FILE.toFile()))) {
             properties.store(stream, null);
         } catch (IOException e) {
@@ -120,6 +128,7 @@ public class PropertiesManager {
     }
 
     private void loadProperties() {
+        LOGGER.info("PropertiesManager.loadProperties");
     if (Files.exists(PROPERTY_FILE)) {
             try (BufferedInputStream stream = new BufferedInputStream(new FileInputStream(PROPERTY_FILE.toFile()))) {
                 properties.load(stream);

@@ -5,6 +5,7 @@ import de.tobiashh.javafx.tiles.OriginalTile;
 import java.awt.*;
 import java.awt.image.*;
 import java.util.Vector;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -12,6 +13,7 @@ import java.util.Vector;
  * 
  */
 public class TileRenderImage implements RenderedImage {
+	private final static Logger LOGGER = Logger.getLogger(TileRenderImage.class.getName());
 
 	private final DirectColorModel cm;
 	private final SinglePixelPackedSampleModel sm;
@@ -21,6 +23,7 @@ public class TileRenderImage implements RenderedImage {
 	private final OriginalTile[] tiles;
 	
 	public TileRenderImage(int tilesPerRow, int tilesPerColumn, int tileSize, OriginalTile[] tiles) {
+		LOGGER.info("TileRenderImage.TileRenderImage");
 		this.tilesPerRow = tilesPerRow;
 		this.tilesPerColumn = tilesPerColumn;
 
@@ -48,6 +51,7 @@ public class TileRenderImage implements RenderedImage {
 	
 	@Override
 	public Raster getData(Rectangle rect) {
+		LOGGER.info("TileRenderImage.getData for " + rect);
 		SampleModel nsm = sm.createCompatibleSampleModel(rect.width, rect.height);
 		
 		WritableRaster wr = Raster.createWritableRaster(nsm, rect.getLocation());

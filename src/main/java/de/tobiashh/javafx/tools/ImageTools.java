@@ -1,7 +1,5 @@
 package de.tobiashh.javafx.tools;
 
-import de.tobiashh.javafx.properties.PropertiesManager;
-
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
@@ -16,11 +14,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class ImageTools {
+    private final static Logger LOGGER = Logger.getLogger(ImageTools.class.getName());
 
     public static BufferedImage loadTileImage(File imageFile, int tileSize)
             throws IOException {
+        LOGGER.info("ImageTools.loadTileImage");
         BufferedImage returnValue = null;
 
         ImageInputStream iis = ImageIO.createImageInputStream(imageFile);
@@ -81,6 +82,7 @@ public class ImageTools {
 
     public static BufferedImage colorAlignment(BufferedImage mosaic,
                                                BufferedImage original, int percent) {
+        LOGGER.info("ImageTools.colorAlignment with " + percent + "%");
         if (percent == 0)
             return mosaic;
         if (mosaic.getWidth() != original.getWidth()
@@ -159,6 +161,7 @@ public class ImageTools {
 
     public static BufferedImage opacityAdaption(BufferedImage mosaic,
                                                 BufferedImage original, int percent) {
+        LOGGER.info("ImageTools.opacityAdaption with " + percent + "%");
         if (percent == 100)
             return mosaic;
         if (percent == 0)
@@ -198,6 +201,7 @@ public class ImageTools {
     }
 
     public static BufferedImage calculateScaledImage(BufferedImage bImage, int width, int height, boolean highQuality) {
+        LOGGER.info("ImageTools.calculateScaledImage with " + width + ", " + height);
         if (bImage.getWidth() == width && bImage.getHeight() == height) return bImage;
 
         BufferedImage returnValue = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -231,6 +235,7 @@ public class ImageTools {
     }
 
     public static BufferedImage blurImage(BufferedImage image) {
+        LOGGER.info("ImageTools.blurImage");
         float[] blurKernel = { 0.0f, 1.f / 6.f, 0.0f, 1.f / 6.f, 1.f / 3.f,
                 1.f / 6.f, 0.0f, 1.f / 6.f, 0.0f };
 
