@@ -9,9 +9,9 @@ public class DstTile extends SimpleSquareComparableImage {
     // Actual only used for DstTileInformation
     String filename;
 
-    public DstTile(BufferedImage image, String filename)
+    public DstTile(BufferedImage image, String filename, int compareSize)
     {
-        setDataImage(image);
+        setDataImage(image, compareSize);
         this.srcImage = image;
         this.filename = filename;
     }

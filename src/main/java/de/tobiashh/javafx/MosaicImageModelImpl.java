@@ -19,7 +19,6 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.IntStream;
 
-// TODO zugriff auf Properties immer über get set Property methode
 // TODO private und public prüfen
 // TODO Methoden vernüftig benennen z.b. was heißt calculate / generate / ...
 // TODO tests
@@ -36,6 +35,7 @@ import java.util.stream.IntStream;
 
 public class MosaicImageModelImpl implements MosaicImageModel {
     public static final String[] FILE_EXTENSION = {"png", "jpg", "jpeg"};
+    public static final int COMPARE_SIZE = PropertiesManager.getInstance().getCompareSize();
 
     private final ReadOnlyIntegerWrapper dstTilesCount = new ReadOnlyIntegerWrapper();
     private final ReadOnlyObjectWrapper<BufferedImage> compositeImage = new ReadOnlyObjectWrapper<>();
@@ -58,7 +58,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     }
 
     private void initChangeListener() {
-        dstTilesLoadProgress.addListener((observable, oldValue, newValue) -> dstTilesCount.set(newValue.intValue()));
+        dstTilesLoadProgressProperty().addListener((observable, oldValue, newValue) -> dstTilesCount.set(newValue.intValue()));
         dstTilesList.addListener((ListChangeListener<DstTile>) change -> dstTilesCount.set(change.getList().size()));
 
         linearModeProperty().addListener((observable, oldValue, newValue) -> calculateMosaicImage());
@@ -71,7 +71,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         opacityProperty().addListener((observable, oldValue, newValue) -> setOpacityInTiles(newValue.intValue()));
         postColorAlignmentProperty().addListener((observable, oldValue, newValue) -> setPostColorAlignmentInTiles(newValue.intValue()));
 
-        srcImageFile.addListener((observable, oldImageFile, newImageFile) -> loadImage(newImageFile));
+        srcImageFileProperty().addListener((observable, oldImageFile, newImageFile) -> loadImage(newImageFile));
         blurModeProperty().addListener((observable, oldValue, newValue) -> loadImage(getSrcImageFile()));
         tilesPerRowProperty().addListener((observable, oldValue, newValue) -> loadImage(getSrcImageFile()));
     }
@@ -94,7 +94,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
     private void loadDstTiles(Path newPath) {
         if (task != null) task.cancel(true);
-        task = new DstTilesLoaderTask(newPath, isScanSubFolder(), getTileSize());
+        task = new DstTilesLoaderTask(newPath, isScanSubFolder(), getTileSize(), COMPARE_SIZE);
         task.progressProperty().addListener((observable, oldValue, newValue) -> dstTilesLoadProgress.set((int) (newValue.doubleValue() * 100)));
         task.setOnSucceeded(event -> {
            dstTilesList.clear();
@@ -134,7 +134,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             for (int x = 0; x < getTilesPerRow(); x++) {
                 int tileSize = getTileSize();
                 BufferedImage subImage = image.getSubimage(x * tileSize, y * tileSize, tileSize, tileSize);
-                mosaicImage[index(x,y)] = new OriginalTile(subImage);
+                mosaicImage[index(x,y)] = new OriginalTile(subImage, COMPARE_SIZE);
             }
         }
     }
@@ -327,6 +327,8 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         }
     }
 
+    public ReadOnlyIntegerProperty dstTilesLoadProgressProperty() { return dstTilesLoadProgress.getReadOnlyProperty(); }
+
     public int getTilesPerColumn() {
         return tilesPerColumn.get();
     }
@@ -460,6 +462,9 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     public boolean isScanSubFolder() {
         return PropertiesManager.getInstance().isScanSubFolder();
     }
+
+    @Override
+    public ObjectProperty<Path> srcImageFileProperty() { return srcImageFile; }
 
     @Override
     public Path getSrcImageFile() {

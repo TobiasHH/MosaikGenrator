@@ -44,6 +44,7 @@ public interface MosaicImageModel {
     BooleanProperty scanSubFolderProperty();
     boolean isScanSubFolder();
 
+    ObjectProperty<Path> srcImageFileProperty();
     Path getSrcImageFile();
     void setSrcImageFile(Path file);
 

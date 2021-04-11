@@ -139,7 +139,7 @@ public class Controller {
 
 
     private void initChangeListener() {
-        scale.addListener((observable, oldValue, newValue) -> drawImage());
+        scaleProperty().addListener((observable, oldValue, newValue) -> drawImage());
         model.compositeImageProperty().addListener((observable, oldImage, newImage) -> drawImage());
 
         preColorAlignment.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -191,7 +191,7 @@ public class Controller {
         model.reuseDistanceProperty().addListener((observable, oldValue, newValue) -> reuseDistance.setText(String.valueOf(newValue)));
         reuseDistance.setText(String.valueOf(model.getReuseDistance()));
 
-        displayOriginalImage.addListener((observable, oldValue, newValue) -> drawImage());
+        displayOriginalImageProperty().addListener((observable, oldValue, newValue) -> drawImage());
     }
 
     private int getIntFromString(String value, int min, int max){
@@ -269,16 +269,6 @@ public class Controller {
         model.setDstTilesPath(directoryChooser.showDialog(menuBar.getScene().getWindow()).toPath());
     }
 
-    public double getScale() { return scale.get(); }
-
-    public void setScale(double scale) { this.scale.set(Math.max(Math.min(scale, SCALE_MAX), SCALE_MIN)); }
-
-    public Path getImagePath() { return imagePath.get(); }
-
-    public void setImagePath(Path imagePath) { this.imagePath.set(imagePath); }
-
-    public boolean isDisplayOriginalImage() { return displayOriginalImage.get(); }
-
     @FXML public void dragDropped(DragEvent dragEvent) {
         Dragboard dragboard = dragEvent.getDragboard();
         boolean success = false;
@@ -340,7 +330,7 @@ public class Controller {
     }
 
     @FXML public void originalCheckAction() {
-        displayOriginalImage.set(originalCheck.isSelected());
+        setDisplayOriginalImage(originalCheck.isSelected());
     }
 
     @FXML public void processSave() {
@@ -359,4 +349,20 @@ public class Controller {
             }
         }
     }
+
+    public DoubleProperty scaleProperty() { return scale; }
+
+    public double getScale() { return scale.get(); }
+
+    public void setScale(double scale) { this.scale.set(Math.max(Math.min(scale, SCALE_MAX), SCALE_MIN)); }
+
+    public Path getImagePath() { return imagePath.get(); }
+
+    public void setImagePath(Path imagePath) { this.imagePath.set(imagePath); }
+
+    public BooleanProperty displayOriginalImageProperty() { return displayOriginalImage; }
+
+    public boolean isDisplayOriginalImage() { return displayOriginalImage.get(); }
+
+    public void setDisplayOriginalImage(boolean value) { displayOriginalImage.set(value); }
 }

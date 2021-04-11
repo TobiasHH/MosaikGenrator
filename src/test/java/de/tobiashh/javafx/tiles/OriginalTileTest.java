@@ -10,7 +10,7 @@ class OriginalTileTest {
 
     @Test
     void setMosikTileIDs() {
-        OriginalTile tile = new OriginalTile(new BufferedImage(1,1,BufferedImage.TYPE_INT_RGB));
+        OriginalTile tile = new OriginalTile(new BufferedImage(1,1,BufferedImage.TYPE_INT_RGB), 16);
         tile.setDstTileIDs(1, 2, 3);
         assertThat(tile.getDstTileIndex(), is(-1));
         assertThat(tile.getDstTileID(), is(-1));
@@ -27,7 +27,7 @@ class OriginalTileTest {
 
     @Test
     void hasIndexSet() {
-        OriginalTile tile = new OriginalTile(new BufferedImage(1,1,BufferedImage.TYPE_INT_RGB));
+        OriginalTile tile = new OriginalTile(new BufferedImage(1,1,BufferedImage.TYPE_INT_RGB), 16);
         tile.setDstTileIDs(1, 2, 3);
         assertThat(tile.isIndexSet(), is(false));
         tile.incrementDstTileIndex();
@@ -38,7 +38,7 @@ class OriginalTileTest {
 
     @Test
     void incrementIndex() {
-        OriginalTile tile = new OriginalTile(new BufferedImage(1,1,BufferedImage.TYPE_INT_RGB));
+        OriginalTile tile = new OriginalTile(new BufferedImage(1,1,BufferedImage.TYPE_INT_RGB), 16);
         tile.setDstTileIDs(1, 2, 3);
         assertThat(tile.getDstTileIndex(), is(-1));
         assertThat(tile.incrementDstTileIndex(), is(true));

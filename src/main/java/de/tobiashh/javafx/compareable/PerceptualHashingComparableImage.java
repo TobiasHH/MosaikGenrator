@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage;
 public class PerceptualHashingComparableImage extends ComparableImage
 {
 
-    public static final int COMPARE_SIZE = PropertiesManager.getInstance().getCompareSize();
+    public static final int COMPARE_SIZE = 8;
 
     /**
      * http://www.hackerfactor.com/blog/?/archives/432-Looks-Like-It.html

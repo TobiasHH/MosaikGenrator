@@ -13,6 +13,7 @@ import java.lang.ref.WeakReference;
 public class OriginalTile extends SimpleSquareComparableImage {
     private final ObjectProperty<BufferedImage> srcImage = new SimpleObjectProperty<>();
     private final ObjectProperty<BufferedImage> dstImage = new SimpleObjectProperty<>();
+    private final IntegerProperty dstTileIndex = new SimpleIntegerProperty( -1);
 
     private int opacity = 100;
     private int postColorAlignment = 100;
@@ -21,32 +22,30 @@ public class OriginalTile extends SimpleSquareComparableImage {
     int[] dstTileIDs;
     boolean[] blockedIds;
 
-    IntegerProperty dstTileIndex = new SimpleIntegerProperty( -1);
-
     WeakReference<BufferedImage> composedImage = new WeakReference<>(null);
 
-    public OriginalTile(BufferedImage srcImage)
+    public OriginalTile(BufferedImage srcImage, int compareSize)
     {
-        setDataImage(srcImage);
-        this.srcImage.set(srcImage);
+        setDataImage(srcImage, compareSize);
+        setSrcImage(srcImage);
         initChangeListener();
     }
 
     private void initChangeListener() {
-        srcImage.addListener((observable, oldValue, newValue) -> composedImage.clear());
-        dstImage.addListener((observable, oldValue, newValue) -> composedImage.clear());
+        srcImageProperty().addListener((observable, oldValue, newValue) -> composedImage.clear());
+        dstImageProperty().addListener((observable, oldValue, newValue) -> composedImage.clear());
     }
 
     public BufferedImage getComposedImage()
     {
-        BufferedImage srcImage = this.srcImage.get();
+        BufferedImage srcImage = getSrcImage();
         if(srcImage == null)
         {
             return null;
         }
         else
         {
-            BufferedImage dstImage = this.dstImage.get();
+            BufferedImage dstImage = getDstImage();
 
             if(dstImage == null)
             {
@@ -112,14 +111,6 @@ public class OriginalTile extends SimpleSquareComparableImage {
         }
     }
 
-    public int getDstTileIndex() {
-        return dstTileIndex.get();
-    }
-
-    public void setDstTileIndex(int dstTileIndex) {
-            this.dstTileIndex.set(dstTileIndex);
-    }
-
     public boolean incrementDstTileIndex() {
         int nextIndex = getDstTileIndex() + 1;
         while(nextIndex < dstTileIDs.length)
@@ -155,8 +146,29 @@ public class OriginalTile extends SimpleSquareComparableImage {
         composedImage.clear();
     }
 
+    public int getDstTileIndex() {
+        return dstTileIndex.get();
+    }
+
+    public void setDstTileIndex(int dstTileIndex) {
+        this.dstTileIndex.set(dstTileIndex);
+    }
+
+    public ObjectProperty<BufferedImage> srcImageProperty() {
+        return srcImage;
+    }
+
     public BufferedImage getSrcImage() { return srcImage.get(); }
 
-    public void setDstImage(BufferedImage image) { dstImage.set(image); }
+    public void setSrcImage(BufferedImage image) { srcImage.set(image); }
 
+    public ObjectProperty<BufferedImage> dstImageProperty() {
+        return dstImage;
+    }
+
+    public BufferedImage getDstImage() {
+        return dstImage.get();
+    }
+
+    public void setDstImage(BufferedImage image) { dstImage.set(image); }
 }

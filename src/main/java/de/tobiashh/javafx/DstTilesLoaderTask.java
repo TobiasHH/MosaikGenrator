@@ -28,11 +28,13 @@ public class DstTilesLoaderTask extends Task<List<DstTile>> {
     private final Path newPath;
     private final boolean scanSubFolder;
     private final int tileSize;
+    private final int compareSize;
 
-    public DstTilesLoaderTask(Path newPath, boolean scanSubFolder, int tileSize) {
+    public DstTilesLoaderTask(Path newPath, boolean scanSubFolder, int tileSize, int compareSize) {
         this.newPath = newPath;
         this.scanSubFolder = scanSubFolder;
         this.tileSize = tileSize;
+        this.compareSize = compareSize;
     }
 
     @Override
@@ -42,7 +44,7 @@ public class DstTilesLoaderTask extends Task<List<DstTile>> {
         try {
             List<Future<Optional<DstTile>>> futures = ((scanSubFolder) ? Files.walk(newPath) : Files.list(newPath))
                     .filter(this::extensionFilter)
-                    .map(file -> executor.submit(new DstTileLoadTask(file, tileSize)))
+                    .map(file -> executor.submit(new DstTileLoadTask(file, tileSize, compareSize)))
                     .collect(Collectors.toList());
 
             for (Future<Optional<DstTile>> future : futures) {

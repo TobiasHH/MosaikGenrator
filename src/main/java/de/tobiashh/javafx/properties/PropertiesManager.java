@@ -64,18 +64,18 @@ public class PropertiesManager {
     }
 
     private void initProperties() {
-        tilesPath.addListener((observable, oldValue, newValue) -> changeProperty(TILES_PATH_PROPERTY_KEY, newValue.toString()));
-        tileSize.addListener((observable, oldValue, newValue) -> changeProperty(TILE_SIZE_PROPERTY_KEY, String.valueOf(newValue.intValue())));
-        tilesPerRow.addListener((observable, oldValue, newValue) -> changeProperty(TILES_PER_ROW_PROPERTY_KEY, String.valueOf(newValue.intValue())));
-        linearMode.addListener((observable, oldValue, newValue) -> changeProperty(LINEAR_MODE_PROPERTY_KEY, String.valueOf(newValue)));
-        compareSize.addListener((observable, oldValue, newValue) -> changeProperty(COMPARE_SIZE_PROPERTY_KEY, String.valueOf(newValue)));
-        opacity.addListener((observable, oldValue, newValue) -> changeProperty(OPACITY_PROPERTY_KEY, String.valueOf(newValue)));
-        preColorAlignment.addListener((observable, oldValue, newValue) -> changeProperty(PRE_COLOR_ALIGNMENT_PROPERTY_KEY, String.valueOf(newValue)));
-        postColorAlignment.addListener((observable, oldValue, newValue) -> changeProperty(POST_COLOR_ALIGNMENT_PROPERTY_KEY, String.valueOf(newValue)));
-        blurMode.addListener((observable, oldValue, newValue) -> changeProperty(BLUR_MODE_PROPERTY_KEY, String.valueOf(newValue)));
-        maxReuses.addListener((observable, oldValue, newValue) -> changeProperty(MAX_REUSES_PROPERTY_KEY, String.valueOf(newValue)));
-        reuseDistance.addListener((observable, oldValue, newValue) -> changeProperty(REUSE_DISTANCE_PROPERTY_KEY, String.valueOf(newValue)));
-        scanSubFolder.addListener((observable, oldValue, newValue) -> changeProperty(SCAN_SUB_FOLDER_PROPERTY_KEY, String.valueOf(newValue)));
+        tilesPathProperty().addListener((observable, oldValue, newValue) -> changeProperty(TILES_PATH_PROPERTY_KEY, newValue.toString()));
+        tileSizeProperty().addListener((observable, oldValue, newValue) -> changeProperty(TILE_SIZE_PROPERTY_KEY, String.valueOf(newValue.intValue())));
+        tilesPerRowProperty().addListener((observable, oldValue, newValue) -> changeProperty(TILES_PER_ROW_PROPERTY_KEY, String.valueOf(newValue.intValue())));
+        linearModeProperty().addListener((observable, oldValue, newValue) -> changeProperty(LINEAR_MODE_PROPERTY_KEY, String.valueOf(newValue)));
+        compareSizeProperty().addListener((observable, oldValue, newValue) -> changeProperty(COMPARE_SIZE_PROPERTY_KEY, String.valueOf(newValue)));
+        opacityProperty().addListener((observable, oldValue, newValue) -> changeProperty(OPACITY_PROPERTY_KEY, String.valueOf(newValue)));
+        preColorAlignmentProperty().addListener((observable, oldValue, newValue) -> changeProperty(PRE_COLOR_ALIGNMENT_PROPERTY_KEY, String.valueOf(newValue)));
+        postColorAlignmentProperty().addListener((observable, oldValue, newValue) -> changeProperty(POST_COLOR_ALIGNMENT_PROPERTY_KEY, String.valueOf(newValue)));
+        blurModeProperty().addListener((observable, oldValue, newValue) -> changeProperty(BLUR_MODE_PROPERTY_KEY, String.valueOf(newValue)));
+        maxReusesProperty().addListener((observable, oldValue, newValue) -> changeProperty(MAX_REUSES_PROPERTY_KEY, String.valueOf(newValue)));
+        reuseDistanceProperty().addListener((observable, oldValue, newValue) -> changeProperty(REUSE_DISTANCE_PROPERTY_KEY, String.valueOf(newValue)));
+        scanSubFolderProperty().addListener((observable, oldValue, newValue) -> changeProperty(SCAN_SUB_FOLDER_PROPERTY_KEY, String.valueOf(newValue)));
 
         loadProperties();
 
@@ -129,6 +129,10 @@ public class PropertiesManager {
         }
     }
 
+    public IntegerProperty tileSizeProperty() {
+        return tileSize;
+    }
+
     public int getTileSize() {
         return tileSize.get();
     }
@@ -169,6 +173,10 @@ public class PropertiesManager {
 
     public void setLinearMode(boolean linearMode) {
         this.linearMode.set(linearMode);
+    }
+
+    public IntegerProperty compareSizeProperty() {
+        return compareSize;
     }
 
     public int getCompareSize() {

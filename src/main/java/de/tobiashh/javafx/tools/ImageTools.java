@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class ImageTools {
 
-    public static BufferedImage loadTileImage(File imageFile)
+    public static BufferedImage loadTileImage(File imageFile, int tileSize)
             throws IOException {
         BufferedImage returnValue = null;
 
@@ -32,8 +32,8 @@ public class ImageTools {
             int imageWidth = reader.getWidth(0);
             int imageHeight = reader.getHeight(0);
 
-            int factorWidth = imageWidth / PropertiesManager.getInstance().getTileSize();
-            int factorHeight = imageHeight / PropertiesManager.getInstance().getTileSize();
+            int factorWidth = imageWidth / tileSize;
+            int factorHeight = imageHeight / tileSize;
 
             ImageReadParam param = new ImageReadParam();
             int factor = Math.min(factorWidth, factorHeight);
