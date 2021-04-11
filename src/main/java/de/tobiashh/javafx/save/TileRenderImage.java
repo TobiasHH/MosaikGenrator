@@ -1,11 +1,12 @@
 package de.tobiashh.javafx.save;
 
 import de.tobiashh.javafx.tiles.OriginalTile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.awt.image.*;
 import java.util.Vector;
-import java.util.logging.Logger;
 
 /**
  * 
@@ -13,7 +14,7 @@ import java.util.logging.Logger;
  * 
  */
 public class TileRenderImage implements RenderedImage {
-	private final static Logger LOGGER = Logger.getLogger(TileRenderImage.class.getName());
+	private final static Logger LOGGER = LoggerFactory.getLogger(TileRenderImage.class.getName());
 
 	private final DirectColorModel cm;
 	private final SinglePixelPackedSampleModel sm;
@@ -23,7 +24,7 @@ public class TileRenderImage implements RenderedImage {
 	private final OriginalTile[] tiles;
 	
 	public TileRenderImage(int tilesPerRow, int tilesPerColumn, int tileSize, OriginalTile[] tiles) {
-		LOGGER.info("TileRenderImage.TileRenderImage");
+		LOGGER.info("TileRenderImage");
 		this.tilesPerRow = tilesPerRow;
 		this.tilesPerColumn = tilesPerColumn;
 
@@ -51,7 +52,7 @@ public class TileRenderImage implements RenderedImage {
 	
 	@Override
 	public Raster getData(Rectangle rect) {
-		LOGGER.info("TileRenderImage.getData for " + rect);
+		LOGGER.debug("getData {}", rect);
 		SampleModel nsm = sm.createCompatibleSampleModel(rect.width, rect.height);
 		
 		WritableRaster wr = Raster.createWritableRaster(nsm, rect.getLocation());

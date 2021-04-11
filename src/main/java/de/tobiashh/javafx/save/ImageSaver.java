@@ -1,6 +1,8 @@
 package de.tobiashh.javafx.save;
 
 import de.tobiashh.javafx.tiles.OriginalTile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
@@ -8,10 +10,9 @@ import javax.imageio.stream.ImageOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Iterator;
-import java.util.logging.Logger;
 
 public class ImageSaver implements Runnable {
-	private final static Logger LOGGER = Logger.getLogger(ImageSaver.class.getName());
+	private final static Logger LOGGER = LoggerFactory.getLogger(ImageSaver.class.getName());
 	
 	private final Path file;
 	private final OriginalTile[] tiles;
@@ -20,7 +21,7 @@ public class ImageSaver implements Runnable {
 	private final int tilesPerColumn;
 
 	public ImageSaver(Path file, OriginalTile[] tiles, int tilesPerRow, int tilesPerColumn, int tileSize) {
-		LOGGER.info("ImageSaver.ImageSaver");
+		LOGGER.info("ImageSaver");
 		this.tiles = tiles;
 		this.tileSize = tileSize;
 		this.tilesPerRow = tilesPerRow;
@@ -30,7 +31,7 @@ public class ImageSaver implements Runnable {
 	
 	@Override
 	public void run() {
-		LOGGER.info("Save Image: " + file.getFileName());
+		LOGGER.info("Save image {}", file.getFileName());
 		Runtime.getRuntime().gc();
 		
 		try

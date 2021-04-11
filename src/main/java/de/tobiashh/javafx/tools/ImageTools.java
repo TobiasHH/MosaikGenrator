@@ -14,14 +14,15 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ImageTools {
-    private final static Logger LOGGER = Logger.getLogger(ImageTools.class.getName());
+    private final static Logger LOGGER = LoggerFactory.getLogger(ImageTools.class.getName());
 
     public static BufferedImage loadTileImage(File imageFile, int tileSize)
             throws IOException {
-        LOGGER.info("ImageTools.loadTileImage");
+        LOGGER.debug("loadTileImage {} with tileSize {}", imageFile, tileSize);
         BufferedImage returnValue = null;
 
         ImageInputStream iis = ImageIO.createImageInputStream(imageFile);
@@ -75,14 +76,14 @@ public class ImageTools {
 //            no compatible reader for: C:\Users\luech\Dropbox\Docs and Images\Interessante Bilder Dropbox\XXX\2D\f93d67d40c3de303deb1ccd3b1e0b98356303b34.jpg
 //            no compatible reader for: C:\Users\luech\Dropbox\Docs and Images\Interessante Bilder Dropbox\XXX\2D\playful-promises-corsets-waspies-playful-promises-anneliese-black-lace-curve-waspie-15779894624304_1024x1024_3eceabba-5bd7-4b83-beb8-3aea0672fcd0.jpg
 
-            System.err.println("no compatible reader for: " + imageFile);
+            LOGGER.warn("no compatible reader for {}", imageFile);
         }
         return returnValue;
     }
 
     public static BufferedImage colorAlignment(BufferedImage mosaic,
                                                BufferedImage original, int percent) {
-        LOGGER.info("ImageTools.colorAlignment with " + percent + "%");
+        LOGGER.debug("colorAlignment {}%", percent);
         if (percent == 0)
             return mosaic;
         if (mosaic.getWidth() != original.getWidth()
@@ -161,7 +162,7 @@ public class ImageTools {
 
     public static BufferedImage opacityAdaption(BufferedImage mosaic,
                                                 BufferedImage original, int percent) {
-        LOGGER.info("ImageTools.opacityAdaption with " + percent + "%");
+        LOGGER.debug("opacityAdaption {}%", percent);
         if (percent == 100)
             return mosaic;
         if (percent == 0)
@@ -201,7 +202,7 @@ public class ImageTools {
     }
 
     public static BufferedImage calculateScaledImage(BufferedImage bImage, int width, int height, boolean highQuality) {
-        LOGGER.info("ImageTools.calculateScaledImage with " + width + ", " + height);
+        LOGGER.debug("calculateScaledImage with {},{}", width, height);
         if (bImage.getWidth() == width && bImage.getHeight() == height) return bImage;
 
         BufferedImage returnValue = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -235,7 +236,7 @@ public class ImageTools {
     }
 
     public static BufferedImage blurImage(BufferedImage image) {
-        LOGGER.info("ImageTools.blurImage");
+        LOGGER.debug("blurImage");
         float[] blurKernel = { 0.0f, 1.f / 6.f, 0.0f, 1.f / 6.f, 1.f / 3.f,
                 1.f / 6.f, 0.0f, 1.f / 6.f, 0.0f };
 

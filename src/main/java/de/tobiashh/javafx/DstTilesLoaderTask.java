@@ -2,6 +2,8 @@ package de.tobiashh.javafx;
 
 import de.tobiashh.javafx.tiles.DstTile;
 import javafx.concurrent.Task;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,11 +16,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class DstTilesLoaderTask extends Task<List<DstTile>> {
-    private final static Logger LOGGER = Logger.getLogger(DstTilesLoaderTask.class.getName());
+    private final static Logger LOGGER = LoggerFactory.getLogger(DstTilesLoaderTask.class.getName());
 
     private static final int MAX_THREADS = Math.max(1,Runtime.getRuntime().availableProcessors() - 1);
 
@@ -34,7 +35,7 @@ public class DstTilesLoaderTask extends Task<List<DstTile>> {
     private final int compareSize;
 
     public DstTilesLoaderTask(Path newPath, boolean scanSubFolder, int tileSize, int compareSize) {
-        LOGGER.info("DstTilesLoaderTask.DstTilesLoaderTask");
+        LOGGER.info("DstTilesLoaderTask");
         this.newPath = newPath;
         this.scanSubFolder = scanSubFolder;
         this.tileSize = tileSize;
@@ -43,7 +44,7 @@ public class DstTilesLoaderTask extends Task<List<DstTile>> {
 
     @Override
     protected List<DstTile> call() {
-        LOGGER.info("Load Tile: " + newPath.getFileName());
+        LOGGER.info("loading Tiles from {}", newPath);
 
         List<DstTile> tiles = new ArrayList<>();
 

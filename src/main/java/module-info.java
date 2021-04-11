@@ -2,8 +2,7 @@ module de.tobiashh.javafx {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.swing;
-    requires java.logging;
-    // requires java.desktop;
+    requires org.slf4j;
 
     opens de.tobiashh.javafx to javafx.fxml;
     exports de.tobiashh.javafx;

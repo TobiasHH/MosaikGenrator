@@ -1,15 +1,16 @@
 package de.tobiashh.javafx.properties;
 
 import javafx.beans.property.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 public class PropertiesManager {
-    private final static Logger LOGGER = Logger.getLogger(PropertiesManager.class.getName());
+    private final static Logger LOGGER = LoggerFactory.getLogger(PropertiesManager.class.getName());
 
     private static final String TILES_PER_ROW_PROPERTY_KEY = "tilesPerRow";
     private static final String TILE_SIZE_PROPERTY_KEY = "tileSize";
@@ -59,7 +60,7 @@ public class PropertiesManager {
     private static final PropertiesManager OBJ = new PropertiesManager();
 
     private PropertiesManager() {
-        LOGGER.info("PropertiesManager.PropertiesManager");
+        LOGGER.info("PropertiesManager");
         initProperties();
     }
 
@@ -68,7 +69,7 @@ public class PropertiesManager {
     }
 
     private void initProperties() {
-        LOGGER.info("PropertiesManager.initProperties");
+        LOGGER.info("initProperties");
         tilesPathProperty().addListener((observable, oldValue, newValue) -> changeProperty(TILES_PATH_PROPERTY_KEY, newValue.toString()));
         tileSizeProperty().addListener((observable, oldValue, newValue) -> changeProperty(TILE_SIZE_PROPERTY_KEY, String.valueOf(newValue.intValue())));
         tilesPerRowProperty().addListener((observable, oldValue, newValue) -> changeProperty(TILES_PER_ROW_PROPERTY_KEY, String.valueOf(newValue.intValue())));
@@ -101,7 +102,7 @@ public class PropertiesManager {
     }
 
     private void createDefaultTilesPathIfNotExist() {
-        LOGGER.info("PropertiesManager.createDefaultTilesPathIfNotExist");
+        LOGGER.info("createDefaultTilesPathIfNotExist");
         if(getTilesPath().toString().equals(TILES_PATH_DEFAULT) && Files.notExists(Path.of(TILES_PATH_DEFAULT)))
         {
             try {
@@ -113,13 +114,13 @@ public class PropertiesManager {
     }
 
     private void changeProperty(String key, String value) {
-        LOGGER.info("PropertiesManager.changeProperty with " + key + " to " + value);
+        LOGGER.info("changeProperty {} to {}", key, value);
         properties.setProperty(key, value);
         saveProperties();
     }
 
     private void saveProperties() {
-        LOGGER.info("PropertiesManager.saveProperties");
+        LOGGER.debug("saveProperties");
          try (BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(PROPERTY_FILE.toFile()))) {
             properties.store(stream, null);
         } catch (IOException e) {
@@ -128,7 +129,7 @@ public class PropertiesManager {
     }
 
     private void loadProperties() {
-        LOGGER.info("PropertiesManager.loadProperties");
+        LOGGER.debug("loadProperties");
     if (Files.exists(PROPERTY_FILE)) {
             try (BufferedInputStream stream = new BufferedInputStream(new FileInputStream(PROPERTY_FILE.toFile()))) {
                 properties.load(stream);

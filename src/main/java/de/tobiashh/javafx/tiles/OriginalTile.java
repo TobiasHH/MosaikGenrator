@@ -6,14 +6,15 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
-import java.util.logging.Logger;
 
 public class OriginalTile extends SimpleSquareComparableImage {
-    private final static Logger LOGGER = Logger.getLogger(OriginalTile.class.getName());
+    private final static Logger LOGGER = LoggerFactory.getLogger(OriginalTile.class.getName());
 
     private final ObjectProperty<BufferedImage> srcImage = new SimpleObjectProperty<>();
     private final ObjectProperty<BufferedImage> dstImage = new SimpleObjectProperty<>();
@@ -30,21 +31,21 @@ public class OriginalTile extends SimpleSquareComparableImage {
 
     public OriginalTile(BufferedImage srcImage, int compareSize)
     {
-        LOGGER.info("OriginalTile.OriginalTile with compareSize " + compareSize);
+        LOGGER.debug("OriginalTile with compareSize {}", compareSize);
         setDataImage(srcImage, compareSize);
         setSrcImage(srcImage);
         initChangeListener();
     }
 
     private void initChangeListener() {
-        LOGGER.info("OriginalTile.initChangeListener");
+        LOGGER.debug("initChangeListener");
         srcImageProperty().addListener((observable, oldValue, newValue) -> composedImage.clear());
         dstImageProperty().addListener((observable, oldValue, newValue) -> composedImage.clear());
     }
 
     public BufferedImage getComposedImage()
     {
-        LOGGER.info("OriginalTile.getComposedImage");
+        LOGGER.debug("getComposedImage");
         BufferedImage srcImage = getSrcImage();
         if(srcImage == null)
         {
@@ -83,7 +84,7 @@ public class OriginalTile extends SimpleSquareComparableImage {
 
     public void addBlockedIds(int ... ids)
     {
-        LOGGER.info("OriginalTile.addBlockedIds " + Arrays.toString(ids));
+        LOGGER.debug("addBlockedIds {}", Arrays.toString(ids));
         for (int id : ids) {
             for (int i = 0; i < dstTileIDs.length; i++) {
                 if(id == dstTileIDs[i])
@@ -96,7 +97,7 @@ public class OriginalTile extends SimpleSquareComparableImage {
 
     public void setDstTileIDs(int ... ids)
     {
-        LOGGER.info("OriginalTile.setDstTileIDs " + Arrays.toString(ids));
+        LOGGER.debug("setDstTileIDs {}", Arrays.toString(ids));
         dstTileIDs = new int[ids.length];
         blockedIds = new boolean[ids.length];
 
@@ -110,7 +111,7 @@ public class OriginalTile extends SimpleSquareComparableImage {
 
     public int getDstTileID()
     {
-        LOGGER.info("OriginalTile.getDstTileID");
+        LOGGER.debug("getDstTileID");
         int dstTileIndex = getDstTileIndex();
 
         if(dstTileIndex == -1 || dstTileIDs == null || dstTileIndex >= dstTileIDs.length){
@@ -122,12 +123,13 @@ public class OriginalTile extends SimpleSquareComparableImage {
     }
 
     public boolean incrementDstTileIndex() {
-        LOGGER.info("OriginalTile.incrementDstTileIndex");
+        LOGGER.debug("incrementDstTileIndex");
         int nextIndex = getDstTileIndex() + 1;
         while(nextIndex < dstTileIDs.length)
         {
             if(!blockedIds[nextIndex])
             {
+                LOGGER.trace("set index to {}", nextIndex);
                 setDstTileIndex(nextIndex);
                 return true;
             }
@@ -139,37 +141,32 @@ public class OriginalTile extends SimpleSquareComparableImage {
     }
 
     public void resetIndex() {
-        LOGGER.info("OriginalTile.resetIndex");
+        LOGGER.debug("resetIndex");
           setDstTileIndex(-1);
     }
 
     public boolean isIndexSet() {
-        LOGGER.info("OriginalTile.isIndexSet");
-        return getDstTileIndex() >= 0;
+        boolean isIndexSet = getDstTileIndex() >= 0;
+        LOGGER.debug("isIndexSet {}", isIndexSet);
+        return isIndexSet;
     }
 
     public void setOpacity(int opacity)
     {
-        LOGGER.info("OriginalTile.setOpacity to " + opacity + "%");
+        LOGGER.debug("setOpacity to {}%", opacity);
         this.opacity = opacity;
         composedImage.clear();
     }
 
     public void setPostColorAlignment(int postColorAlignment) {
-        LOGGER.info("OriginalTile.postColorAlignment to " + postColorAlignment + "%");
+        LOGGER.debug("setPostColorAlignment to {}%", postColorAlignment);
         this.postColorAlignment = postColorAlignment;
         composedImage.clear();
     }
 
-    public int getDstTileIndex() {
-        LOGGER.info("OriginalTile.getDstTileIndex");
-        return dstTileIndex.get();
-    }
+    public int getDstTileIndex() { return dstTileIndex.get(); }
 
-    public void setDstTileIndex(int dstTileIndex) {
-        LOGGER.info("OriginalTile.setDstTileIndex to " + dstTileIndex);
-        this.dstTileIndex.set(dstTileIndex);
-    }
+    public void setDstTileIndex(int dstTileIndex) { this.dstTileIndex.set(dstTileIndex); }
 
     public ObjectProperty<BufferedImage> srcImageProperty() {
         return srcImage;

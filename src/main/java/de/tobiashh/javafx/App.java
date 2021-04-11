@@ -5,19 +5,20 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * JavaFX App
  */
 public class App extends Application {
-    private final static Logger LOGGER = Logger.getLogger(App.class.getName());
+    private final static Logger LOGGER = LoggerFactory.getLogger(App.class.getName());
 
     @Override
     public void start(Stage stage) throws IOException {
-        LOGGER.info("App.start");
+        LOGGER.info("start");
         Scene scene = new Scene(loadFXML(), 640, 480);
         stage.setScene(scene);
         stage.setMaximized(true);
@@ -25,7 +26,7 @@ public class App extends Application {
     }
 
     private static Parent loadFXML() throws IOException {
-        LOGGER.info("App.loadFXML");
+        LOGGER.info("loadFXML");
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("primary.fxml"));
         MosaicImageModel model = new MosaicImageModelImpl();
         fxmlLoader.setControllerFactory(c -> new Controller(model));

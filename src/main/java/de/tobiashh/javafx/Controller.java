@@ -19,16 +19,17 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.logging.Logger;
 
 public class Controller {
-    private final static Logger LOGGER = Logger.getLogger(Controller.class.getName());
+    private final static Logger LOGGER = LoggerFactory.getLogger(Controller.class.getName());
 
     private final MosaicImageModel model;
 
@@ -83,13 +84,13 @@ public class Controller {
     private final BooleanProperty displayOriginalImage = new SimpleBooleanProperty();
 
     public Controller(MosaicImageModel model) {
-        LOGGER.info("Controller.Controller");
+        LOGGER.info("Controller");
         this.model = model;
     }
 
     @FXML
     private void initialize() {
-        LOGGER.info("Controller.initialize");
+        LOGGER.info("initialize");
         initChangeListener();
         initEventHandler();
         initBindings();
@@ -97,7 +98,7 @@ public class Controller {
     }
 
     private void initBindings() {
-        LOGGER.info("Controller.initBindings");
+        LOGGER.info("initBindings");
         pathLabel.textProperty().bind(Bindings.when(model.dstTilesPathProperty().isNull()).then("Kein Pfad gewählt.").otherwise(model.dstTilesPathProperty().asString()));
         filesCountLabel.textProperty().bind(model.dstTilesCountProperty().asString());
         canvas.widthProperty().bind(canvasPane.prefWidthProperty());
@@ -108,7 +109,7 @@ public class Controller {
     }
 
     private void initEventHandler() {
-        LOGGER.info("Controller.initEventHandler");
+        LOGGER.info("initEventHandler");
         canvas.addEventHandler(MouseEvent.MOUSE_MOVED, getCursorPositionEventHandler());
         canvas.addEventHandler(MouseEvent.MOUSE_MOVED, getTileHoverEventHandler());
         canvas.addEventHandler(MouseEvent.MOUSE_MOVED, getTileImageInformationEventHandler());
@@ -117,7 +118,7 @@ public class Controller {
     }
 
     private EventHandler<MouseEvent> changeTileEventHandler() {
-        LOGGER.info("Controller.changeTileEventHandler");
+        LOGGER.info("changeTileEventHandler");
         return mouseEvent -> {
             int x = (int) (mouseEvent.getX() / (model.getTileSize() * getScale()));
             int y = (int) (mouseEvent.getY() / (model.getTileSize() * getScale()));
@@ -126,12 +127,12 @@ public class Controller {
     }
 
     private EventHandler<MouseEvent> getCursorPositionEventHandler() {
-        LOGGER.info("Controller.getCursorPositionEventHandler");
+        LOGGER.info("getCursorPositionEventHandler");
         return mouseEvent -> cursorPositionLabel.setText("x:" + (int) mouseEvent.getX() + " y:" + (int) mouseEvent.getY());
     }
 
     private EventHandler<MouseEvent> getTileHoverEventHandler() {
-        LOGGER.info("Controller.getTileHoverEventHandler");
+        LOGGER.info("getTileHoverEventHandler");
         return mouseEvent -> {
             int tileX = (int) (mouseEvent.getX() / (model.getTileSize() * getScale()));
             int tileY =(int)( mouseEvent.getY() / (model.getTileSize() * getScale()));
@@ -140,7 +141,7 @@ public class Controller {
     }
 
     private EventHandler<MouseEvent> getTileImageInformationEventHandler() {
-        LOGGER.info("Controller.getTileImageInformationEventHandler");
+        LOGGER.info("getTileImageInformationEventHandler");
         return mouseEvent -> {
             int tileX = (int) (mouseEvent.getX() / (model.getTileSize() * getScale()));
             int tileY =(int)( mouseEvent.getY() / (model.getTileSize() * getScale()));
@@ -149,7 +150,7 @@ public class Controller {
     }
 
     private void initChangeListener() {
-        LOGGER.info("Controller.initChangeListener");
+        LOGGER.info("initChangeListener");
         scaleProperty().addListener((observable, oldValue, newValue) -> drawImage());
         model.compositeImageProperty().addListener((observable, oldImage, newImage) -> drawImage());
 
@@ -213,7 +214,7 @@ public class Controller {
 
 
     private EventHandler<ScrollEvent> getScrollEventHandler() {
-        LOGGER.info("Controller.getScrollEventHandler");
+        LOGGER.info("getScrollEventHandler");
         return scrollEvent -> {
             if(scrollEvent.isControlDown()){
                 setScale(getScale() + scrollEvent.getDeltaY() / 100.0);
@@ -223,7 +224,7 @@ public class Controller {
     }
 
     private void initCanvas() {
-        LOGGER.info("Controller.initCanvas");
+        LOGGER.info("initCanvas");
         try {
             String filename = "test.png";
             model.setSrcImageFile(Path.of(getClass().getResource(filename).toURI()));
@@ -233,7 +234,7 @@ public class Controller {
     }
 
     private void drawImage() {
-        LOGGER.info("Controller.drawImage");
+        LOGGER.info("drawImage");
         BufferedImage bufferedImage = (isDisplayOriginalImage())? model.getOriginalImage() : model.getCompositeImage();
 
         canvasPane.setPrefWidth((int)(bufferedImage.getWidth() * getScale()));
@@ -246,12 +247,12 @@ public class Controller {
     }
 
     @FXML private void processExit() {
-        LOGGER.info("Controller.processExit");
+        LOGGER.info("processExit");
         Platform.exit();
     }
 
     @FXML private void showAboutDialog() {
-        LOGGER.info("Controller.showAboutDialog");
+        LOGGER.info("showAboutDialog");
         final Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.initOwner(menuBar.getScene().getWindow());
@@ -263,7 +264,7 @@ public class Controller {
     }
 
     @FXML private void processOpen() {
-        LOGGER.info("Controller.processOpen");
+        LOGGER.info("processOpen");
         FileChooser fileChooser = new FileChooser();
         if(getImagePath() != null) fileChooser.setInitialDirectory(getImagePath().toFile());
         fileChooser.setTitle("Bild öffnen");
@@ -280,7 +281,7 @@ public class Controller {
     }
 
      @FXML private void processTilesPath() {
-         LOGGER.info("Controller.processTilesPath");
+         LOGGER.info("processTilesPath");
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Wähle Mosaik Tile Pfad");
         directoryChooser.setInitialDirectory(model.getDstTilesPath().toFile());
@@ -288,7 +289,7 @@ public class Controller {
     }
 
     @FXML private void dragDropped(DragEvent dragEvent) {
-        LOGGER.info("Controller.dragDropped");
+        LOGGER.info("dragDropped");
         Dragboard dragboard = dragEvent.getDragboard();
         boolean success = false;
         if (dragboard.hasFiles()) {
@@ -315,7 +316,7 @@ public class Controller {
     }
 
     @FXML private void dragOver(DragEvent dragEvent) {
-        LOGGER.info("Controller.dragOver");
+        LOGGER.debug("dragOver");
         Dragboard dragboard = dragEvent.getDragboard();
         if(dragEvent.getGestureSource() != scrollPane){
 
@@ -346,17 +347,17 @@ public class Controller {
     }
 
     @FXML private void recalculateImage() {
-        LOGGER.info("Controller.recalculateImage");
+        LOGGER.info("recalculateImage");
         model.generateMosaicImage();
     }
 
     @FXML private void originalCheckAction() {
-        LOGGER.info("Controller.originalCheckAction");
+        LOGGER.info("originalCheckAction");
         setDisplayOriginalImage(originalCheck.isSelected());
     }
 
     @FXML private void processSave() {
-        LOGGER.info("Controller.processSave");
+        LOGGER.info("processSave");
         FileChooser fileChooser = new FileChooser();
         if(getImagePath() != null) fileChooser.setInitialDirectory(getImagePath().toFile());
         fileChooser.setTitle("Bild speichern");

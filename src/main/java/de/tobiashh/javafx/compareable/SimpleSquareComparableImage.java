@@ -1,15 +1,14 @@
 package de.tobiashh.javafx.compareable;
 
-import de.tobiashh.javafx.properties.PropertiesManager;
-
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimpleSquareComparableImage extends ComparableImage {
-	private final static Logger LOGGER = Logger.getLogger(SimpleSquareComparableImage.class.getName());
+	private final static Logger LOGGER = LoggerFactory.getLogger(SimpleSquareComparableImage.class.getName());
 
 	@Override
 	public int compare(ComparableImage ci) {
-		LOGGER.info("SimpleSquareComparableImage.compare");
+		LOGGER.debug("compare");
 		int result = 0;
 		
 		result += compareColor(red, ci.red) + compareColor(green, ci.green) + compareColor(blue, ci.blue);
@@ -18,7 +17,7 @@ public class SimpleSquareComparableImage extends ComparableImage {
 	}
 	
 	private int compareColor(int[] color, int[] color2) {
-		LOGGER.info("SimpleSquareComparableImage.compareColor");
+		LOGGER.trace("compareColor");
 		int result = 0;
 		
 		for (int i = 0; i < color.length; i++)
