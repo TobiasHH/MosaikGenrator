@@ -91,6 +91,19 @@ public class PropertiesManager {
         setMaxReuses(Integer.parseInt(properties.getProperty(MAX_REUSES_PROPERTY_KEY, String.valueOf(MAX_REUSES_DEFAULT))));
         setReuseDistance(Integer.parseInt(properties.getProperty(REUSE_DISTANCE_PROPERTY_KEY, String.valueOf(REUSE_DISTANCE_DEFAULT))));
         setScanSubFolder(Boolean.parseBoolean(properties.getProperty(SCAN_SUB_FOLDER_PROPERTY_KEY, String.valueOf(SCAN_SUB_FOLDER_DEFAULT))));
+
+        createDefaultTilesPathIfNotExist();
+    }
+
+    private void createDefaultTilesPathIfNotExist() {
+        if(getTilesPath().toString().equals(TILES_PATH_DEFAULT) && Files.notExists(Path.of(TILES_PATH_DEFAULT)))
+        {
+            try {
+                Files.createDirectory(Path.of(TILES_PATH_DEFAULT));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void changeProperty(String key, String value) {
