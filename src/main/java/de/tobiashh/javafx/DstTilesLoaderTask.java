@@ -1,6 +1,6 @@
 package de.tobiashh.javafx;
 
-import de.tobiashh.javafx.tiles.MosaicTile;
+import de.tobiashh.javafx.tiles.DstTile;
 import javafx.concurrent.Task;
 
 import java.io.IOException;
@@ -16,7 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
-public class MosaicTilesLoaderTask extends Task<List<MosaicTile>> {
+public class DstTilesLoaderTask extends Task<List<DstTile>> {
     private static final int MAX_THREADS = Math.max(1,Runtime.getRuntime().availableProcessors() - 1);
 
     ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS, runnable -> {
@@ -29,23 +29,23 @@ public class MosaicTilesLoaderTask extends Task<List<MosaicTile>> {
     private final boolean scanSubFolder;
     private final int tileSize;
 
-    public MosaicTilesLoaderTask(Path newPath, boolean scanSubFolder, int tileSize) {
+    public DstTilesLoaderTask(Path newPath, boolean scanSubFolder, int tileSize) {
         this.newPath = newPath;
         this.scanSubFolder = scanSubFolder;
         this.tileSize = tileSize;
     }
 
     @Override
-    protected List<MosaicTile> call() {
-        List<MosaicTile> tiles = new ArrayList<>();
+    protected List<DstTile> call() {
+        List<DstTile> tiles = new ArrayList<>();
 
         try {
-            List<Future<Optional<MosaicTile>>> futures = ((scanSubFolder) ? Files.walk(newPath) : Files.list(newPath))
+            List<Future<Optional<DstTile>>> futures = ((scanSubFolder) ? Files.walk(newPath) : Files.list(newPath))
                     .filter(this::extensionFilter)
-                    .map(file -> executor.submit(new MosaicTileLoadTask(file, tileSize)))
+                    .map(file -> executor.submit(new DstTileLoadTask(file, tileSize)))
                     .collect(Collectors.toList());
 
-            for (Future<Optional<MosaicTile>> future : futures) {
+            for (Future<Optional<DstTile>> future : futures) {
                 try {
                     future.get().ifPresent(tiles::add);
                     updateProgress(tiles.size(), futures.size());

@@ -44,12 +44,12 @@ public interface MosaicImageModel {
     BooleanProperty scanSubFolderProperty();
     boolean isScanSubFolder();
 
-    Path getImageFile();
-    void setImageFile(Path file);
+    Path getSrcImageFile();
+    void setSrcImageFile(Path file);
 
-    ObjectProperty<Path> mosaicTilesPathProperty();
-    Path getMosaicTilesPath();
-    void setMosaicTilesPath(Path mosaicTilesPath);
+    ObjectProperty<Path> dstTilesPathProperty();
+    Path getDstTilesPath();
+    void setDstTilesPath(Path dstTilesPath);
 
     IntegerProperty tilesPerRowProperty();
     int getTilesPerRow();
@@ -58,7 +58,7 @@ public interface MosaicImageModel {
     void deleteTile(int x, int y);
     void calculateMosaicImage();
 
-    String getMosaicTileInformation(int x, int y);
+    String getDstTileInformation(int x, int y);
 
     void saveImage(Path path);
 }

@@ -18,10 +18,10 @@ public class OriginalTile extends SimpleSquareComparableImage {
     private int postColorAlignment = 100;
 
     // A List of IDs in the order from the best fitting to the worst fitting mosaic tile
-    int[] mosaicTileIDs;
+    int[] dstTileIDs;
     boolean[] blockedIds;
 
-    IntegerProperty mosaicTileIndex = new SimpleIntegerProperty( -1);
+    IntegerProperty dstTileIndex = new SimpleIntegerProperty( -1);
 
     WeakReference<BufferedImage> composedImage = new WeakReference<>(null);
 
@@ -78,8 +78,8 @@ public class OriginalTile extends SimpleSquareComparableImage {
     public void addBlockedIds(int ... ids)
     {
         for (int id : ids) {
-            for (int i = 0; i < mosaicTileIDs.length; i++) {
-                if(id == mosaicTileIDs[i])
+            for (int i = 0; i < dstTileIDs.length; i++) {
+                if(id == dstTileIDs[i])
                 {
                     blockedIds[i] = true;
                 }
@@ -87,46 +87,46 @@ public class OriginalTile extends SimpleSquareComparableImage {
         }
     }
 
-    public void setMosaicTileIDs(int ... ids)
+    public void setDstTileIDs(int ... ids)
     {
-        mosaicTileIDs = new int[ids.length];
+        dstTileIDs = new int[ids.length];
         blockedIds = new boolean[ids.length];
 
         for (int i = 0; i < ids.length; i++) {
-            mosaicTileIDs[i] = ids[i];
+            dstTileIDs[i] = ids[i];
             blockedIds[i] = false;
         }
 
-        setMosaicTileIndex(-1);
+        setDstTileIndex(-1);
     }
 
-    public int getMosaicTileID()
+    public int getDstTileID()
     {
-        int mosaicTileIndex = getMosaicTileIndex();
+        int dstTileIndex = getDstTileIndex();
 
-        if(mosaicTileIndex == -1 || mosaicTileIDs == null || mosaicTileIndex >= mosaicTileIDs.length){
+        if(dstTileIndex == -1 || dstTileIDs == null || dstTileIndex >= dstTileIDs.length){
             return -1;
         }
         else {
-            return mosaicTileIDs[mosaicTileIndex];
+            return dstTileIDs[dstTileIndex];
         }
     }
 
-    public int getMosaicTileIndex() {
-        return mosaicTileIndex.get();
+    public int getDstTileIndex() {
+        return dstTileIndex.get();
     }
 
-    public void setMosaicTileIndex(int mosaicTileIndex) {
-            this.mosaicTileIndex.set(mosaicTileIndex);
+    public void setDstTileIndex(int dstTileIndex) {
+            this.dstTileIndex.set(dstTileIndex);
     }
 
-    public boolean incrementMosaicTileIndex() {
-        int nextIndex = getMosaicTileIndex() + 1;
-        while(nextIndex < mosaicTileIDs.length)
+    public boolean incrementDstTileIndex() {
+        int nextIndex = getDstTileIndex() + 1;
+        while(nextIndex < dstTileIDs.length)
         {
             if(!blockedIds[nextIndex])
             {
-                setMosaicTileIndex(nextIndex);
+                setDstTileIndex(nextIndex);
                 return true;
             }
 
@@ -137,11 +137,11 @@ public class OriginalTile extends SimpleSquareComparableImage {
     }
 
     public void resetIndex() {
-          setMosaicTileIndex(-1);
+          setDstTileIndex(-1);
     }
 
     public boolean isIndexSet() {
-        return getMosaicTileIndex() >= 0;
+        return getDstTileIndex() >= 0;
     }
 
     public void setOpacity(int opacity)

@@ -92,7 +92,7 @@ public class Controller {
     }
 
     private void initBindings() {
-        pathLabel.textProperty().bind(Bindings.when(model.mosaicTilesPathProperty().isNull()).then("Kein Pfad gewählt.").otherwise(model.mosaicTilesPathProperty().asString()));
+        pathLabel.textProperty().bind(Bindings.when(model.dstTilesPathProperty().isNull()).then("Kein Pfad gewählt.").otherwise(model.dstTilesPathProperty().asString()));
         filesCountLabel.textProperty().bind(model.dstTilesCountProperty().asString());
         canvas.widthProperty().bind(canvasPane.prefWidthProperty());
         canvas.heightProperty().bind(canvasPane.prefHeightProperty());
@@ -133,7 +133,7 @@ public class Controller {
         return mouseEvent -> {
             int tileX = (int) (mouseEvent.getX() / (model.getTileSize() * getScale()));
             int tileY =(int)( mouseEvent.getY() / (model.getTileSize() * getScale()));
-            tileImageInformations.setText(model.getMosaicTileInformation(tileX, tileY));
+            tileImageInformations.setText(model.getDstTileInformation(tileX, tileY));
         };
     }
 
@@ -213,7 +213,7 @@ public class Controller {
     private void initCanvas() {
         try {
             String filename = "test.png";
-            model.setImageFile(Path.of(getClass().getResource(filename).toURI()));
+            model.setSrcImageFile(Path.of(getClass().getResource(filename).toURI()));
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -256,7 +256,7 @@ public class Controller {
         {
             Path path = file.toPath();
             if(Arrays.stream(MosaicImageModelImpl.FILE_EXTENSION).anyMatch(e -> path.endsWith("." + e))){
-                model.setImageFile(path);
+                model.setSrcImageFile(path);
                 setImagePath(path.getParent());
             }
         }
@@ -265,8 +265,8 @@ public class Controller {
      @FXML public void processTilesPath() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Wähle Mosaik Tile Pfad");
-        directoryChooser.setInitialDirectory(model.getMosaicTilesPath().toFile());
-        model.setMosaicTilesPath(directoryChooser.showDialog(menuBar.getScene().getWindow()).toPath());
+        directoryChooser.setInitialDirectory(model.getDstTilesPath().toFile());
+        model.setDstTilesPath(directoryChooser.showDialog(menuBar.getScene().getWindow()).toPath());
     }
 
     public double getScale() { return scale.get(); }
@@ -286,7 +286,7 @@ public class Controller {
             if(hasDirectory(dragboard))
             {
                 File folder = dragboard.getFiles().get(0);
-                model.setMosaicTilesPath(folder.toPath());
+                model.setDstTilesPath(folder.toPath());
                 success = true;
             }
             else if (hasImageFile(dragboard))
@@ -294,7 +294,7 @@ public class Controller {
                 Path path = dragboard.getFiles().get(0).toPath();
                 if(isImage(path))
                 {
-                    model.setImageFile(path);
+                    model.setSrcImageFile(path);
                     setImagePath(path.getParent());
                 }
             }

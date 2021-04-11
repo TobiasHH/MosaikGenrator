@@ -4,12 +4,12 @@ import de.tobiashh.javafx.compareable.SimpleSquareComparableImage;
 
 import java.awt.image.BufferedImage;
 
-public class MosaicTile extends SimpleSquareComparableImage {
+public class DstTile extends SimpleSquareComparableImage {
     BufferedImage srcImage;
-    // Actual only used for MosaicTileInformation
+    // Actual only used for DstTileInformation
     String filename;
 
-    public MosaicTile(BufferedImage image, String filename)
+    public DstTile(BufferedImage image, String filename)
     {
         setDataImage(image);
         this.srcImage = image;
