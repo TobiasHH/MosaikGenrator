@@ -325,7 +325,7 @@ public class Controller {
     }
 
     @FXML private void recalculateImage() {
-        model.calculateMosaicImage();
+        model.generateMosaicImage();
     }
 
     @FXML private void originalCheckAction() {

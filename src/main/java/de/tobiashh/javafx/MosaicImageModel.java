@@ -59,7 +59,7 @@ public interface MosaicImageModel {
     void setTilesPerRow(int tileCount);
 
     void deleteTile(int x, int y);
-    void calculateMosaicImage();
+    void generateMosaicImage();
 
     String getDstTileInformation(int x, int y);
 

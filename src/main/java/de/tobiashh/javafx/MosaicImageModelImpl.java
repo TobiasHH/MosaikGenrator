@@ -19,8 +19,6 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.IntStream;
 
-// TODO Methoden vernüftig benennen z.b. was heißt calculate / generate / ...
-// TODO tests
 // TODO BufferedImageSave implementieren
 // TODO Step Feedback in der Statusbar implementieren
 // TODO caching der scaled Tiles
@@ -31,6 +29,7 @@ import java.util.stream.IntStream;
 // TODO preColorAlignment implementieren
 // TODO areaOfIntrest
 // TODO Gibt es bessere Vergleichsalgorhytmen? die z.b. stärker auf kontruren / Details achten? z.b. kantenerkennung und diese kanten mit einbeziehen
+// TODO tests
 
 public class MosaicImageModelImpl implements MosaicImageModel {
     public static final String[] FILE_EXTENSION = {"png", "jpg", "jpeg"};
@@ -59,9 +58,9 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         dstTilesLoadProgressProperty().addListener((observable, oldValue, newValue) -> dstTilesCount.set(newValue.intValue()));
         dstTilesList.addListener((ListChangeListener<DstTile>) change -> dstTilesCount.set(change.getList().size()));
 
-        linearModeProperty().addListener((observable, oldValue, newValue) -> calculateMosaicImage());
-        reuseDistanceProperty().addListener((observable, oldValue, newValue) -> calculateMosaicImage());
-        maxReusesProperty().addListener((observable, oldValue, newValue) -> calculateMosaicImage());
+        linearModeProperty().addListener((observable, oldValue, newValue) -> generateMosaicImage());
+        reuseDistanceProperty().addListener((observable, oldValue, newValue) -> generateMosaicImage());
+        maxReusesProperty().addListener((observable, oldValue, newValue) -> generateMosaicImage());
 
         dstTilesPathProperty().addListener((observableValue, oldPath, newPath) -> loadDstTiles(newPath));
         scanSubFolderProperty().addListener(((observable, oldValue, newValue) -> loadDstTiles(getDstTilesPath())));
@@ -79,7 +78,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             originalTile.setPostColorAlignment(postColorAlignment);
         }
 
-        calculateCompositeImage();
+        composeCompositeImage();
     }
 
     private void setOpacityInTiles(int opacity) {
@@ -87,7 +86,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             originalTile.setOpacity(opacity);
         }
 
-        calculateCompositeImage();
+        composeCompositeImage();
     }
 
     private void loadDstTiles(Path newPath) {
@@ -97,7 +96,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         task.setOnSucceeded(event -> {
            dstTilesList.clear();
            dstTilesList.addAll(task.getValue());
-           calculateMosaicImage();
+           generateMosaicImage();
         });
 
         Thread thread = new Thread(task);
@@ -117,16 +116,16 @@ public class MosaicImageModelImpl implements MosaicImageModel {
                         getTilesPerColumn() * getTileSize(),
                         true);
 
-                generateTiles((isBlurMode()?ImageTools.blurImage(image): image));
-                calculateOriginalImage();
-                calculateMosaicImage();
+                calculateTiles((isBlurMode()?ImageTools.blurImage(image): image));
+                composeOriginalImage();
+                generateMosaicImage();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void generateTiles(BufferedImage image) {
+    private void calculateTiles(BufferedImage image) {
         mosaicImage = new OriginalTile[getTilesPerColumn() * getTilesPerRow()];
         for (int y = 0; y < getTilesPerColumn(); y++) {
             for (int x = 0; x < getTilesPerRow(); x++) {
@@ -153,7 +152,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         }
     }
 
-    private void calculateOriginalImage() {
+    private void composeOriginalImage() {
         BufferedImage returnValue = new BufferedImage(getTileSize() * getTilesPerRow(), getTileSize() * getTilesPerColumn(), BufferedImage.TYPE_INT_RGB);
 
         Graphics2D graphics = (Graphics2D) returnValue.getGraphics();
@@ -174,7 +173,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     }
 
 
-    private void calculateCompositeImage() {
+    private void composeCompositeImage() {
         BufferedImage returnValue = new BufferedImage(getTileSize() * getTilesPerRow(), getTileSize() * getTilesPerColumn(), BufferedImage.TYPE_INT_RGB);
 
         Graphics2D graphics = (Graphics2D) returnValue.getGraphics();
@@ -233,7 +232,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     }
 
     @Override
-    public void calculateMosaicImage() {
+    public void generateMosaicImage() {
         compareTiles(mosaicImage, dstTilesList);
 
         for (OriginalTile originalTile : mosaicImage) {
@@ -255,7 +254,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             }
         }
 
-        calculateCompositeImage();
+        composeCompositeImage();
     }
 
     @Override
@@ -514,6 +513,6 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     @Override
     public void deleteTile(int x, int y) {
         mosaicImage[index(x,y)].setDstTileIndex(-1);
-        calculateCompositeImage();
+        composeCompositeImage();
     }
 }
