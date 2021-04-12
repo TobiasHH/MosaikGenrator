@@ -6,9 +6,6 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
-import java.awt.image.ConvolveOp;
-import java.awt.image.Kernel;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -233,16 +230,6 @@ public class ImageTools {
         map.put(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
 
         return new RenderingHints(map);
-    }
-
-    public static BufferedImage blurImage(BufferedImage image) {
-        LOGGER.debug("blurImage");
-        float[] blurKernel = { 0.0f, 1.f / 6.f, 0.0f, 1.f / 6.f, 1.f / 3.f,
-                1.f / 6.f, 0.0f, 1.f / 6.f, 0.0f };
-
-        BufferedImageOp op = new ConvolveOp(new Kernel(3, 3, blurKernel),
-                ConvolveOp.EDGE_NO_OP, getHighQualityRenderingHints());
-        return op.filter(image, null);
     }
 
     public static int red(int rgb) {

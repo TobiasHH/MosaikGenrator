@@ -20,7 +20,6 @@ public class PropertiesManager {
     private static final String OPACITY_PROPERTY_KEY = "opacity";
     private static final String PRE_COLOR_ALIGNMENT_PROPERTY_KEY = "preColorAlignment";
     private static final String POST_COLOR_ALIGNMENT_PROPERTY_KEY = "postColorAlignment";
-    private static final String BLUR_MODE_PROPERTY_KEY = "blurMode";
     private static final String MAX_REUSES_PROPERTY_KEY = "maxReuses";
     private static final String REUSE_DISTANCE_PROPERTY_KEY = "reuseDistance";
     private static final String SCAN_SUB_FOLDER_PROPERTY_KEY = "scanSubFolder";
@@ -32,7 +31,6 @@ public class PropertiesManager {
     private static final int COMPARE_SIZE_DEFAULT = 8;
     private static final int OPACITY_DEFAULT = 8;
     private static final int COLOR_ALIGNMENT_DEFAULT = 80;
-    private static final boolean BLUR_MODE_DEFAULT = false;
     private static final int MAX_REUSES_DEFAULT = 0;
     private static final int REUSE_DISTANCE_DEFAULT = 10;
     private static final boolean SCAN_SUB_FOLDER_DEFAULT = true;
@@ -48,7 +46,6 @@ public class PropertiesManager {
     private final IntegerProperty opacity = new SimpleIntegerProperty();
     private final IntegerProperty preColorAlignment = new SimpleIntegerProperty();
     private final IntegerProperty postColorAlignment = new SimpleIntegerProperty();
-    private final BooleanProperty blurMode = new SimpleBooleanProperty();
     private final IntegerProperty maxReuses = new SimpleIntegerProperty();
     private final IntegerProperty reuseDistance = new SimpleIntegerProperty();
     private final BooleanProperty scanSubFolder = new SimpleBooleanProperty();
@@ -78,7 +75,6 @@ public class PropertiesManager {
         opacityProperty().addListener((observable, oldValue, newValue) -> changeProperty(OPACITY_PROPERTY_KEY, String.valueOf(newValue)));
         preColorAlignmentProperty().addListener((observable, oldValue, newValue) -> changeProperty(PRE_COLOR_ALIGNMENT_PROPERTY_KEY, String.valueOf(newValue)));
         postColorAlignmentProperty().addListener((observable, oldValue, newValue) -> changeProperty(POST_COLOR_ALIGNMENT_PROPERTY_KEY, String.valueOf(newValue)));
-        blurModeProperty().addListener((observable, oldValue, newValue) -> changeProperty(BLUR_MODE_PROPERTY_KEY, String.valueOf(newValue)));
         maxReusesProperty().addListener((observable, oldValue, newValue) -> changeProperty(MAX_REUSES_PROPERTY_KEY, String.valueOf(newValue)));
         reuseDistanceProperty().addListener((observable, oldValue, newValue) -> changeProperty(REUSE_DISTANCE_PROPERTY_KEY, String.valueOf(newValue)));
         scanSubFolderProperty().addListener((observable, oldValue, newValue) -> changeProperty(SCAN_SUB_FOLDER_PROPERTY_KEY, String.valueOf(newValue)));
@@ -93,7 +89,6 @@ public class PropertiesManager {
         setOpacity(Integer.parseInt(properties.getProperty(OPACITY_PROPERTY_KEY, String.valueOf(OPACITY_DEFAULT))));
         setPreColorAlignment(Integer.parseInt(properties.getProperty(PRE_COLOR_ALIGNMENT_PROPERTY_KEY, String.valueOf(COLOR_ALIGNMENT_DEFAULT))));
         setPostColorAlignment(Integer.parseInt(properties.getProperty(POST_COLOR_ALIGNMENT_PROPERTY_KEY, String.valueOf(COLOR_ALIGNMENT_DEFAULT))));
-        setBlurMode(Boolean.parseBoolean(properties.getProperty(BLUR_MODE_PROPERTY_KEY, String.valueOf(BLUR_MODE_DEFAULT))));
         setMaxReuses(Integer.parseInt(properties.getProperty(MAX_REUSES_PROPERTY_KEY, String.valueOf(MAX_REUSES_DEFAULT))));
         setReuseDistance(Integer.parseInt(properties.getProperty(REUSE_DISTANCE_PROPERTY_KEY, String.valueOf(REUSE_DISTANCE_DEFAULT))));
         setScanSubFolder(Boolean.parseBoolean(properties.getProperty(SCAN_SUB_FOLDER_PROPERTY_KEY, String.valueOf(SCAN_SUB_FOLDER_DEFAULT))));
@@ -231,18 +226,6 @@ public class PropertiesManager {
 
     public void setPostColorAlignment(int colorAlignment) {
         this.postColorAlignment.set(colorAlignment);
-    }
-
-    public BooleanProperty blurModeProperty() {
-        return blurMode;
-    }
-
-    public boolean isBlurMode() {
-        return blurMode.get();
-    }
-
-    public void setBlurMode(boolean blurMode) {
-        this.blurMode.set(blurMode);
     }
 
     public IntegerProperty maxReusesProperty() {

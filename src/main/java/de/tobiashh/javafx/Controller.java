@@ -3,6 +3,8 @@ package de.tobiashh.javafx;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -40,8 +42,6 @@ public class Controller {
     @FXML private ScrollPane scrollPane;
 
     @FXML private Label cursorPositionLabel;
-
-    @FXML private Label fileLabel;
 
     @FXML private Label pathLabel;
 
@@ -107,7 +107,6 @@ public class Controller {
         canvas.heightProperty().bind(canvasPane.prefHeightProperty());
         linearModeCheck.selectedProperty().bindBidirectional(model.linearModeProperty());
         scanSubfolderCheck.selectedProperty().bindBidirectional(model.scanSubFolderProperty());
-        blurCheck.selectedProperty().bindBidirectional(model.blurModeProperty());
         statusLabel.textProperty().bind(model.statusProperty());
     }
 
@@ -276,7 +275,8 @@ public class Controller {
         if(file != null)
         {
             Path path = file.toPath();
-            if(Arrays.stream(MosaicImageModelImpl.FILE_EXTENSION).anyMatch(e -> path.endsWith("." + e))){
+            System.out.println(path);
+            if(Arrays.stream(MosaicImageModelImpl.FILE_EXTENSION).anyMatch(e -> path.toString().endsWith("." + e))){
                 model.setSrcImageFile(path);
                 setImagePath(path.getParent());
             }

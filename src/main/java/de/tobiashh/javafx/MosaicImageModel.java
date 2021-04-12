@@ -34,9 +34,6 @@ public interface MosaicImageModel {
     int getPreColorAlignment();
     void setPreColorAlignment(int colorAlignment);
 
-    BooleanProperty blurModeProperty();
-    boolean isBlurMode();
-
     IntegerProperty maxReusesProperty();
     int getMaxReuses();
     void setMaxReuses(int maxReuses);

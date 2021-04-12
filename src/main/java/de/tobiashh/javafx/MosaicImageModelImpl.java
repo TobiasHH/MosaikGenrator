@@ -7,6 +7,8 @@ import de.tobiashh.javafx.tiles.OriginalTile;
 import de.tobiashh.javafx.tools.ImageTools;
 import javafx.application.Platform;
 import javafx.beans.property.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -22,7 +24,6 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.IntStream;
 
-// TODO Blur Mode sollte keine neuberechnung des Mosaics triggern
 // TODO scrollpane / canvas nur ausschnitt berechnen (Zoom Problem)) durch canvas tiles mit z.b. 1000 x 1000 px
 // TODO preColorAlignment implementieren
 // TODO areaOfIntrest
@@ -71,7 +72,6 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         postColorAlignmentProperty().addListener((observable, oldValue, newValue) -> setPostColorAlignmentInTiles(newValue.intValue()));
 
         srcImageFileProperty().addListener((observable, oldImageFile, newImageFile) -> loadImage(newImageFile));
-        blurModeProperty().addListener((observable, oldValue, newValue) -> loadImage(getSrcImageFile()));
         tilesPerRowProperty().addListener((observable, oldValue, newValue) -> loadImage(getSrcImageFile()));
     }
 
@@ -127,7 +127,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
                             getTilesPerColumn() * getTileSize(),
                             true);
 
-                    calculateTiles((isBlurMode()?ImageTools.blurImage(image): image));
+                    calculateTiles(image);
                     composeOriginalImage();
                     generateMosaicImage();
                 } catch (IOException e) {
@@ -182,10 +182,9 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         for (int y = 0; y < getTilesPerColumn(); y++) {
             for (int x = 0; x < getTilesPerRow(); x++) {
                 OriginalTile originalTile = mosaicImage[index(x,y)];
-
                     graphics.drawImage(originalTile.getSrcImage(), x * getTileSize(), y * getTileSize(), null);
                     graphics.drawString(""+ x + "," + y + ":" + originalTile.getDstTileID(), x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight());
-                    graphics.drawString(""+ x + "," + y + ":ORIG", x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight());
+                    graphics.drawString(""+ x + "," + y + ":ORIG", x * getTileSize(), y * getTileSize() + graphics.getFontMetrics().getHeight() * 2);
             }
         }
 
@@ -455,16 +454,6 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     @Override
     public void setPostColorAlignment(int postColorAlignment) {
         PropertiesManager.getInstance().setPostColorAlignment(postColorAlignment);
-    }
-
-    @Override
-    public BooleanProperty blurModeProperty() {
-        return PropertiesManager.getInstance().blurModeProperty();
-    }
-
-    @Override
-    public boolean isBlurMode() {
-        return PropertiesManager.getInstance().isBlurMode();
     }
 
     @Override
