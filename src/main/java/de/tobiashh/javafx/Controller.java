@@ -73,6 +73,8 @@ public class Controller {
 
     @FXML private TextField reuseDistance;
 
+    @FXML private Label statusLabel;
+
     private static final double SCALE_DEFAULT = 1.0;
     private static final double SCALE_MIN = 0.1;
     private static final double SCALE_MAX = 2;
@@ -106,6 +108,7 @@ public class Controller {
         linearModeCheck.selectedProperty().bindBidirectional(model.linearModeProperty());
         scanSubfolderCheck.selectedProperty().bindBidirectional(model.scanSubFolderProperty());
         blurCheck.selectedProperty().bindBidirectional(model.blurModeProperty());
+        statusLabel.textProperty().bind(model.statusProperty());
     }
 
     private void initEventHandler() {

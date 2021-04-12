@@ -5,6 +5,7 @@ import de.tobiashh.javafx.save.ImageSaver;
 import de.tobiashh.javafx.tiles.DstTile;
 import de.tobiashh.javafx.tiles.OriginalTile;
 import de.tobiashh.javafx.tools.ImageTools;
+import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -21,9 +22,6 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.IntStream;
 
-// TODO Step Feedback in der Statusbar implementieren
-// TODO caching der scaled Tiles
-// TODO bei Blur ist image schon geladen, daher die methode loadImage entsprechend umdesignen um beim Listener nur nötige sachen zu machen
 // TODO Blur Mode sollte keine neuberechnung des Mosaics triggern
 // TODO scrollpane / canvas nur ausschnitt berechnen (Zoom Problem)) durch canvas tiles mit z.b. 1000 x 1000 px
 // TODO preColorAlignment implementieren
@@ -41,6 +39,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     private final ReadOnlyObjectWrapper<BufferedImage> originalImage = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyIntegerWrapper tilesPerColumn = new ReadOnlyIntegerWrapper();
     private final ReadOnlyIntegerWrapper dstTilesLoadProgress = new ReadOnlyIntegerWrapper();
+    private final ReadOnlyStringWrapper status = new ReadOnlyStringWrapper();
 
     private final ObjectProperty<Path> srcImageFile = new SimpleObjectProperty<>();
     
@@ -112,24 +111,34 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
     private void loadImage(Path imageFile) {
         LOGGER.info("loadImage {}", imageFile);
-        if(imageFile != null) {
-            try {
-                BufferedImage bufferedImage = ImageIO.read(imageFile.toFile());
 
-                tilesPerColumn.set(Math.max(1, getTilesPerRow() * bufferedImage.getHeight() / bufferedImage.getWidth()));
 
-                BufferedImage image = ImageTools.calculateScaledImage(bufferedImage,
-                        getTilesPerRow() * getTileSize(),
-                        getTilesPerColumn() * getTileSize(),
-                        true);
+        // longrunning operation runs on different thread
+        Thread thread = new Thread(() -> {
+            Platform.runLater(() -> status.set("Lade Bild"));
+            if(imageFile != null) {
+                try {
+                    BufferedImage bufferedImage = ImageIO.read(imageFile.toFile());
 
-                calculateTiles((isBlurMode()?ImageTools.blurImage(image): image));
-                composeOriginalImage();
-                generateMosaicImage();
-            } catch (IOException e) {
-                e.printStackTrace();
+                    tilesPerColumn.set(Math.max(1, getTilesPerRow() * bufferedImage.getHeight() / bufferedImage.getWidth()));
+
+                    BufferedImage image = ImageTools.calculateScaledImage(bufferedImage,
+                            getTilesPerRow() * getTileSize(),
+                            getTilesPerColumn() * getTileSize(),
+                            true);
+
+                    calculateTiles((isBlurMode()?ImageTools.blurImage(image): image));
+                    composeOriginalImage();
+                    generateMosaicImage();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        }
+            Platform.runLater(() -> status.set("Bild geladen"));
+        });
+        // don't let thread prevent JVM shutdown
+        thread.setDaemon(true);
+        thread.start();
     }
 
     private void calculateTiles(BufferedImage image) {
@@ -357,7 +366,12 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     private int getTilesPerColumn() {
         return tilesPerColumn.get();
     }
-    
+
+    @Override
+    public ReadOnlyStringWrapper statusProperty() {
+        return status;
+    }
+
     @Override
     public ReadOnlyObjectProperty<BufferedImage> compositeImageProperty() {
         return compositeImage.getReadOnlyProperty();

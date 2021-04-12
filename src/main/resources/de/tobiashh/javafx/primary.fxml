@@ -51,12 +51,13 @@
    </center>
    <bottom>
       <HBox alignment="CENTER_LEFT" prefHeight="18.0" prefWidth="350.0" BorderPane.alignment="CENTER">
-         <Label fx:id="cursorPositionLabel" style="-fx-background-color: RED;" />
-         <Label fx:id="tileHoverLabel" style="-fx-background-color: PURPLE;" />
-         <Label fx:id="tileImageInformations" style="-fx-background-color: BROWN;" />
-         <Label fx:id="fileLabel" style="-fx-background-color: GREEN;" />
-         <Label fx:id="pathLabel" style="-fx-background-color: BLUE;" />
-         <Label fx:id="filesCountLabel" style="-fx-background-color: ORANGE;" />
+         <Label fx:id="cursorPositionLabel" text="cursorPositionLabel" style="-fx-background-color: RED;" />
+         <Label fx:id="tileHoverLabel" text="tileHoverLabel" style="-fx-background-color: PURPLE;" />
+         <Label fx:id="tileImageInformations" text="tileImageInformations" style="-fx-background-color: BROWN;" />
+         <Label fx:id="fileLabel" text="fileLabel" style="-fx-background-color: GREEN;" />
+         <Label fx:id="pathLabel" text="pathLabel" style="-fx-background-color: BLUE;" />
+         <Label fx:id="filesCountLabel" text="filesCountLabel" style="-fx-background-color: ORANGE;" />
+         <Label fx:id="statusLabel" text="statusLabel" style="-fx-background-color: YELLOW;" />
       </HBox>
    </bottom>
 </BorderPane>

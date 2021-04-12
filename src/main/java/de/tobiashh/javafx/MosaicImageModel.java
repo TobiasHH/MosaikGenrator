@@ -6,6 +6,8 @@ import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 
 public interface MosaicImageModel {
+    ReadOnlyStringWrapper statusProperty();
+
     ReadOnlyObjectProperty<BufferedImage> compositeImageProperty();
     BufferedImage getCompositeImage();
 
