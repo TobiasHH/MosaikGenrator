@@ -164,9 +164,7 @@ public class PropertiesManager {
         return tilesPerRow.get();
     }
 
-    public void setTilesPerRow(int length) {
-        tilesPerRow.set(length);
-    }
+    public void setTilesPerRow(int length) { tilesPerRow.set(length); }
 
     public BooleanProperty linearModeProperty() {
         return linearMode;

@@ -49,6 +49,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     private final ObservableList<DstTile> dstTilesList = FXCollections.observableList(new ArrayList<>());
 
     private DstTilesLoaderTask task;
+    private TileDistance tileDistance;
 
     public MosaicImageModelImpl() {
         LOGGER.info("MosaicImageModelImpl");
@@ -58,6 +59,9 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
     private void initChangeListener() {
        LOGGER.info("initChangeListener");
+       // TODO überarbeiten, aktuell muss diese am Anfang sein, da sonst tileDistance noch nicht initialisiert ist obwohl schon berechnung startet (Properties werden beim ersten aufruf einer Property alle initialisiert)
+        tileDistance = new TileDistance(getTilesPerRow());
+
         dstTilesLoadProgressProperty().addListener((observable, oldValue, newValue) -> dstTilesCount.set(newValue.intValue()));
         dstTilesList.addListener((ListChangeListener<DstTile>) change -> dstTilesCount.set(change.getList().size()));
 
@@ -245,7 +249,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
         int actualIndex = IntStream.range(0, tiles.length).filter(i -> tiles[i] == actualTile).findFirst().orElse(-1);
         IntStream.range(0, tiles.length).forEach(i -> {
-            if(getTileDistance(actualIndex, i) < getReuseDistance()) {
+            if(tileDistance.calculate(actualIndex, i) < getReuseDistance()) {
                 tiles[i].addBlockedIds(tileID);
             }
         });
@@ -319,23 +323,23 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     }
 
     // How test is when it is private?
-    protected int getTileDistance(int index1, int index2){
-        int distance = Math.abs(getTilePositionX(index1) - getTilePositionX(index2)) + Math.abs(getTilePositionY(index1) - getTilePositionY(index2));
-        LOGGER.debug("getTileDistance - index {}, index {} -> distance {}", index1, index2, distance);
-        return distance;
-    }
-
-    private int getTilePositionX(int index) {
-        int tilePositionX = index % getTilesPerRow();
-        LOGGER.trace("getTilePositionX index {} -> posX {}", index, tilePositionX);
-        return tilePositionX;
-    }
-
-    private int getTilePositionY(int index) {
-        int tilePositionY = index / getTilesPerRow();
-        LOGGER.trace("getTilePositionX index {} -> posY {}", index, tilePositionY);
-        return tilePositionY;
-    }
+//    protected int getTileDistance(int index1, int index2){
+//        int distance = Math.abs(getTilePositionX(index1) - getTilePositionX(index2)) + Math.abs(getTilePositionY(index1) - getTilePositionY(index2));
+//        LOGGER.debug("getTileDistance - index {}, index {} -> distance {}", index1, index2, distance);
+//        return distance;
+//    }
+//
+//    private int getTilePositionX(int index) {
+//        int tilePositionX = index % getTilesPerRow();
+//        LOGGER.trace("getTilePositionX index {} -> posX {}", index, tilePositionX);
+//        return tilePositionX;
+//    }
+//
+//    private int getTilePositionY(int index) {
+//        int tilePositionY = index / getTilesPerRow();
+//        LOGGER.trace("getTilePositionX index {} -> posY {}", index, tilePositionY);
+//        return tilePositionY;
+//    }
 
     private void generateDistinctLinearImage() {
         LOGGER.info("generateDistinctLinearImage");
