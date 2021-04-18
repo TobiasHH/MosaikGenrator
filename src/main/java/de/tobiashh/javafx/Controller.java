@@ -4,7 +4,6 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -59,8 +58,6 @@ public class Controller {
 
     @FXML private CheckBox scanSubfolderCheck;
 
-    @FXML private CheckBox blurCheck;
-
     @FXML private TextField preColorAlignment;
 
     @FXML private TextField postColorAlignment;
@@ -77,7 +74,7 @@ public class Controller {
 
     private static final double SCALE_DEFAULT = 1.0;
     private static final double SCALE_MIN = 0.1;
-    private static final double SCALE_MAX = 2;
+    private static final double SCALE_MAX = 10.0;
 
     private final DoubleProperty scale = new SimpleDoubleProperty(SCALE_DEFAULT);
 
@@ -105,9 +102,35 @@ public class Controller {
         filesCountLabel.textProperty().bind(model.dstTilesCountProperty().asString());
         canvas.widthProperty().bind(canvasPane.prefWidthProperty());
         canvas.heightProperty().bind(canvasPane.prefHeightProperty());
+
+        scrollPane.vvalueProperty().addListener(getScrollpaneChangeListener());
+        scrollPane.hvalueProperty().addListener(getScrollpaneChangeListener());
+
         linearModeCheck.selectedProperty().bindBidirectional(model.linearModeProperty());
         scanSubfolderCheck.selectedProperty().bindBidirectional(model.scanSubFolderProperty());
         statusLabel.textProperty().bind(model.statusProperty());
+    }
+
+    private ChangeListener<Number> getScrollpaneChangeListener() {
+        return (observable, oldValue, newValue) -> {
+            double hmin = scrollPane.getHmin();
+            double hmax = scrollPane.getHmax();
+            double hvalue = scrollPane.getHvalue();
+            double contentWidth = canvasPane.getLayoutBounds().getWidth();
+            double viewportWidth = scrollPane.getViewportBounds().getWidth();
+
+            double hoffset = Math.max(0, contentWidth - viewportWidth) * (hvalue - hmin) / (hmax - hmin);
+
+            double vmin = scrollPane.getVmin();
+            double vmax = scrollPane.getVmax();
+            double vvalue = scrollPane.getVvalue();
+            double contentHeight = canvasPane.getLayoutBounds().getHeight();
+            double viewportHeight = scrollPane.getViewportBounds().getHeight();
+
+            double voffset = Math.max(0, contentHeight - viewportHeight) * (vvalue - vmin) / (vmax - vmin);
+
+            System.out.println(canvas.intersects(hoffset, voffset, viewportWidth, viewportHeight));
+        };
     }
 
     private void initEventHandler() {
