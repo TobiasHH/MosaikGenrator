@@ -7,8 +7,6 @@ import de.tobiashh.javafx.tiles.OriginalTile;
 import de.tobiashh.javafx.tools.ImageTools;
 import javafx.application.Platform;
 import javafx.beans.property.*;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -22,11 +20,20 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+// TODO ImagePool für DST Images
+// TODO DST Images besitzen  liste von Indexes wo sie genutzt sind
+// TODO comparableImage aus tiles herauslösen
+// TODO ImageComparator erstellen
+// TODO Pair Klasse von tile und comparable image
+// TODO ImageComparator hat jeweils 1 SrcTilePair und List preAdjusted dstTilesPairs
+// TODO abklären wie sich garbage collection beim aufräumen verhält
 // TODO scrollpane / canvas nur ausschnitt berechnen (Zoom Problem)) durch canvas tiles mit z.b. 1000 x 1000 px
 // TODO preColorAlignment implementieren
-// TODO areaOfIntrest
+// TODO Bilder ausschließen generell
+// TODO Bild ausschließen an einer Position
 // TODO Gibt es bessere Vergleichsalgorhytmen? die z.b. stärker auf kontruren / Details achten? z.b. kantenerkennung und diese kanten mit einbeziehen
 // TODO tests
 
@@ -45,6 +52,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     private final ObjectProperty<Path> srcImageFile = new SimpleObjectProperty<>();
     
     private OriginalTile[] mosaicImage;
+    private List<Integer> areaOfInterest = new ArrayList<>();
     
     private final ObservableList<DstTile> dstTilesList = FXCollections.observableList(new ArrayList<>());
 
@@ -53,14 +61,13 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
     public MosaicImageModelImpl() {
         LOGGER.info("MosaicImageModelImpl");
+        tileDistance = new TileDistance(getTilesPerRow());
         initChangeListener();
         loadDstTiles(getDstTilesPath());
     }
 
     private void initChangeListener() {
        LOGGER.info("initChangeListener");
-       // TODO überarbeiten, aktuell muss diese am Anfang sein, da sonst tileDistance noch nicht initialisiert ist obwohl schon berechnung startet (Properties werden beim ersten aufruf einer Property alle initialisiert)
-        tileDistance = new TileDistance(getTilesPerRow());
 
         dstTilesLoadProgressProperty().addListener((observable, oldValue, newValue) -> dstTilesCount.set(newValue.intValue()));
         dstTilesList.addListener((ListChangeListener<DstTile>) change -> dstTilesCount.set(change.getList().size()));
@@ -174,6 +181,23 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         }
     }
 
+    @Override
+    public void addAreaOfIntrest(int x, int y) {
+        System.out.println("MosaicImageModelImpl.addAreaOfIntrest");
+        int index = index(x, y);
+        if(!areaOfInterest.contains(index)) {
+            areaOfInterest.add(index);
+        }
+        System.out.println(areaOfInterest.size());
+    }
+
+    @Override
+    public void removeAreaOfIntrest(int x, int y) {
+        System.out.println("MosaicImageModelImpl.removeAreaOfIntrest");
+        areaOfInterest.remove((Object) index(x, y)); // geht das besser?
+        System.out.println(areaOfInterest.size());
+    }
+
     private void composeOriginalImage() {
         LOGGER.info("composeOriginalImage");
         BufferedImage returnValue = new BufferedImage(getTileSize() * getTilesPerRow(), getTileSize() * getTilesPerColumn(), BufferedImage.TYPE_INT_RGB);
@@ -195,6 +219,28 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         originalImage.set(returnValue);
     }
 
+    // TODO double parameter ???
+    /*
+    public BufferedImage getComposedImagePart(double x, double y, double width, double height)
+    {
+        BufferedImage returnValue = new BufferedImage((int)width, (int)height, BufferedImage.TYPE_INT_RGB);
+        System.out.println("x = " + x + ", y = " + y + ", width = " + width + ", height = " + height);
+
+        Graphics2D graphics = (Graphics2D) returnValue.getGraphics();
+
+        for (int yPos = 0; yPos < getTilesPerColumn(); yPos++) {
+            for (int xPos = 0; xPos < getTilesPerRow(); xPos++) {
+                OriginalTile originalTile = mosaicImage[index(xPos,yPos)];
+                graphics.drawImage(originalTile.getSrcImage(), (int) (xPos * getTileSize() - x), (int) (yPos * getTileSize() - y), null);
+                graphics.drawString(""+ xPos + "," + yPos + ":" + originalTile.getDstTileID(), xPos * getTileSize(), yPos * getTileSize() + graphics.getFontMetrics().getHeight());
+                graphics.drawString(""+ xPos + "," + yPos + ":ORIG", xPos * getTileSize(), yPos * getTileSize() + graphics.getFontMetrics().getHeight() * 2);
+            }
+        }
+
+        return returnValue;
+    }
+
+     */
 
     private void composeCompositeImage() {
         LOGGER.info("composeCompositeImage");
@@ -306,40 +352,23 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         if (dstTilesList.size() > 0) {
             Random rand = new Random();
 
-            int x;
-            int y;
+            int tilesCount = getTilesPerColumn() * getTilesPerRow();
 
-           while (Arrays.stream(mosaicImage).anyMatch(tile -> !tile.isIndexSet())) {
+            List<Integer> tileIndices = IntStream.range(0, tilesCount).boxed().collect(Collectors.toList());
+            List<Integer> areaOfIntrestIndices = new ArrayList<>(areaOfInterest);
+            tileIndices.removeAll(areaOfIntrestIndices);
 
-                 x = rand.nextInt(getTilesPerRow());
-                y = rand.nextInt(getTilesPerColumn());
+            while(areaOfIntrestIndices.size() > 0)
+            {
+                if (!setDstTileIndex(mosaicImage[areaOfIntrestIndices.remove(rand.nextInt(areaOfIntrestIndices.size()))], mosaicImage)) return;
+            }
 
-                if (!mosaicImage[index(x,y)].isIndexSet()) {
-                    //
-                    if (!setDstTileIndex(mosaicImage[index(x, y)], mosaicImage)) return;
-                }
+            while(tileIndices.size() > 0)
+            {
+                if (!setDstTileIndex(mosaicImage[tileIndices.remove(rand.nextInt(tileIndices.size()))], mosaicImage)) return;
             }
         }
     }
-
-    // How test is when it is private?
-//    protected int getTileDistance(int index1, int index2){
-//        int distance = Math.abs(getTilePositionX(index1) - getTilePositionX(index2)) + Math.abs(getTilePositionY(index1) - getTilePositionY(index2));
-//        LOGGER.debug("getTileDistance - index {}, index {} -> distance {}", index1, index2, distance);
-//        return distance;
-//    }
-//
-//    private int getTilePositionX(int index) {
-//        int tilePositionX = index % getTilesPerRow();
-//        LOGGER.trace("getTilePositionX index {} -> posX {}", index, tilePositionX);
-//        return tilePositionX;
-//    }
-//
-//    private int getTilePositionY(int index) {
-//        int tilePositionY = index / getTilesPerRow();
-//        LOGGER.trace("getTilePositionX index {} -> posY {}", index, tilePositionY);
-//        return tilePositionY;
-//    }
 
     private void generateDistinctLinearImage() {
         LOGGER.info("generateDistinctLinearImage");
@@ -348,7 +377,17 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
             for (int y = 0; y < getTilesPerColumn(); y++) {
                 for (int x = 0; x < getTilesPerRow(); x++) {
-                    if (!setDstTileIndex(mosaicImage[index(x, y)], mosaicImage)) return;
+                    if(areaOfInterest.contains(index(x,y))){
+                        if (!setDstTileIndex(mosaicImage[index(x, y)], mosaicImage)) return;
+                    }
+                }
+            }
+
+            for (int y = 0; y < getTilesPerColumn(); y++) {
+                for (int x = 0; x < getTilesPerRow(); x++) {
+                    if(!areaOfInterest.contains(index(x,y))) {
+                        if (!setDstTileIndex(mosaicImage[index(x, y)], mosaicImage)) return;
+                    }
                 }
             }
         }
@@ -366,7 +405,8 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
     private ReadOnlyIntegerProperty dstTilesLoadProgressProperty() { return dstTilesLoadProgress.getReadOnlyProperty(); }
 
-    private int getTilesPerColumn() {
+    @Override
+    public int getTilesPerColumn() {
         return tilesPerColumn.get();
     }
 
@@ -541,11 +581,5 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     @Override
     public void setTilesPerRow(int count) {
         PropertiesManager.getInstance().setTilesPerRow(count);
-    }
-
-    @Override
-    public void deleteTile(int x, int y) {
-        mosaicImage[index(x,y)].setDstTileIndex(-1);
-        composeCompositeImage();
     }
 }

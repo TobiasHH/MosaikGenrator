@@ -57,10 +57,17 @@ public interface MosaicImageModel {
     int getTilesPerRow();
     void setTilesPerRow(int tileCount);
 
-    void deleteTile(int x, int y);
+    int getTilesPerColumn();
+
     void generateMosaicImage();
 
     String getDstTileInformation(int x, int y);
 
+ //   BufferedImage getComposedImagePart(double hoffset, double voffset, double viewportWidth, double viewportHeight);
+
     void saveMosaicImage(Path path);
+
+    void addAreaOfIntrest(int x, int y);
+
+    void removeAreaOfIntrest(int x, int y);
 }
