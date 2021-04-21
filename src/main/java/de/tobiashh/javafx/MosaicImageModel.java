@@ -8,11 +8,6 @@ import java.nio.file.Path;
 public interface MosaicImageModel {
     ReadOnlyStringWrapper statusProperty();
 
-    ReadOnlyObjectProperty<BufferedImage> compositeImageProperty();
-    BufferedImage getCompositeImage();
-
-    BufferedImage getOriginalImage();
-
     ReadOnlyIntegerProperty dstTilesCountProperty();
 
     BooleanProperty linearModeProperty();
@@ -57,17 +52,22 @@ public interface MosaicImageModel {
     int getTilesPerRow();
     void setTilesPerRow(int tileCount);
 
+    ReadOnlyBooleanProperty imageCalculatedProperty();
+
+    ReadOnlyIntegerProperty tilesPerColumnProperty();
     int getTilesPerColumn();
 
     void generateMosaicImage();
 
     String getDstTileInformation(int x, int y);
 
- //   BufferedImage getComposedImagePart(double hoffset, double voffset, double viewportWidth, double viewportHeight);
-
     void saveMosaicImage(Path path);
 
     void addAreaOfIntrest(int x, int y);
 
     void removeAreaOfIntrest(int x, int y);
+
+    BufferedImage getTile(int x, int y);
+
+    BufferedImage getOriginalTile(int x, int y);
 }
