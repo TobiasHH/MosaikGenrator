@@ -28,11 +28,12 @@
             <CheckBox fx:id="originalCheck" mnemonicParsing="false" onAction="#originalCheckAction" text="Original" />
             <ChoiceBox fx:id="modeChoiceBox" prefWidth="150.0" value="LINEAR">
                <items>
-               <FXCollections fx:factory="observableArrayList">
-               <Mode fx:value="LINEAR"/>
-               <Mode fx:value="RANDOM"/>
-               <Mode fx:value="CIRCULAR"/>
-               </FXCollections>
+                     <FXCollections fx:factory="observableArrayList">
+                        <Mode fx:value="LINEAR"/>
+                        <Mode fx:value="RANDOM"/>
+                        <Mode fx:value="CIRCULAR"/>
+                        <Mode fx:value="TILE_DISTANCE"/>
+                     </FXCollections>
                </items>
             </ChoiceBox>
              <CheckBox fx:id="scanSubfolderCheck" layoutX="497.0" layoutY="14.0" mnemonicParsing="false" text="Unterordner einbeziehen" />
@@ -58,6 +59,7 @@
    </center>
    <bottom>
       <HBox alignment="CENTER_LEFT" prefHeight="18.0" prefWidth="350.0" BorderPane.alignment="CENTER">
+         <Label fx:id="imageTilesCount" style="-fx-background-color: WHITE;" text="imageTilesSize" />
          <Label fx:id="cursorPositionLabel" style="-fx-background-color: RED;" text="cursorPositionLabel" />
          <Label fx:id="tileHoverLabel" style="-fx-background-color: PURPLE;" text="tileHoverLabel" />
          <Label fx:id="tileImageInformations" style="-fx-background-color: BROWN;" text="tileImageInformations" />

@@ -6,6 +6,8 @@ import de.tobiashh.javafx.model.MosaicImageModelImpl;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -36,6 +38,8 @@ public class Controller {
     private final static Logger LOGGER = LoggerFactory.getLogger(Controller.class.getName());
     @FXML
     public ChoiceBox<Mode> modeChoiceBox;
+    @FXML
+    public Label imageTilesCount;
     @FXML
     private MenuBar menuBar;
     @FXML
@@ -99,6 +103,8 @@ public class Controller {
 
     private void initBindings() {
         LOGGER.info("initBindings");
+        model.tilesPerColumnProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(()->imageTilesCount.setText(String.valueOf(newValue.intValue() * model.tilesPerRowProperty().get()))));
+
         pathLabel.textProperty().bind(Bindings.when(propertiesManager.tilesPathProperty().isNull()).then("Kein Pfad gewählt.").otherwise(propertiesManager.tilesPathProperty().asString()));
         filesCountLabel.textProperty().bind(model.dstTilesCountProperty().asString());
         modeChoiceBox.valueProperty().bindBidirectional(propertiesManager.modeProperty());

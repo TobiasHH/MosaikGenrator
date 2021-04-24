@@ -5,11 +5,11 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class TileDistanceTest {
+class TilesStraightDistanceTest {
 
     @Test
     void getTileDistance() {
-        TileDistance tileDistance = new TileDistance(5);
+        TilesStraightDistance tileDistance = new TilesStraightDistance(5);
         /*
          * X1XXX
          * X2XXX

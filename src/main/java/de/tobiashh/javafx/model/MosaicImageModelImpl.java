@@ -1,7 +1,8 @@
 package de.tobiashh.javafx.model;
 
 import de.tobiashh.javafx.DstTilesLoaderTask;
-import de.tobiashh.javafx.TileDistance;
+import de.tobiashh.javafx.TilesCircularDistance;
+import de.tobiashh.javafx.TilesStraightDistance;
 import de.tobiashh.javafx.save.ImageSaver;
 import de.tobiashh.javafx.tiles.DstTile;
 import de.tobiashh.javafx.tiles.OriginalTile;
@@ -24,7 +25,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-// TODO Circular Mode von innen nach außen im kreis
 // TODO Aufräumen und Methoden sortieren
 // TODO loadTiles in Controller bzw extra Klasse
 // TODO ImagePool für DST Images
@@ -42,6 +42,7 @@ import java.util.stream.IntStream;
 // TODO Gibt es bessere Vergleichsalgorhytmen? die z.b. stärker auf kontruren / Details achten? z.b. kantenerkennung und diese kanten mit einbeziehen
 // TODO tests
 // TODO tileWidth 512 führt zu HEAP da zu viele/Große Bilder in Tile Klassen gehalten werden
+// TODO schnelles ändern der tilesPerRow provoziert exception zb. svcgnell 5 0 engeben
 
 public class MosaicImageModelImpl implements MosaicImageModel {
     public static final String[] FILE_EXTENSION = {"png", "jpg", "jpeg"};
@@ -66,12 +67,18 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     private final BooleanProperty scanSubFolder = new SimpleBooleanProperty();
     private OriginalTile[] mosaicImage;
     private DstTilesLoaderTask task;
-    private TileDistance tileDistance;
+
+    private TilesStraightDistance tilesStraightDistance;
+    private TilesCircularDistance tilesCircularDistance;
 
     public MosaicImageModelImpl() {
         LOGGER.info("MosaicImageModelImpl");
-        tileDistance = new TileDistance(tilesPerRow.get());
-        tilesPerRow.addListener((observable, oldValue, newValue) -> tileDistance = new TileDistance(newValue.intValue()));
+        tilesStraightDistance = new TilesStraightDistance(tilesPerRow.get());
+        tilesCircularDistance = new TilesCircularDistance(tilesPerRow.get());
+        tilesPerRow.addListener((observable, oldValue, newValue) -> {
+            tilesStraightDistance = new TilesStraightDistance(newValue.intValue());
+            tilesCircularDistance = new TilesCircularDistance(newValue.intValue());
+        });
         initChangeListener();
 
     }
@@ -149,11 +156,13 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             try {
                 BufferedImage bufferedImage = ImageIO.read(path.toFile());
 
-                tilesPerColumn.set(Math.max(1, tilesPerRow.get() * bufferedImage.getHeight() / bufferedImage.getWidth()));
+                int tilesPerColumn = Math.max(1, tilesPerRow.get() * bufferedImage.getHeight() / bufferedImage.getWidth());
+
+                this.tilesPerColumn.set(tilesPerColumn);
 
                 BufferedImage image = ImageTools.calculateScaledImage(bufferedImage,
                         tilesPerRow.get() * tileSize.get(),
-                        getTilesPerColumn() * tileSize.get(),
+                        tilesPerColumn * tileSize.get(),
                         true);
 
                 calculateTiles(image);
@@ -259,7 +268,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
         int actualIndex = IntStream.range(0, tiles.length).filter(i -> tiles[i] == actualTile).findFirst().orElse(-1);
         IntStream.range(0, tiles.length).forEach(i -> {
-            if (tileDistance.calculate(actualIndex, i) < reuseDistance.get()) {
+            if (tilesStraightDistance.calculate(actualIndex, i) < reuseDistance.get()) {
                 tiles[i].addBlockedIds(tileID);
             }
         });
@@ -284,7 +293,9 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
         Arrays.stream(mosaicImage).forEach(OriginalTile::resetIndex);
 
-        if (mode.get() == Mode.CIRCULAR) {
+        if (mode.get() == Mode.TILE_DISTANCE) {
+            generateCenterDistanceImage();
+        } else if (mode.get() == Mode.CIRCULAR) {
             generateCircularImage();
         } else if (mode.get() == Mode.RANDOM) {
             generateRandomImage();
@@ -321,7 +332,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         {
             Integer index = areaOfIntrestIndices
                     .stream()
-                    .min(Comparator.comparingInt(value -> tileDistance.calculate(value, startIndex))).get();
+                    .min(Comparator.comparingInt(value -> tilesCircularDistance.calculate(value, startIndex))).get();
             if (!setDstTileIndex(mosaicImage[index], mosaicImage)) return;
             areaOfIntrestIndices.remove(index);
         }
@@ -329,10 +340,41 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         while (tileIndices.size() > 0)
         {
             Integer index = tileIndices.stream()
-                    .min(Comparator.comparingInt(value -> tileDistance.calculate(value, startIndex))).get();
+                    .min(Comparator.comparingInt(value -> tilesCircularDistance.calculate(value, startIndex))).get();
             if (!setDstTileIndex(mosaicImage[index], mosaicImage)) return;
             tileIndices.remove(index);
         }
+    }
+
+    private void generateCenterDistanceImage() {
+        LOGGER.info("generateCenterDistanceImage");
+        OriginalTile[] mosaicImage = this.mosaicImage;
+        int tilesPerRow = this.tilesPerRow.get();
+        int tilesPerColumn = getTilesPerColumn();
+        List<Integer> areaOfInterest = this.areaOfInterest;
+
+        List<Integer> tileIndices = IntStream.range(0, tilesPerColumn * tilesPerRow).boxed().collect(Collectors.toList());
+        List<Integer> areaOfIntrestIndices = new ArrayList<>(areaOfInterest);
+        tileIndices.removeAll(areaOfIntrestIndices);
+        int startIndex = index(tilesPerRow / 2, tilesPerColumn / 2);
+
+        while (areaOfIntrestIndices.size() > 0)
+        {
+            Integer index = areaOfIntrestIndices
+                    .stream()
+                    .min(Comparator.comparingInt(value -> tilesStraightDistance.calculate(value, startIndex))).get();
+            if (!setDstTileIndex(mosaicImage[index], mosaicImage)) return;
+            areaOfIntrestIndices.remove(index);
+        }
+
+        while (tileIndices.size() > 0)
+        {
+            Integer index = tileIndices.stream()
+                    .min(Comparator.comparingInt(value -> tilesStraightDistance.calculate(value, startIndex))).get();
+            if (!setDstTileIndex(mosaicImage[index], mosaicImage)) return;
+            tileIndices.remove(index);
+        }
+
     }
 
     @Override
@@ -355,12 +397,10 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     private void generateRandomImage() {
         LOGGER.info("generateRandomImage");
         OriginalTile[] mosaicImage = this.mosaicImage;
-        ObservableList<DstTile> dstTilesList = this.dstTilesList;
         int tilesPerRow = this.tilesPerRow.get();
         int tilesPerColumn = getTilesPerColumn();
         List<Integer> areaOfInterest = this.areaOfInterest;
 
-        if (dstTilesList.size() > 0) {
             Random rand = new Random();
 
             List<Integer> tileIndices = IntStream.range(0, tilesPerColumn * tilesPerRow).boxed().collect(Collectors.toList());
@@ -376,18 +416,15 @@ public class MosaicImageModelImpl implements MosaicImageModel {
                 if (!setDstTileIndex(mosaicImage[tileIndices.remove(rand.nextInt(tileIndices.size()))], mosaicImage))
                     return;
             }
-        }
     }
 
     private void generateLinearImage() {
         LOGGER.info("generateLinearImage");
         OriginalTile[] mosaicImage = this.mosaicImage;
-        ObservableList<DstTile> dstTilesList = this.dstTilesList;
         int tilesPerRow = this.tilesPerRow.get();
         int tilesPerColumn = getTilesPerColumn();
         List<Integer> areaOfInterest = this.areaOfInterest;
 
-        if (dstTilesList.size() > 0) {
 
             for (int y = 0; y < tilesPerColumn; y++) {
                 for (int x = 0; x < tilesPerRow; x++) {
@@ -403,7 +440,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
                         if (!setDstTileIndex(mosaicImage[index(x, y)], mosaicImage)) return;
                     }
                 }
-            }
+
         }
     }
 
