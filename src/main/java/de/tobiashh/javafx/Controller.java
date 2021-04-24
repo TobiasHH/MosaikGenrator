@@ -1,17 +1,14 @@
 package de.tobiashh.javafx;
 
-import javafx.application.Application;
+import de.tobiashh.javafx.model.Mode;
+import de.tobiashh.javafx.model.MosaicImageModel;
+import de.tobiashh.javafx.model.MosaicImageModelImpl;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
@@ -28,8 +25,6 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -39,14 +34,8 @@ import java.util.List;
 
 public class Controller {
     private final static Logger LOGGER = LoggerFactory.getLogger(Controller.class.getName());
-    private static final double SCALE_DEFAULT = 1.0;
-    private static final double SCALE_MIN = 0.1;
-    private static final double SCALE_MAX = 10.0;
-    private final MosaicImageModel model;
-    private final DoubleProperty scale = new SimpleDoubleProperty(SCALE_DEFAULT);
-    private final ObjectProperty<Path> imagePath = new SimpleObjectProperty<>();
-    private final BooleanProperty displayOriginalImage = new SimpleBooleanProperty();
-
+    @FXML
+    public ChoiceBox<Mode> modeChoiceBox;
     @FXML
     private MenuBar menuBar;
     @FXML
@@ -66,8 +55,6 @@ public class Controller {
     @FXML
     private CheckBox originalCheck;
     @FXML
-    private CheckBox linearModeCheck;
-    @FXML
     private CheckBox scanSubfolderCheck;
     @FXML
     private TextField preColorAlignment;
@@ -83,6 +70,18 @@ public class Controller {
     private TextField reuseDistance;
     @FXML
     private Label statusLabel;
+
+    private final MosaicImageModel model;
+
+    PropertiesManager propertiesManager = new PropertiesManager();
+
+    private static final double SCALE_DEFAULT = 1.0;
+    private static final double SCALE_MIN = 0.1;
+    private static final double SCALE_MAX = 10.0;
+
+    private final DoubleProperty scale = new SimpleDoubleProperty(SCALE_DEFAULT);
+    private final BooleanProperty displayOriginalImage = new SimpleBooleanProperty();
+    private final ObjectProperty<Path> imagePath = new SimpleObjectProperty<>();
 
     public Controller(MosaicImageModel model) {
         LOGGER.info("Controller");
@@ -100,11 +99,26 @@ public class Controller {
 
     private void initBindings() {
         LOGGER.info("initBindings");
-        pathLabel.textProperty().bind(Bindings.when(model.dstTilesPathProperty().isNull()).then("Kein Pfad gewählt.").otherwise(model.dstTilesPathProperty().asString()));
+        pathLabel.textProperty().bind(Bindings.when(propertiesManager.tilesPathProperty().isNull()).then("Kein Pfad gewählt.").otherwise(propertiesManager.tilesPathProperty().asString()));
         filesCountLabel.textProperty().bind(model.dstTilesCountProperty().asString());
-        linearModeCheck.selectedProperty().bindBidirectional(model.linearModeProperty());
-        scanSubfolderCheck.selectedProperty().bindBidirectional(model.scanSubFolderProperty());
+        modeChoiceBox.valueProperty().bindBidirectional(propertiesManager.modeProperty());
+        scanSubfolderCheck.selectedProperty().bindBidirectional(propertiesManager.scanSubFolderProperty());
         statusLabel.textProperty().bind(model.statusProperty());
+
+        initTextFieldBindings();
+
+        model.tilesPerRowProperty().bind(propertiesManager.tilesPerRowProperty());
+        model.tileSizeProperty().bind(propertiesManager.tileSizeProperty());
+        model.opacityProperty().bind(propertiesManager.opacityProperty());
+        model.postColorAlignmentProperty().bind(propertiesManager.postColorAlignmentProperty());
+        model.modeProperty().bind(propertiesManager.modeProperty());
+        model.reuseDistanceProperty().bind(propertiesManager.reuseDistanceProperty());
+        model.maxReusesProperty().bind(propertiesManager.maxReusesProperty());
+        model.compareSizeProperty().bind(propertiesManager.compareSizeProperty());
+        model.scanSubFolderProperty().bind(propertiesManager.scanSubFolderProperty());
+
+        model.tilesPathProperty().bind(propertiesManager.tilesPathProperty());
+        model.srcImagePathProperty().bind(imagePath);
     }
 
     // todo Wird noch interessant beim laden von bilder nach opacity und co () nur visible updaten
@@ -135,11 +149,11 @@ public class Controller {
     private void scaleTiles() {
         System.out.println("Controller.scaleTiles");
 
-        int tileSize = (int)( model.getTileSize() * getScale());
+        int tileSize = (int)( propertiesManager.tileSizeProperty().get() * getScale());
 
         tiles.forEach(tileView -> tileView.setTileSize( tileSize));
 
-        canvasPane.setPrefWidth(tileSize * model.getTilesPerRow());
+        canvasPane.setPrefWidth(tileSize * propertiesManager.tilesPerRowProperty().get());
         canvasPane.setPrefHeight(tileSize * model.getTilesPerColumn());
     }
 
@@ -157,12 +171,12 @@ public class Controller {
 
     private void initTileViews() {
         System.out.println("Controller.initTileViews");
-        int tilesPerRow = model.getTilesPerRow();
+        int tilesPerRow = propertiesManager.tilesPerRowProperty().get();
         int tilesPerColumn = model.getTilesPerColumn();
 
         tiles.clear();
 
-        int tileSize = (int) (getScale() * model.getTileSize());
+        int tileSize = (int) (getScale() * propertiesManager.tileSizeProperty().get());
 
         for (int y = 0; y < tilesPerColumn; y++) {
             for (int x = 0; x < tilesPerRow; x++) {
@@ -178,7 +192,7 @@ public class Controller {
         if(Platform.isFxApplicationThread()){
             canvasPane.getChildren().clear();
             canvasPane.getChildren().addAll(tiles);
-            canvasPane.setPrefWidth(tileSize * model.getTilesPerRow());
+            canvasPane.setPrefWidth(tileSize * propertiesManager.tilesPerRowProperty().get());
             canvasPane.setPrefHeight(tileSize * model.getTilesPerColumn());
         }
         else
@@ -186,7 +200,7 @@ public class Controller {
             Platform.runLater(() -> {
                 canvasPane.getChildren().clear();
                 canvasPane.getChildren().addAll(tiles);
-                canvasPane.setPrefWidth(tileSize * model.getTilesPerRow());
+                canvasPane.setPrefWidth(tileSize * propertiesManager.tilesPerRowProperty().get());
                 canvasPane.setPrefHeight(tileSize * model.getTilesPerColumn());
             });
         }
@@ -204,8 +218,8 @@ public class Controller {
     private EventHandler<MouseEvent> changeTileEventHandler() {
         LOGGER.info("changeTileEventHandler");
         return mouseEvent -> {
-            int x = (int) (mouseEvent.getX() / (model.getTileSize() * getScale()));
-            int y = (int) (mouseEvent.getY() / (model.getTileSize() * getScale()));
+            int x = (int) (mouseEvent.getX() / (propertiesManager.tileSizeProperty().get() * getScale()));
+            int y = (int) (mouseEvent.getY() / (propertiesManager.tileSizeProperty().get() * getScale()));
             if (mouseEvent.getButton() == MouseButton.PRIMARY) {
                 model.addAreaOfIntrest(x, y);
             }
@@ -224,8 +238,8 @@ public class Controller {
     private EventHandler<MouseEvent> getTileHoverEventHandler() {
         LOGGER.info("getTileHoverEventHandler");
         return mouseEvent -> {
-            int tileX = (int) (mouseEvent.getX() / (model.getTileSize() * getScale()));
-            int tileY = (int) (mouseEvent.getY() / (model.getTileSize() * getScale()));
+            int tileX = (int) (mouseEvent.getX() / (propertiesManager.tileSizeProperty().get() * getScale()));
+            int tileY = (int) (mouseEvent.getY() / (propertiesManager.tileSizeProperty().get() * getScale()));
             tileHoverLabel.setText("x:" + tileX + " y:" + tileY);
         };
     }
@@ -233,9 +247,9 @@ public class Controller {
     private EventHandler<MouseEvent> getTileImageInformationEventHandler() {
         LOGGER.info("getTileImageInformationEventHandler");
         return mouseEvent -> {
-            int tileX = (int) (mouseEvent.getX() / (model.getTileSize() * getScale()));
-            int tileY = (int) (mouseEvent.getY() / (model.getTileSize() * getScale()));
-            if(model.getTilesPerRow() > tileX && model.getTilesPerColumn() > tileY) {
+            int tileX = (int) (mouseEvent.getX() / (propertiesManager.tileSizeProperty().get() * getScale()));
+            int tileY = (int) (mouseEvent.getY() / (propertiesManager.tileSizeProperty().get() * getScale()));
+            if(propertiesManager.tilesPerRowProperty().get() > tileX && model.getTilesPerColumn() > tileY) {
                 tileImageInformations.setText(model.getDstTileInformation(tileX, tileY));
             }
         };
@@ -243,67 +257,42 @@ public class Controller {
 
     private void initChangeListener() {
         LOGGER.info("initChangeListener");
+        initControllerPropertyChangeListener();
+        initPropertiesManagerChangeListener();
+        initModelChangeListener();
+    }
 
-        scaleProperty().addListener((observable, oldValue, newValue) -> scaleTiles());
-
-        preColorAlignment.textProperty().addListener((observable, oldValue, newValue) -> {
-            int percent = getIntFromString(newValue, 0, 100);
-            preColorAlignment.setText(String.valueOf(percent));
-            model.setPreColorAlignment(percent);
-        });
-        model.preColorAlignmentProperty().addListener((observable, oldValue, newValue) -> preColorAlignment.setText(String.valueOf(newValue)));
-        preColorAlignment.setText(String.valueOf(model.getPreColorAlignment()));
-
-        postColorAlignment.textProperty().addListener((observable, oldValue, newValue) -> {
-            int percent = getIntFromString(newValue, 0, 100);
-            postColorAlignment.setText(String.valueOf(percent));
-            model.setPostColorAlignment(percent);
-        });
-        model.postColorAlignmentProperty().addListener((observable, oldValue, newValue) -> postColorAlignment.setText(String.valueOf(newValue)));
-        postColorAlignment.setText(String.valueOf(model.getPostColorAlignment()));
-
-        opacity.textProperty().addListener((observable, oldValue, newValue) -> {
-            int percent = getIntFromString(newValue, 0, 100);
-            opacity.setText(String.valueOf(percent));
-            model.setOpacity(percent);
-        });
-        model.opacityProperty().addListener((observable, oldValue, newValue) -> opacity.setText(String.valueOf(newValue)));
-        opacity.setText(String.valueOf(model.getOpacity()));
-
-        tilesPerRow.textProperty().addListener((observable, oldValue, newValue) -> {
-            int i = getIntFromString(newValue, 1, 50);
-            tilesPerRow.setText(String.valueOf(i));
-            model.setTilesPerRow(i);
-        });
-        model.tilesPerRowProperty().addListener((observable, oldValue, newValue) -> tilesPerRow.setText(String.valueOf(newValue)));
-        tilesPerRow.setText(String.valueOf(model.getTilesPerRow()));
-
-        maxReuses.textProperty().addListener((observable, oldValue, newValue) -> {
-
-            int i = getIntFromString(newValue, 0, 5000);
-            maxReuses.setText(String.valueOf(i));
-            model.setMaxReuses(i);
-        });
-        model.maxReusesProperty().addListener((observable, oldValue, newValue) -> maxReuses.setText(String.valueOf(newValue)));
-        maxReuses.setText(String.valueOf(model.getMaxReuses()));
-
-        reuseDistance.textProperty().addListener((observable, oldValue, newValue) -> {
-            int i = getIntFromString(newValue, 1, 50);
-            reuseDistance.setText(String.valueOf(i));
-            model.setReuseDistance(i);
-        });
-        model.reuseDistanceProperty().addListener((observable, oldValue, newValue) -> reuseDistance.setText(String.valueOf(newValue)));
-        reuseDistance.setText(String.valueOf(model.getReuseDistance()));
-
-        displayOriginalImageProperty().addListener((observable, oldValue, newValue) -> setTiles());
-
-        model.tilesPerRowProperty().addListener((observable, oldValue, newValue) -> initTileViews());
-
+    private void initModelChangeListener() {
         model.tilesPerColumnProperty().addListener((observable, oldValue, newValue) -> initTileViews());
+        model.imageCalculatedProperty().addListener((observable, oldValue, newValue) -> { if(newValue) setTiles(); });
+    }
 
-        model.imageCalculatedProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue) setTiles();
+    private void initPropertiesManagerChangeListener() {
+        propertiesManager.tilesPerRowProperty().addListener((observable, oldValue, newValue) -> initTileViews());
+      }
+
+    private void initControllerPropertyChangeListener() {
+        scaleProperty().addListener((observable, oldValue, newValue) -> scaleTiles());
+        displayOriginalImageProperty().addListener((observable, oldValue, newValue) -> setTiles());
+    }
+
+    private void initTextFieldBindings() {
+        initIntegerTextFieldBinding(preColorAlignment, propertiesManager.preColorAlignmentProperty(), 0, 100);
+        initIntegerTextFieldBinding(postColorAlignment, propertiesManager.postColorAlignmentProperty(), 0, 100);
+        initIntegerTextFieldBinding(opacity, propertiesManager.opacityProperty(), 0, 100);
+        initIntegerTextFieldBinding(tilesPerRow, propertiesManager.tilesPerRowProperty(), 1, 50);
+        initIntegerTextFieldBinding(maxReuses, propertiesManager.maxReusesProperty(), 0, 5000);
+        initIntegerTextFieldBinding(reuseDistance, propertiesManager.reuseDistanceProperty(), 1, 50);
+    }
+
+    private void initIntegerTextFieldBinding(TextField textField, IntegerProperty property, int minValue, int maxValue) {
+        textField.textProperty().addListener((observable, oldValue, newValue) -> {
+            int percent = getIntFromString(newValue, minValue, maxValue);
+            textField.setText(String.valueOf(percent));
+            property.set(percent);
         });
+        property.addListener((observable, oldValue, newValue) -> textField.setText(String.valueOf(newValue)));
+        textField.setText(String.valueOf(property.get()));
     }
 
 
@@ -329,7 +318,7 @@ public class Controller {
         LOGGER.info("initCanvas");
         try {
             String filename = "test.png";
-            model.setSrcImageFile(Path.of(getClass().getResource(filename).toURI()));
+            imagePath.set(Path.of(getClass().getResource(filename).toURI()));
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -371,7 +360,7 @@ public class Controller {
     private void processOpen() {
         LOGGER.info("processOpen");
         FileChooser fileChooser = new FileChooser();
-        if (getImagePath() != null) fileChooser.setInitialDirectory(getImagePath().toFile());
+        if (getImagePath() != null) fileChooser.setInitialDirectory(getImagePath().getParent().toFile());
         fileChooser.setTitle("Bild öffnen");
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Bilder", Arrays.stream(MosaicImageModelImpl.FILE_EXTENSION).map("*."::concat).toArray(String[]::new)));
         File file = fileChooser.showOpenDialog(menuBar.getScene().getWindow());
@@ -379,8 +368,7 @@ public class Controller {
             Path path = file.toPath();
             LOGGER.info("path = " + path);
             if (Arrays.stream(MosaicImageModelImpl.FILE_EXTENSION).anyMatch(e -> path.toString().endsWith("." + e))) {
-                model.setSrcImageFile(path);
-                setImagePath(path.getParent());
+                setImagePath(path);
             }
         }
     }
@@ -390,8 +378,8 @@ public class Controller {
         LOGGER.info("processTilesPath");
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Wähle Mosaik Tile Pfad");
-        directoryChooser.setInitialDirectory(model.getDstTilesPath().toFile());
-        model.setDstTilesPath(directoryChooser.showDialog(menuBar.getScene().getWindow()).toPath());
+        directoryChooser.setInitialDirectory(propertiesManager.tilesPathProperty().get().toFile());
+        propertiesManager.tilesPathProperty().set(directoryChooser.showDialog(menuBar.getScene().getWindow()).toPath());
     }
 
     @FXML
@@ -402,13 +390,12 @@ public class Controller {
         if (dragboard.hasFiles()) {
             if (hasDirectory(dragboard)) {
                 File folder = dragboard.getFiles().get(0);
-                model.setDstTilesPath(folder.toPath());
+                propertiesManager.tilesPathProperty().set(folder.toPath());
                 success = true;
             } else if (hasImageFile(dragboard)) {
                 Path path = dragboard.getFiles().get(0).toPath();
                 if (isImage(path)) {
-                    model.setSrcImageFile(path);
-                    setImagePath(path.getParent());
+                    setImagePath(path);
                 }
             }
         }
@@ -463,9 +450,8 @@ public class Controller {
     private void processSave() {
         LOGGER.info("processSave");
         FileChooser fileChooser = new FileChooser();
-        if (getImagePath() != null) fileChooser.setInitialDirectory(getImagePath().toFile());
         fileChooser.setTitle("Bild speichern");
-        if (getImagePath() != null) fileChooser.setInitialDirectory(getImagePath().toFile());
+        if (getImagePath() != null) fileChooser.setInitialDirectory(getImagePath().getParent().toFile());
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Bilder", Arrays.stream(MosaicImageModelImpl.FILE_EXTENSION).map("*."::concat).toArray(String[]::new)));
         File file = fileChooser.showSaveDialog(menuBar.getScene().getWindow());
         if (file != null) {

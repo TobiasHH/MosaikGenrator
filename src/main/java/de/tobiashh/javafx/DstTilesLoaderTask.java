@@ -1,5 +1,6 @@
 package de.tobiashh.javafx;
 
+import de.tobiashh.javafx.model.MosaicImageModelImpl;
 import de.tobiashh.javafx.tiles.DstTile;
 import javafx.concurrent.Task;
 import org.slf4j.Logger;

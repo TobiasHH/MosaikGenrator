@@ -1,5 +1,6 @@
 package de.tobiashh.javafx;
 
+import de.tobiashh.javafx.model.MosaicImageModelImpl;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -9,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URL;
 
 /**
  * JavaFX App
@@ -27,9 +29,11 @@ public class App extends Application {
 
     private static Parent loadFXML() throws IOException {
         LOGGER.info("loadFXML");
-        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("primary.fxml"));
-        MosaicImageModel model = new MosaicImageModelImpl();
-        fxmlLoader.setControllerFactory(c -> new Controller(model));
+        URL resource = Controller.class.getResource("primary.fxml");
+        System.out.println(resource);
+        FXMLLoader fxmlLoader = new FXMLLoader(resource);
+        fxmlLoader.setControllerFactory(c -> new Controller(new MosaicImageModelImpl()));
+        System.out.println(fxmlLoader.getLocation());
         return fxmlLoader.load();
     }
 
