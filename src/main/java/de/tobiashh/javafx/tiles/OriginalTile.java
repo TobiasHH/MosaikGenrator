@@ -63,18 +63,7 @@ public class OriginalTile extends SimpleSquareComparableImage {
             BufferedImage returnValue = composedImage.get();
 
             if(returnValue == null) {
-                returnValue = dstImage;
-
-                if(postColorAlignment > 0)
-                {
-                   returnValue = ImageTools.colorAlignment(returnValue,srcImage,postColorAlignment);
-                }
-
-                if(opacity < 100)
-                {
-                    returnValue = ImageTools.opacityAdaption(returnValue,srcImage, opacity);
-                }
-
+                returnValue = new TileComposer(opacity, postColorAlignment).compose(srcImage, dstImage);
                 composedImage = new WeakReference<>(returnValue);
             }
 

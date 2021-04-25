@@ -107,20 +107,24 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
     private void setPostColorAlignmentInTiles(int postColorAlignment) {
         LOGGER.info("setPostColorAlignmentInTiles {}%", postColorAlignment);
-        imageCalculated.set(false);
-        for (OriginalTile originalTile : mosaicImage) {
-            originalTile.setPostColorAlignment(postColorAlignment);
+        if(mosaicImage != null) {
+            imageCalculated.set(false);
+            for (OriginalTile originalTile : mosaicImage) {
+                originalTile.setPostColorAlignment(postColorAlignment);
+            }
+            imageCalculated.set(true);
         }
-        imageCalculated.set(true);
     }
 
     private void setOpacityInTiles(int opacity) {
         LOGGER.info("setOpacityInTiles {}%", opacity);
-        imageCalculated.set(false);
-        for (OriginalTile originalTile : mosaicImage) {
-            originalTile.setOpacity(opacity);
+        if(mosaicImage != null) {
+            imageCalculated.set(false);
+            for (OriginalTile originalTile : mosaicImage) {
+                originalTile.setOpacity(opacity);
+            }
+            imageCalculated.set(true);
         }
-        imageCalculated.set(true);
     }
 
     private void loadDstTiles(Path path) {
