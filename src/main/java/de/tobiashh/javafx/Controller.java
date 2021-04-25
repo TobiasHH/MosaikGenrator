@@ -10,6 +10,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.BoundingBox;
+import javafx.geometry.Bounds;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
@@ -33,6 +35,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Controller {
     private final static Logger LOGGER = LoggerFactory.getLogger(Controller.class.getName());
@@ -125,10 +128,15 @@ public class Controller {
 
         model.tilesPathProperty().bind(propertiesManager.tilesPathProperty());
         model.srcImagePathProperty().bind(imagePath);
+
+        scrollPane.vvalueProperty().addListener((observable, oldValue, newValue) -> countVisibleTiles());
+        scrollPane.hvalueProperty().addListener((observable, oldValue, newValue) -> countVisibleTiles());
+        scrollPane.widthProperty().addListener((observable, oldValue, newValue) -> countVisibleTiles());
+        scrollPane.heightProperty().addListener((observable, oldValue, newValue) -> countVisibleTiles());
     }
 
     // todo Wird noch interessant beim laden von bilder nach opacity und co () nur visible updaten
-    private void setTileVisibility() {
+    private void countVisibleTiles() {
         System.out.println("Controller.setTileVisibility");
         double hmin = scrollPane.getHmin();
         double hmax = scrollPane.getHmax();
@@ -146,9 +154,11 @@ public class Controller {
 
         double voffset = Math.max(0, contentHeight - viewportHeight) * (vvalue - vmin) / (vmax - vmin);
 
-        tiles.forEach(tileView -> {
-            //        tileView.setTileVisible(tileView.intersects(hoffset, voffset, viewportWidth, viewportHeight));
-        });
+        long count = tiles.stream().filter(tileView -> tileView.intersects(new BoundingBox(hoffset, voffset, viewportWidth, viewportHeight))).count();
+        String tileCoordinates = tiles.stream().filter(tileView -> tileView.intersects(new BoundingBox(hoffset, voffset, viewportWidth, viewportHeight)))
+                .map(tileView -> "" + tileView.getTilePositionX() + "," + tileView.getTilePositionY()).collect(Collectors.joining(" "));
+        System.out.println("count = " + count);
+        System.out.println("tileCoordinates = " + tileCoordinates);
     }
 
 
@@ -156,9 +166,7 @@ public class Controller {
         System.out.println("Controller.scaleTiles");
 
         int tileSize = (int)( propertiesManager.tileSizeProperty().get() * getScale());
-
-        tiles.forEach(tileView -> tileView.setTileSize( tileSize));
-
+        tiles.forEach(tileView -> tileView.setTileSize(tileSize));
         canvasPane.setPrefWidth(tileSize * propertiesManager.tilesPerRowProperty().get());
         canvasPane.setPrefHeight(tileSize * model.getTilesPerColumn());
     }

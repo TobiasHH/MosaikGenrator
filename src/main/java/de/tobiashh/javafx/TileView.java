@@ -15,16 +15,9 @@ public class TileView extends ImageView
 {
     private static final int DEFAULT_TILE_SIZE = 1;
 
-    /*
-     * Properties
-     */
     private final IntegerProperty tileSizeProperty = new SimpleIntegerProperty(DEFAULT_TILE_SIZE);
 
     public final void setTileSize(int value) {tileSizeProperty.set(value);}
-
-    /*
-     * Properties
-     */
 
     int tilePositionX;
     int tilePositionY;
