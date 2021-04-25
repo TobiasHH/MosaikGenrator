@@ -90,7 +90,7 @@ public class ImageTools {
         int width = mosaic.getWidth();
         int height = mosaic.getHeight();
 
-        BufferedImage returnValue = new BufferedImage(width, height,	BufferedImage.TYPE_INT_RGB);
+        BufferedImage returnValue = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
         long sr1 = 0;
         long sg1 = 0;

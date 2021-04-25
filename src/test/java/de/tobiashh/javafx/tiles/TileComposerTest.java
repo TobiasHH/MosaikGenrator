@@ -1,6 +1,7 @@
 package de.tobiashh.javafx.tiles;
 
 import de.tobiashh.javafx.tools.ImageTools;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -48,6 +49,27 @@ class TileComposerTest {
         printRGB(composedImage.getRGB(0, 0));
 
         assertThat(composedImage.getRGB(0, 0), is(result.getRGB(0, 0)));
+    }
+
+    private static Stream<Arguments> testData2() {
+        return Stream.of(
+                Arguments.of(0,0),
+                Arguments.of(100,0),
+                Arguments.of(0,100),
+                Arguments.of(100,100)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("testData2")
+    void test2(int opacity, int postColorAlignment) {
+        BufferedImage original = createImage(Color.BLUE);
+        BufferedImage mosaik = createImage(Color.RED);
+
+        BufferedImage composedImage = new TileComposer(opacity, postColorAlignment).compose(original, mosaik);
+
+        assertThat(composedImage, is(not(original)));
+        assertThat(composedImage, is(not(mosaik)));
     }
 
     private BufferedImage createImage(Color color) {

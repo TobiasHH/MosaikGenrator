@@ -24,18 +24,31 @@ public class TileComposer {
 
     public BufferedImage compose(BufferedImage originalImage, BufferedImage mosaikImage)
     {
-        BufferedImage returnValue = deepCopy(mosaikImage);
+        if( originalImage.getWidth() != mosaikImage.getWidth() || originalImage.getHeight() != mosaikImage.getHeight())
+        {
+            return deepCopy(mosaikImage);
+        }
+        else
+        {
+            if (opacity == 0)
+            {
+                return deepCopy(originalImage);
+            }
 
-        if(originalImage.getWidth() == mosaikImage.getWidth() && originalImage.getHeight() == mosaikImage.getHeight()) {
-            if (postColorAlignment > 0) {
+            BufferedImage returnValue = deepCopy(mosaikImage);
+
+            if (postColorAlignment > 0)
+            {
                 returnValue = ImageTools.colorAlignment(returnValue, originalImage, postColorAlignment);
             }
 
-            if (opacity < 100) {
+
+            if (postColorAlignment < 100)
+            {
                 returnValue = ImageTools.opacityAdaption(returnValue, originalImage, opacity);
             }
-        }
 
-        return returnValue;
+            return returnValue;
+        }
     }
 }
