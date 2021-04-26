@@ -5,6 +5,7 @@ import de.tobiashh.javafx.TilesCircularDistance;
 import de.tobiashh.javafx.TilesStraightDistance;
 import de.tobiashh.javafx.save.ImageSaver;
 import de.tobiashh.javafx.tiles.DstTile;
+import de.tobiashh.javafx.tiles.IndexManager;
 import de.tobiashh.javafx.tiles.OriginalTile;
 import de.tobiashh.javafx.tools.ImageTools;
 import javafx.application.Platform;
@@ -67,6 +68,8 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     private final BooleanProperty scanSubFolder = new SimpleBooleanProperty();
 
     private OriginalTile[] mosaicImage;
+    private IndexManager[] indexManagers;
+
     private DstTilesLoaderTask task;
 
     private TilesStraightDistance tilesStraightDistance;
@@ -186,10 +189,13 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     private void calculateTiles(BufferedImage image) {
         LOGGER.info("calculateTiles");
         mosaicImage = new OriginalTile[getTilesPerColumn() * tilesPerRow.get()];
+        indexManagers = new IndexManager[getTilesPerColumn() * tilesPerRow.get()];
         for (int y = 0; y < getTilesPerColumn(); y++) {
             for (int x = 0; x < tilesPerRow.get(); x++) {
                 BufferedImage subImage = image.getSubimage(x * tileSize.get(), y * tileSize.get(), tileSize.get(), tileSize.get());
-                mosaicImage[index(x, y)] = new OriginalTile(subImage, compareSize.get());
+                int imageImageIndex = mosaikImageIndex(x, y);
+                mosaicImage[imageImageIndex] = new OriginalTile(subImage, compareSize.get());
+                indexManagers[imageImageIndex] = new IndexManager();
             }
         }
     }
@@ -197,26 +203,26 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     private void compareTiles(OriginalTile[] mosaicImage, ObservableList<DstTile> dstTilesList) {
         LOGGER.info("compareTiles");
 
-        for (OriginalTile originalTile : mosaicImage) {
+        IntStream.range(0, mosaicImage.length).forEach(index ->{
             Map<Integer, Integer> scores = new HashMap<>();
 
-            for (int i = 0; i < dstTilesList.size(); i++) {
-                scores.put(i, originalTile.compare(dstTilesList.get(i)));
+            for (int dstTilesListIndex = 0; dstTilesListIndex < dstTilesList.size(); dstTilesListIndex++) {
+                scores.put(dstTilesListIndex, mosaicImage[index].compare(dstTilesList.get(dstTilesListIndex)));
             }
 
             List<Map.Entry<Integer, Integer>> list = new ArrayList<>(scores.entrySet());
             list.sort(Map.Entry.comparingByValue());
             int[] keys = list.stream().mapToInt(Map.Entry::getKey).toArray();
-            originalTile.setDstTileIDs(keys);
-        }
+            indexManagers[index].setDstTileIDs(keys);
+        });
     }
 
     @Override
     public void addAreaOfIntrest(int x, int y) {
         System.out.println("MosaicImageModelImpl.addAreaOfIntrest");
-        int index = index(x, y);
-        if (!areaOfInterest.contains(index)) {
-            areaOfInterest.add(index);
+        int mosaikImageIndex = mosaikImageIndex(x, y);
+        if (!areaOfInterest.contains(mosaikImageIndex)) {
+            areaOfInterest.add(mosaikImageIndex);
         }
         System.out.println(areaOfInterest.size());
     }
@@ -224,15 +230,15 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     @Override
     public void removeAreaOfIntrest(int x, int y) {
         System.out.println("MosaicImageModelImpl.removeAreaOfIntrest");
-        areaOfInterest.remove((Object) index(x, y)); // geht das besser?
+        areaOfInterest.remove((Object) mosaikImageIndex(x, y)); // geht das besser?
         System.out.println(areaOfInterest.size());
     }
 
     @Override
     public BufferedImage getTile(int x, int y) {
         LOGGER.debug("getTile " + x + ", " + y);
-        OriginalTile originalTile = mosaicImage[index(x, y)];
-        boolean noDestinationTile = dstTilesList.isEmpty() || originalTile.getDstTileID() == -1;
+        OriginalTile originalTile = mosaicImage[mosaikImageIndex(x, y)];
+        boolean noDestinationTile = dstTilesList.isEmpty() || indexManagers[mosaikImageIndex(x, y)].getDstTileID() == -1;
         return printDebugInformations((noDestinationTile) ? originalTile.getSrcImage() : originalTile.getComposedImage(), x, y);
     }
 
@@ -242,35 +248,35 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         g2d.drawImage(srcImage, 0, 0, null);
         g2d.setColor(Color.red);
         g2d.drawString(x + ", " + y, 10, 10);
-        g2d.drawString("" + areaOfInterest.contains(index(x, y)), 10, 25);
+        g2d.drawString("" + areaOfInterest.contains(mosaikImageIndex(x, y)), 10, 25);
         return bufferedImage;
     }
 
 
-    private int index(int x, int y) {
-        LOGGER.trace("index from {},{}", x, y);
+    private int mosaikImageIndex(int x, int y) {
+        LOGGER.trace("mosaikImageIndex from {},{}", x, y);
         return y * tilesPerRow.get() + x;
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private boolean setDstTileIndex(OriginalTile actualTile, OriginalTile[] tiles) {
+    private boolean setDstTileIndex(int mosaikImageIndex, IndexManager[] indexManagers) {
         LOGGER.debug("setDstTileIndex");
-        if (actualTile.getDstTileIndex() > -1) return false;
+        if (indexManagers[mosaikImageIndex].getDstTileIndex() > -1) return false;
 
-        actualTile.incrementDstTileIndex();
+        indexManagers[mosaikImageIndex].incrementDstTileIndex();
 
-        if (actualTile.getDstTileIndex() == -1) return false;
+        if (indexManagers[mosaikImageIndex].getDstTileIndex() == -1) return false;
 
-        int tileID = actualTile.getDstTileID();
+        int tileID = indexManagers[mosaikImageIndex].getDstTileID();
 
-        if (Arrays.stream(mosaicImage).filter(t -> t.getDstTileID() == tileID).count() > maxReuses.get()) {
-            blockID(tileID, actualTile, tiles);
+        if (Arrays.stream(indexManagers).filter(indexManager -> indexManager.getDstTileID() == tileID).count() > maxReuses.get()) {
+            blockID(tileID, mosaikImageIndex, indexManagers);
         }
 
-        int actualIndex = IntStream.range(0, tiles.length).filter(i -> tiles[i] == actualTile).findFirst().orElse(-1);
-        IntStream.range(0, tiles.length).forEach(i -> {
-            if (tilesStraightDistance.calculate(actualIndex, i) < reuseDistance.get()) {
-                tiles[i].addBlockedIds(tileID);
+        int actualIndex = IntStream.range(0, indexManagers.length).filter(i -> indexManagers[i] == indexManagers[mosaikImageIndex]).findFirst().orElse(-1);
+        IntStream.range(0, indexManagers.length).forEach(index -> {
+            if (tilesStraightDistance.calculate(actualIndex, index) < reuseDistance.get()) {
+                indexManagers[index].addBlockedIds(tileID);
             }
         });
 
@@ -292,7 +298,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         }
 
 
-        Arrays.stream(mosaicImage).forEach(OriginalTile::resetIndex);
+        Arrays.stream(indexManagers).forEach(IndexManager::resetIndex);
 
         if (mode.get() == Mode.TILE_DISTANCE) {
             generateCenterDistanceImage();
@@ -304,22 +310,22 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             generateLinearImage();
         }
 
-        for (OriginalTile originalTile : mosaicImage) {
-            int dstTileID = originalTile.getDstTileID();
+        IntStream.range(0, indexManagers.length).forEach(index -> {
+            int dstTileID = indexManagers[index].getDstTileID();
             if (dstTileID >= 0) {
-                originalTile.setOpacity(opacity.get());
-                originalTile.setPostColorAlignment(postColorAlignment.get());
-                originalTile.setDstImage(dstTilesList.get(dstTileID).getImage());
+                mosaicImage[index].setOpacity(opacity.get());
+                mosaicImage[index].setPostColorAlignment(postColorAlignment.get());
+                mosaicImage[index].setDstImage(dstTilesList.get(dstTileID).getImage());
             }
-        }
+
+        });
 
         imageCalculated.set(true);
     }
 
     private void generateCircularImage() {
         LOGGER.info("generateCircularImage");
-        OriginalTile[] mosaicImage = this.mosaicImage;
-        ObservableList<DstTile> dstTilesList = this.dstTilesList;
+        IndexManager[] indexManagers = this.indexManagers;
         int tilesPerRow = this.tilesPerRow.get();
         int tilesPerColumn = getTilesPerColumn();
         List<Integer> areaOfInterest = this.areaOfInterest;
@@ -327,27 +333,27 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         List<Integer> tileIndices = IntStream.range(0, tilesPerColumn * tilesPerRow).boxed().collect(Collectors.toList());
         List<Integer> areaOfIntrestIndices = new ArrayList<>(areaOfInterest);
         tileIndices.removeAll(areaOfIntrestIndices);
-        int startIndex = index(tilesPerRow / 2, tilesPerColumn / 2);
+        int startIndex = mosaikImageIndex(tilesPerRow / 2, tilesPerColumn / 2);
 
         while (areaOfIntrestIndices.size() > 0) {
             Integer index = areaOfIntrestIndices
                     .stream()
                     .min(Comparator.comparingInt(value -> tilesCircularDistance.calculate(value, startIndex))).get();
-            if (!setDstTileIndex(mosaicImage[index], mosaicImage)) return;
+            if (!setDstTileIndex(index, indexManagers)) return;
             areaOfIntrestIndices.remove(index);
         }
 
         while (tileIndices.size() > 0) {
             Integer index = tileIndices.stream()
                     .min(Comparator.comparingInt(value -> tilesCircularDistance.calculate(value, startIndex))).get();
-            if (!setDstTileIndex(mosaicImage[index], mosaicImage)) return;
+            if (!setDstTileIndex(index, indexManagers)) return;
             tileIndices.remove(index);
         }
     }
 
     private void generateCenterDistanceImage() {
         LOGGER.info("generateCenterDistanceImage");
-        OriginalTile[] mosaicImage = this.mosaicImage;
+        IndexManager[] indexManagers = this.indexManagers;
         int tilesPerRow = this.tilesPerRow.get();
         int tilesPerColumn = getTilesPerColumn();
         List<Integer> areaOfInterest = this.areaOfInterest;
@@ -355,20 +361,20 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         List<Integer> tileIndices = IntStream.range(0, tilesPerColumn * tilesPerRow).boxed().collect(Collectors.toList());
         List<Integer> areaOfIntrestIndices = new ArrayList<>(areaOfInterest);
         tileIndices.removeAll(areaOfIntrestIndices);
-        int startIndex = index(tilesPerRow / 2, tilesPerColumn / 2);
+        int startIndex = mosaikImageIndex(tilesPerRow / 2, tilesPerColumn / 2);
 
         while (areaOfIntrestIndices.size() > 0) {
             Integer index = areaOfIntrestIndices
                     .stream()
                     .min(Comparator.comparingInt(value -> tilesStraightDistance.calculate(value, startIndex))).get();
-            if (!setDstTileIndex(mosaicImage[index], mosaicImage)) return;
+            if (!setDstTileIndex(index, indexManagers)) return;
             areaOfIntrestIndices.remove(index);
         }
 
         while (tileIndices.size() > 0) {
             Integer index = tileIndices.stream()
                     .min(Comparator.comparingInt(value -> tilesStraightDistance.calculate(value, startIndex))).get();
-            if (!setDstTileIndex(mosaicImage[index], mosaicImage)) return;
+            if (!setDstTileIndex(index, indexManagers)) return;
             tileIndices.remove(index);
         }
 
@@ -377,8 +383,8 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     @Override
     public String getDstTileInformation(int x, int y) {
         LOGGER.debug("getDstTileInformation {},{}", x, y);
-        if (!dstTilesList.isEmpty() && mosaicImage[index(x, y)].getDstTileID() >= 0) {
-            return dstTilesList.get(mosaicImage[index(x, y)].getDstTileID()).getFilename();
+        if (!dstTilesList.isEmpty() && indexManagers[mosaikImageIndex(x, y)].getDstTileID() >= 0) {
+            return dstTilesList.get(indexManagers[mosaikImageIndex(x, y)].getDstTileID()).getFilename();
         }
         return "";
     }
@@ -393,7 +399,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
     private void generateRandomImage() {
         LOGGER.info("generateRandomImage");
-        OriginalTile[] mosaicImage = this.mosaicImage;
+        IndexManager[] indexManagers = this.indexManagers;
         int tilesPerRow = this.tilesPerRow.get();
         int tilesPerColumn = getTilesPerColumn();
         List<Integer> areaOfInterest = this.areaOfInterest;
@@ -405,19 +411,19 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         tileIndices.removeAll(areaOfInterestIndices);
 
         while (areaOfInterestIndices.size() > 0) {
-            if (!setDstTileIndex(mosaicImage[areaOfInterestIndices.remove(rand.nextInt(areaOfInterestIndices.size()))], mosaicImage))
+            if (!setDstTileIndex(areaOfInterestIndices.remove(rand.nextInt(areaOfInterestIndices.size())), indexManagers))
                 return;
         }
 
         while (tileIndices.size() > 0) {
-            if (!setDstTileIndex(mosaicImage[tileIndices.remove(rand.nextInt(tileIndices.size()))], mosaicImage))
+            if (!setDstTileIndex(tileIndices.remove(rand.nextInt(tileIndices.size())), indexManagers))
                 return;
         }
     }
 
     private void generateLinearImage() {
         LOGGER.info("generateLinearImage");
-        OriginalTile[] mosaicImage = this.mosaicImage;
+        IndexManager[] indexManagers = this.indexManagers;
         int tilesPerRow = this.tilesPerRow.get();
         int tilesPerColumn = getTilesPerColumn();
         List<Integer> areaOfInterest = this.areaOfInterest;
@@ -425,28 +431,29 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
         for (int y = 0; y < tilesPerColumn; y++) {
             for (int x = 0; x < tilesPerRow; x++) {
-                if (areaOfInterest.contains(index(x, y))) {
-                    if (!setDstTileIndex(mosaicImage[index(x, y)], mosaicImage)) return;
+                if (areaOfInterest.contains(mosaikImageIndex(x, y))) {
+                    if (!setDstTileIndex(mosaikImageIndex(x, y), indexManagers)) return;
                 }
             }
         }
 
         for (int y = 0; y < tilesPerColumn; y++) {
             for (int x = 0; x < tilesPerRow; x++) {
-                if (!areaOfInterest.contains(index(x, y))) {
-                    if (!setDstTileIndex(mosaicImage[index(x, y)], mosaicImage)) return;
+                if (!areaOfInterest.contains(mosaikImageIndex(x, y))) {
+                    if (!setDstTileIndex(mosaikImageIndex(x, y), indexManagers)) return;
                 }
             }
         }
     }
 
-    private void blockID(int id, OriginalTile tile, OriginalTile[] mosaicImage) {
+    private void blockID(int id, int mosaikImageIndex, IndexManager[] indexManagers) {
         LOGGER.debug("blockID");
-        for (OriginalTile originalTile : mosaicImage) {
-            if (originalTile != tile) {
-                originalTile.addBlockedIds(id);
+        IntStream.range(0, indexManagers.length).forEach(index -> {
+            if(index != mosaikImageIndex)
+            {
+                indexManagers[index].addBlockedIds(id);
             }
-        }
+        });
     }
 
     private ReadOnlyIntegerProperty dstTilesLoadProgressProperty() {
@@ -456,7 +463,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     @Override
     public BufferedImage getOriginalTile(int x, int y) {
         LOGGER.debug("getOriginalTile " + x + ", " + y);
-        return printDebugInformations(mosaicImage[index(x, y)].getSrcImage(), x, y);
+        return printDebugInformations(mosaicImage[mosaikImageIndex(x, y)].getSrcImage(), x, y);
     }
 
     @Override
