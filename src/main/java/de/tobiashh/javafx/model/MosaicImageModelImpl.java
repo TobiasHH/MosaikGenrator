@@ -3,6 +3,10 @@ package de.tobiashh.javafx.model;
 import de.tobiashh.javafx.DstTilesLoaderTask;
 import de.tobiashh.javafx.TilesCircularDistance;
 import de.tobiashh.javafx.TilesStraightDistance;
+import de.tobiashh.javafx.generator.CenterImageGenerator;
+import de.tobiashh.javafx.generator.CircleImageGenerator;
+import de.tobiashh.javafx.generator.LinearImageGenerator;
+import de.tobiashh.javafx.generator.RandomImageGenerator;
 import de.tobiashh.javafx.save.ImageSaver;
 import de.tobiashh.javafx.tiles.DstTile;
 import de.tobiashh.javafx.tiles.IndexManager;
@@ -72,17 +76,8 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
     private DstTilesLoaderTask task;
 
-    private TilesStraightDistance tilesStraightDistance;
-    private TilesCircularDistance tilesCircularDistance;
-
     public MosaicImageModelImpl() {
         LOGGER.info("MosaicImageModelImpl");
-        tilesStraightDistance = new TilesStraightDistance(tilesPerRow.get());
-        tilesCircularDistance = new TilesCircularDistance(tilesPerRow.get());
-        tilesPerRow.addListener((observable, oldValue, newValue) -> {
-            tilesStraightDistance = new TilesStraightDistance(newValue.intValue());
-            tilesCircularDistance = new TilesCircularDistance(newValue.intValue());
-        });
         initChangeListener();
 
     }
@@ -258,31 +253,6 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         return y * tilesPerRow.get() + x;
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private boolean setDstTileIndex(int mosaikImageIndex, IndexManager[] indexManagers) {
-        LOGGER.debug("setDstTileIndex");
-        if (indexManagers[mosaikImageIndex].getDstTileIndex() > -1) return false;
-
-        indexManagers[mosaikImageIndex].incrementDstTileIndex();
-
-        if (indexManagers[mosaikImageIndex].getDstTileIndex() == -1) return false;
-
-        int tileID = indexManagers[mosaikImageIndex].getDstTileID();
-
-        if (Arrays.stream(indexManagers).filter(indexManager -> indexManager.getDstTileID() == tileID).count() > maxReuses.get()) {
-            blockID(tileID, mosaikImageIndex, indexManagers);
-        }
-
-        int actualIndex = IntStream.range(0, indexManagers.length).filter(i -> indexManagers[i] == indexManagers[mosaikImageIndex]).findFirst().orElse(-1);
-        IntStream.range(0, indexManagers.length).forEach(index -> {
-            if (tilesStraightDistance.calculate(actualIndex, index) < reuseDistance.get()) {
-                indexManagers[index].addBlockedIds(tileID);
-            }
-        });
-
-        return true;
-    }
-
     @Override
     public void generateMosaicImage() {
 
@@ -297,17 +267,16 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             originalTile.setDstImage(null);
         }
 
-
         Arrays.stream(indexManagers).forEach(IndexManager::resetIndex);
 
         if (mode.get() == Mode.TILE_DISTANCE) {
-            generateCenterDistanceImage();
+            indexManagers = new CenterImageGenerator(tilesPerRow.get(), tilesPerColumn.get(), maxReuses.get(), reuseDistance.get(),areaOfInterest, indexManagers).generate();
         } else if (mode.get() == Mode.CIRCULAR) {
-            generateCircularImage();
+            indexManagers = new CircleImageGenerator(tilesPerRow.get(), tilesPerColumn.get(), maxReuses.get(), reuseDistance.get(),areaOfInterest, indexManagers).generate();
         } else if (mode.get() == Mode.RANDOM) {
-            generateRandomImage();
+            indexManagers = new RandomImageGenerator(tilesPerRow.get(), tilesPerColumn.get(), maxReuses.get(), reuseDistance.get(),areaOfInterest, indexManagers).generate();
         } else {
-            generateLinearImage();
+            indexManagers = new LinearImageGenerator(tilesPerRow.get(), tilesPerColumn.get(), maxReuses.get(), reuseDistance.get(),areaOfInterest, indexManagers).generate();
         }
 
         IntStream.range(0, indexManagers.length).forEach(index -> {
@@ -321,63 +290,6 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         });
 
         imageCalculated.set(true);
-    }
-
-    private void generateCircularImage() {
-        LOGGER.info("generateCircularImage");
-        IndexManager[] indexManagers = this.indexManagers;
-        int tilesPerRow = this.tilesPerRow.get();
-        int tilesPerColumn = getTilesPerColumn();
-        List<Integer> areaOfInterest = this.areaOfInterest;
-
-        List<Integer> tileIndices = IntStream.range(0, tilesPerColumn * tilesPerRow).boxed().collect(Collectors.toList());
-        List<Integer> areaOfIntrestIndices = new ArrayList<>(areaOfInterest);
-        tileIndices.removeAll(areaOfIntrestIndices);
-        int startIndex = mosaikImageIndex(tilesPerRow / 2, tilesPerColumn / 2);
-
-        while (areaOfIntrestIndices.size() > 0) {
-            Integer index = areaOfIntrestIndices
-                    .stream()
-                    .min(Comparator.comparingInt(value -> tilesCircularDistance.calculate(value, startIndex))).get();
-            if (!setDstTileIndex(index, indexManagers)) return;
-            areaOfIntrestIndices.remove(index);
-        }
-
-        while (tileIndices.size() > 0) {
-            Integer index = tileIndices.stream()
-                    .min(Comparator.comparingInt(value -> tilesCircularDistance.calculate(value, startIndex))).get();
-            if (!setDstTileIndex(index, indexManagers)) return;
-            tileIndices.remove(index);
-        }
-    }
-
-    private void generateCenterDistanceImage() {
-        LOGGER.info("generateCenterDistanceImage");
-        IndexManager[] indexManagers = this.indexManagers;
-        int tilesPerRow = this.tilesPerRow.get();
-        int tilesPerColumn = getTilesPerColumn();
-        List<Integer> areaOfInterest = this.areaOfInterest;
-
-        List<Integer> tileIndices = IntStream.range(0, tilesPerColumn * tilesPerRow).boxed().collect(Collectors.toList());
-        List<Integer> areaOfIntrestIndices = new ArrayList<>(areaOfInterest);
-        tileIndices.removeAll(areaOfIntrestIndices);
-        int startIndex = mosaikImageIndex(tilesPerRow / 2, tilesPerColumn / 2);
-
-        while (areaOfIntrestIndices.size() > 0) {
-            Integer index = areaOfIntrestIndices
-                    .stream()
-                    .min(Comparator.comparingInt(value -> tilesStraightDistance.calculate(value, startIndex))).get();
-            if (!setDstTileIndex(index, indexManagers)) return;
-            areaOfIntrestIndices.remove(index);
-        }
-
-        while (tileIndices.size() > 0) {
-            Integer index = tileIndices.stream()
-                    .min(Comparator.comparingInt(value -> tilesStraightDistance.calculate(value, startIndex))).get();
-            if (!setDstTileIndex(index, indexManagers)) return;
-            tileIndices.remove(index);
-        }
-
     }
 
     @Override
@@ -397,54 +309,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         thread.start();
     }
 
-    private void generateRandomImage() {
-        LOGGER.info("generateRandomImage");
-        IndexManager[] indexManagers = this.indexManagers;
-        int tilesPerRow = this.tilesPerRow.get();
-        int tilesPerColumn = getTilesPerColumn();
-        List<Integer> areaOfInterest = this.areaOfInterest;
 
-        Random rand = new Random();
-
-        List<Integer> tileIndices = IntStream.range(0, tilesPerColumn * tilesPerRow).boxed().collect(Collectors.toList());
-        List<Integer> areaOfInterestIndices = new ArrayList<>(areaOfInterest);
-        tileIndices.removeAll(areaOfInterestIndices);
-
-        while (areaOfInterestIndices.size() > 0) {
-            if (!setDstTileIndex(areaOfInterestIndices.remove(rand.nextInt(areaOfInterestIndices.size())), indexManagers))
-                return;
-        }
-
-        while (tileIndices.size() > 0) {
-            if (!setDstTileIndex(tileIndices.remove(rand.nextInt(tileIndices.size())), indexManagers))
-                return;
-        }
-    }
-
-    private void generateLinearImage() {
-        LOGGER.info("generateLinearImage");
-        IndexManager[] indexManagers = this.indexManagers;
-        int tilesPerRow = this.tilesPerRow.get();
-        int tilesPerColumn = getTilesPerColumn();
-        List<Integer> areaOfInterest = this.areaOfInterest;
-
-
-        for (int y = 0; y < tilesPerColumn; y++) {
-            for (int x = 0; x < tilesPerRow; x++) {
-                if (areaOfInterest.contains(mosaikImageIndex(x, y))) {
-                    if (!setDstTileIndex(mosaikImageIndex(x, y), indexManagers)) return;
-                }
-            }
-        }
-
-        for (int y = 0; y < tilesPerColumn; y++) {
-            for (int x = 0; x < tilesPerRow; x++) {
-                if (!areaOfInterest.contains(mosaikImageIndex(x, y))) {
-                    if (!setDstTileIndex(mosaikImageIndex(x, y), indexManagers)) return;
-                }
-            }
-        }
-    }
 
     private void blockID(int id, int mosaikImageIndex, IndexManager[] indexManagers) {
         LOGGER.debug("blockID");

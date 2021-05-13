@@ -53,6 +53,10 @@ public class IndexManager {
         }
     }
 
+    public int[] getDstTileIDs() {
+        return dstTileIDs;
+    }
+
     public boolean incrementDstTileIndex() {
         LOGGER.debug("incrementDstTileIndex");
         int nextIndex = getDstTileIndex() + 1;
