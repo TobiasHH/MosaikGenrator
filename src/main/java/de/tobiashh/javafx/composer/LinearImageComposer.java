@@ -17,15 +17,11 @@ public class LinearImageComposer implements ImageComposer {
 
     private final int tilesPerRow;
     private final int tilesPerColumn;
-    private final int maxReuses;
-    private final int reuseDistance;
     private final List<Integer> areaOfInterest;
 
     public LinearImageComposer(int tilesPerRow, int tilesPerColumn, int maxReuses, int reuseDistance, List<Integer> areaOfInterest, List<List<Integer>> destinationTileIDs) {
         this.tilesPerRow = tilesPerRow;
         this.tilesPerColumn = tilesPerColumn;
-        this.maxReuses = maxReuses;
-        this.reuseDistance = reuseDistance;
         this.areaOfInterest = areaOfInterest;
 
         indexUpdater = new IndexUpdater(new TilesStraightDistance(tilesPerRow), maxReuses, reuseDistance);
@@ -52,10 +48,10 @@ public class LinearImageComposer implements ImageComposer {
             }
         }
 
-        for (int y = 0; y < tilesPerColumn * tilesPerRow; y++) {
+        for (int y = 0; y < tilesPerColumn; y++) {
             for (int x = 0; x < tilesPerRow; x++) {
                 if (areaOfInterest.contains(mosaikImageIndex(x, y))) {
-                    if (!indexUpdater.setDstTileIndex(mosaikImageIndex(x, y), indexManagers)) return idListFromIndexMangers(indexManagers);
+                    if (indexUpdater.setDstTileIndex(mosaikImageIndex(x, y), indexManagers)) return idListFromIndexMangers(indexManagers);
                 }
             }
         }
@@ -63,7 +59,7 @@ public class LinearImageComposer implements ImageComposer {
         for (int y = 0; y < tilesPerColumn; y++) {
             for (int x = 0; x < tilesPerRow; x++) {
                 if (!areaOfInterest.contains(mosaikImageIndex(x, y))) {
-                    if (!indexUpdater.setDstTileIndex(mosaikImageIndex(x, y), indexManagers)) return idListFromIndexMangers(indexManagers);
+                    if (indexUpdater.setDstTileIndex(mosaikImageIndex(x, y), indexManagers)) return idListFromIndexMangers(indexManagers);
                 }
             }
         }

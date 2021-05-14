@@ -188,7 +188,6 @@ public class MosaicImageModelImpl implements MosaicImageModel {
                 BufferedImage subImage = image.getSubimage(x * tileSize.get(), y * tileSize.get(), tileSize.get(), tileSize.get());
                 int imageImageIndex = mosaikImageIndex(x, y);
                 mosaicImage[imageImageIndex] = new OriginalTile(subImage, compareSize.get());
-
                 destinationTilesIDs.add(new ArrayList<>());
             }
         }
@@ -207,6 +206,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             List<Map.Entry<Integer, Integer>> list = new ArrayList<>(scores.entrySet());
             list.sort(Map.Entry.comparingByValue());
             List<Integer> keys = list.stream().mapToInt(Map.Entry::getKey).boxed().collect(Collectors.toList());
+            destinationTilesIDs.get(index).clear();
             destinationTilesIDs.get(index).addAll(keys);
         });
     }
@@ -283,7 +283,6 @@ public class MosaicImageModelImpl implements MosaicImageModel {
                 mosaicImage[index].setPostColorAlignment(postColorAlignment.get());
                 mosaicImage[index].setDstImage(dstTilesList.get(dstTileID).getImage());
             }
-
         });
 
         imageCalculated.set(true);

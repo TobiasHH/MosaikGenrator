@@ -20,15 +20,11 @@ public class RandomImageComposer implements ImageComposer {
 
     private final int tilesPerRow;
     private final int tilesPerColumn;
-    private final int maxReuses;
-    private final int reuseDistance;
     private final List<Integer> areaOfInterest;
 
     public RandomImageComposer(int tilesPerRow, int tilesPerColumn, int maxReuses, int reuseDistance, List<Integer> areaOfInterest, List<List<Integer>> destinationTileIDs) {
         this.tilesPerRow = tilesPerRow;
         this.tilesPerColumn = tilesPerColumn;
-        this.maxReuses = maxReuses;
-        this.reuseDistance = reuseDistance;
         this.areaOfInterest = areaOfInterest;
 
         indexUpdater = new IndexUpdater(new TilesStraightDistance(tilesPerRow), maxReuses, reuseDistance);
@@ -62,13 +58,13 @@ public class RandomImageComposer implements ImageComposer {
         tileIndices.removeAll(areaOfInterestIndices);
 
         while (areaOfInterestIndices.size() > 0) {
-            if (!indexUpdater.setDstTileIndex(areaOfInterestIndices.remove(rand.nextInt(areaOfInterestIndices.size())), indexManagers)) {
+            if (indexUpdater.setDstTileIndex(areaOfInterestIndices.remove(rand.nextInt(areaOfInterestIndices.size())), indexManagers)) {
                 idListFromIndexMangers(indexManagers);
             }
         }
 
         while (tileIndices.size() > 0) {
-            if (!indexUpdater.setDstTileIndex(tileIndices.remove(rand.nextInt(tileIndices.size())), indexManagers)){
+            if (indexUpdater.setDstTileIndex(tileIndices.remove(rand.nextInt(tileIndices.size())), indexManagers)){
                 idListFromIndexMangers(indexManagers);
             }
         }

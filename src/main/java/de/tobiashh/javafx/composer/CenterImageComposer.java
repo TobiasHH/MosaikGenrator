@@ -62,14 +62,14 @@ public class CenterImageComposer implements ImageComposer {
             Integer index = areaOfIntrestIndices
                     .stream()
                     .min(Comparator.comparingInt(value -> tilesStraightDistance.calculate(value, startIndex))).get();
-            if (!indexUpdater.setDstTileIndex(index, indexManagers)) return idListFromIndexMangers(indexManagers);
+            if (indexUpdater.setDstTileIndex(index, indexManagers)) return idListFromIndexMangers(indexManagers);
             areaOfIntrestIndices.remove(index);
         }
 
         while (tileIndices.size() > 0) {
             Integer index = tileIndices.stream()
                     .min(Comparator.comparingInt(value -> tilesStraightDistance.calculate(value, startIndex))).get();
-            if (!indexUpdater.setDstTileIndex(index, indexManagers)) return idListFromIndexMangers(indexManagers);
+            if (indexUpdater.setDstTileIndex(index, indexManagers)) return idListFromIndexMangers(indexManagers);
             tileIndices.remove(index);
         }
 

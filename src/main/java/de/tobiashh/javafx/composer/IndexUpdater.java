@@ -22,11 +22,11 @@ public class IndexUpdater {
 
     public boolean setDstTileIndex(int mosaikImageIndex, IndexManager[] indexManagers) {
         LOGGER.debug("setDstTileIndex");
-        if (indexManagers[mosaikImageIndex].getDstTileIndex() > -1) return false;
+        if (indexManagers[mosaikImageIndex].getDstTileIndex() > -1) return true;
 
         indexManagers[mosaikImageIndex].incrementDstTileIndex();
 
-        if (indexManagers[mosaikImageIndex].getDstTileIndex() == -1) return false;
+        if (indexManagers[mosaikImageIndex].getDstTileIndex() == -1) return true;
 
         int tileID = indexManagers[mosaikImageIndex].getDstTileID();
 
@@ -41,7 +41,7 @@ public class IndexUpdater {
             }
         });
 
-        return true;
+        return false;
     }
 
     private void blockID(int id, int mosaikImageIndex, IndexManager[] indexManagers) {
