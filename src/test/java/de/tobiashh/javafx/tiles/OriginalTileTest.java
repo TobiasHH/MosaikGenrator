@@ -1,8 +1,11 @@
 package de.tobiashh.javafx.tiles;
 
+import de.tobiashh.javafx.composer.IndexManager;
 import org.junit.jupiter.api.Test;
 
-import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -11,7 +14,12 @@ class IndexManagerTest {
     @Test
     void setMosikTileIDs() {
         IndexManager indexManager = new IndexManager();
-        indexManager.setDstTileIDs(1, 2, 3);
+        List<Integer> ids = new ArrayList<>();
+        ids.add(1);
+        ids.add(2);
+        ids.add(3);
+
+        indexManager.setDstTileIDs(ids);
         assertThat(indexManager.getDstTileIndex(), is(-1));
         assertThat(indexManager.getDstTileID(), is(-1));
         indexManager.incrementDstTileIndex();
@@ -28,7 +36,12 @@ class IndexManagerTest {
     @Test
     void hasIndexSet() {
         IndexManager indexManager = new IndexManager();
-        indexManager.setDstTileIDs(1, 2, 3);
+        List<Integer> ids = new ArrayList<>();
+        ids.add(1);
+        ids.add(2);
+        ids.add(3);
+
+        indexManager.setDstTileIDs(ids);
         assertThat(indexManager.isIndexSet(), is(false));
         indexManager.incrementDstTileIndex();
         assertThat(indexManager.isIndexSet(), is(true));
@@ -39,7 +52,12 @@ class IndexManagerTest {
     @Test
     void incrementIndex() {
         IndexManager indexManager = new IndexManager();
-        indexManager.setDstTileIDs(1, 2, 3);
+        List<Integer> ids = new ArrayList<>();
+        ids.add(1);
+        ids.add(2);
+        ids.add(3);
+
+        indexManager.setDstTileIDs(ids);
         assertThat(indexManager.getDstTileIndex(), is(-1));
         assertThat(indexManager.incrementDstTileIndex(), is(true));
         assertThat(indexManager.getDstTileIndex(), is(0));

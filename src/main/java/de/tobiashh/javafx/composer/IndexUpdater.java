@@ -1,7 +1,6 @@
-package de.tobiashh.javafx.generator;
+package de.tobiashh.javafx.composer;
 
 import de.tobiashh.javafx.TilesStraightDistance;
-import de.tobiashh.javafx.tiles.IndexManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

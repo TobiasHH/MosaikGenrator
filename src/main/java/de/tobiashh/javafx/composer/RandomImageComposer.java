@@ -1,22 +1,22 @@
-package de.tobiashh.javafx.generator;
+package de.tobiashh.javafx.composer;
 
 import de.tobiashh.javafx.TilesStraightDistance;
-import de.tobiashh.javafx.tiles.IndexManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class RandomImageGenerator implements ImageGenerator {
-    private final static Logger LOGGER = LoggerFactory.getLogger(RandomImageGenerator.class.getName());
+public class RandomImageComposer implements ImageComposer {
+    private final static Logger LOGGER = LoggerFactory.getLogger(RandomImageComposer.class.getName());
 
     private final IndexUpdater indexUpdater;
 
-    private final IndexManager[] indexManagers;
+    private final List<List<Integer>> destinationTileIDs;
 
     private final int tilesPerRow;
     private final int tilesPerColumn;
@@ -24,7 +24,7 @@ public class RandomImageGenerator implements ImageGenerator {
     private final int reuseDistance;
     private final List<Integer> areaOfInterest;
 
-    public RandomImageGenerator(int tilesPerRow, int tilesPerColumn, int maxReuses, int reuseDistance, List<Integer> areaOfInterest, IndexManager[] indexManagers) {
+    public RandomImageComposer(int tilesPerRow, int tilesPerColumn, int maxReuses, int reuseDistance, List<Integer> areaOfInterest, List<List<Integer>> destinationTileIDs) {
         this.tilesPerRow = tilesPerRow;
         this.tilesPerColumn = tilesPerColumn;
         this.maxReuses = maxReuses;
@@ -32,7 +32,7 @@ public class RandomImageGenerator implements ImageGenerator {
         this.areaOfInterest = areaOfInterest;
 
         indexUpdater = new IndexUpdater(new TilesStraightDistance(tilesPerRow), maxReuses, reuseDistance);
-        this.indexManagers = indexManagers;
+        this.destinationTileIDs = destinationTileIDs;
     }
 
     private int mosaikImageIndex(int x, int y) {
@@ -40,14 +40,18 @@ public class RandomImageGenerator implements ImageGenerator {
         return y * tilesPerRow + x;
     }
 
-    public IndexManager[] generate() {
+    private List<Integer> idListFromIndexMangers(IndexManager[] indexManagers) {
+        return Arrays.stream(indexManagers).mapToInt(IndexManager::getDstTileID).boxed().collect(Collectors.toList());
+    }
+
+    public List<Integer> generate() {
         LOGGER.info("generateRandomImage");
         IndexManager[] indexManagers = new IndexManager[tilesPerRow * tilesPerColumn];
 
         for (int y = 0; y < tilesPerColumn; y++) {
             for (int x = 0; x < tilesPerRow; x++) {
                 indexManagers[mosaikImageIndex(x, y)] = new IndexManager();
-                indexManagers[mosaikImageIndex(x, y)].setDstTileIDs(this.indexManagers[mosaikImageIndex(x,y)].getDstTileIDs());
+                indexManagers[mosaikImageIndex(x, y)].setDstTileIDs(destinationTileIDs.get(mosaikImageIndex(x,y)));
             }
         }
 
@@ -58,15 +62,17 @@ public class RandomImageGenerator implements ImageGenerator {
         tileIndices.removeAll(areaOfInterestIndices);
 
         while (areaOfInterestIndices.size() > 0) {
-            if (!indexUpdater.setDstTileIndex(areaOfInterestIndices.remove(rand.nextInt(areaOfInterestIndices.size())), indexManagers))
-                return indexManagers;
+            if (!indexUpdater.setDstTileIndex(areaOfInterestIndices.remove(rand.nextInt(areaOfInterestIndices.size())), indexManagers)) {
+                idListFromIndexMangers(indexManagers);
+            }
         }
 
         while (tileIndices.size() > 0) {
-            if (!indexUpdater.setDstTileIndex(tileIndices.remove(rand.nextInt(tileIndices.size())), indexManagers))
-                return indexManagers;
+            if (!indexUpdater.setDstTileIndex(tileIndices.remove(rand.nextInt(tileIndices.size())), indexManagers)){
+                idListFromIndexMangers(indexManagers);
+            }
         }
 
-        return indexManagers;
+        return idListFromIndexMangers(indexManagers);
     }
 }

@@ -1,4 +1,4 @@
-package de.tobiashh.javafx.tiles;
+package de.tobiashh.javafx.composer;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class IndexManager {
     private final static Logger LOGGER = LoggerFactory.getLogger(IndexManager.class.getName());
@@ -26,14 +27,15 @@ public class IndexManager {
             }
         }
     }
-    public void setDstTileIDs(int ... ids)
-    {
-        LOGGER.debug("setDstTileIDs {}", Arrays.toString(ids));
-        dstTileIDs = new int[ids.length];
-        blockedIds = new boolean[ids.length];
 
-        for (int i = 0; i < ids.length; i++) {
-            dstTileIDs[i] = ids[i];
+    public void setDstTileIDs(List<Integer> ids)
+    {
+        LOGGER.debug("setDstTileIDs {}", ids);
+        dstTileIDs = new int[ids.size()];
+        blockedIds = new boolean[ids.size()];
+
+        for (int i = 0; i < ids.size(); i++) {
+            dstTileIDs[i] = ids.get(i);
             blockedIds[i] = false;
         }
 
@@ -51,10 +53,6 @@ public class IndexManager {
         else {
             return dstTileIDs[dstTileIndex];
         }
-    }
-
-    public int[] getDstTileIDs() {
-        return dstTileIDs;
     }
 
     public boolean incrementDstTileIndex() {
