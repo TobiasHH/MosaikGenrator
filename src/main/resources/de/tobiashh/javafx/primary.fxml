@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 
 <?import javafx.collections.FXCollections?>
-<?import de.tobiashh.javafx.model.Mode?>
+<?import de.tobiashh.javafx.Mode?>
 <BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tobiashh.javafx.Controller">
    <top>
       <MenuBar fx:id="menuBar" focusTraversable="true" BorderPane.alignment="CENTER">

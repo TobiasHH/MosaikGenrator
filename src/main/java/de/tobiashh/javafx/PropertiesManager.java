@@ -1,6 +1,5 @@
 package de.tobiashh.javafx;
 
-import de.tobiashh.javafx.model.Mode;
 import javafx.beans.property.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,10 +1,8 @@
 package de.tobiashh.javafx.model;
 
 import de.tobiashh.javafx.DstTilesLoaderTask;
-import de.tobiashh.javafx.composer.CenterImageComposer;
-import de.tobiashh.javafx.composer.CircleImageComposer;
-import de.tobiashh.javafx.composer.LinearImageComposer;
-import de.tobiashh.javafx.composer.RandomImageComposer;
+import de.tobiashh.javafx.Mode;
+import de.tobiashh.javafx.composer.*;
 import de.tobiashh.javafx.save.ImageSaver;
 import de.tobiashh.javafx.tiles.DstTile;
 import de.tobiashh.javafx.tiles.OriginalTile;
@@ -266,15 +264,14 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             originalTile.setDstImage(null);
         }
 
-        if (mode.get() == Mode.TILE_DISTANCE) {
-             destinationImage = new CenterImageComposer(tilesPerRow.get(), tilesPerColumn.get(), maxReuses.get(), reuseDistance.get(),areaOfInterest, destinationTilesIDs).generate();
-        } else if (mode.get() == Mode.CIRCULAR) {
-            destinationImage = new CircleImageComposer(tilesPerRow.get(), tilesPerColumn.get(), maxReuses.get(), reuseDistance.get(),areaOfInterest, destinationTilesIDs).generate();
-        } else if (mode.get() == Mode.RANDOM) {
-            destinationImage = new RandomImageComposer(tilesPerRow.get(), tilesPerColumn.get(), maxReuses.get(), reuseDistance.get(),areaOfInterest, destinationTilesIDs).generate();
-        } else {
-            destinationImage = new LinearImageComposer(tilesPerRow.get(), tilesPerColumn.get(), maxReuses.get(), reuseDistance.get(),areaOfInterest, destinationTilesIDs).generate();
-        }
+        destinationImage = ImageComposerFactory
+                .getComposer(mode.get())
+                .generate(tilesPerRow.get()
+                        , tilesPerColumn.get()
+                        , maxReuses.get()
+                        , reuseDistance.get()
+                        , areaOfInterest
+                        , destinationTilesIDs);
 
         IntStream.range(0, destinationImage.size()).forEach(index -> {
             int dstTileID = destinationImage.get(index);

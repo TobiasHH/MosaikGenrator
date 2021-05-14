@@ -1,5 +1,6 @@
 package de.tobiashh.javafx.model;
 
+import de.tobiashh.javafx.Mode;
 import javafx.beans.property.*;
 
 import java.awt.image.BufferedImage;

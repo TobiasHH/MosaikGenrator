@@ -1,17 +1,13 @@
 package de.tobiashh.javafx;
 
-import de.tobiashh.javafx.model.Mode;
 import de.tobiashh.javafx.model.MosaicImageModel;
 import de.tobiashh.javafx.model.MosaicImageModelImpl;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.BoundingBox;
-import javafx.geometry.Bounds;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
