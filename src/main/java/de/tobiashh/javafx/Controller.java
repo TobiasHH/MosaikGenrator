@@ -85,6 +85,7 @@ public class Controller {
     private final DoubleProperty scale = new SimpleDoubleProperty(SCALE_DEFAULT);
     private final BooleanProperty displayOriginalImage = new SimpleBooleanProperty();
     private final ObjectProperty<Path> imagePath = new SimpleObjectProperty<>();
+    private final ObjectProperty<Path> saveImagePath = new SimpleObjectProperty<>(Path.of(System.getProperty("user.home")));
 
     public Controller(MosaicImageModel model) {
         LOGGER.info("Controller");
@@ -461,14 +462,15 @@ public class Controller {
         LOGGER.info("processSave");
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Bild speichern");
-        if (getImagePath() != null) fileChooser.setInitialDirectory(getImagePath().getParent().toFile());
+        System.out.println(getSaveImagePath());
+        if (getImagePath() != null) fileChooser.setInitialDirectory(getSaveImagePath().getParent().toFile());
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Bilder", Arrays.stream(MosaicImageModelImpl.FILE_EXTENSION).map("*."::concat).toArray(String[]::new)));
         File file = fileChooser.showSaveDialog(menuBar.getScene().getWindow());
         if (file != null) {
             Path path = file.toPath();
            if (Arrays.stream(MosaicImageModelImpl.FILE_EXTENSION).anyMatch(e -> path.toString().endsWith("." + e))) {
                 model.saveMosaicImage(path);
-                setImagePath(path.getParent());
+                setSaveImagePath(path.getParent());
             }
         }
     }
@@ -491,6 +493,14 @@ public class Controller {
 
     private void setImagePath(Path imagePath) {
         this.imagePath.set(imagePath);
+    }
+
+    private Path getSaveImagePath() {
+        return saveImagePath.get();
+    }
+
+    private void setSaveImagePath(Path imagePath) {
+        this.saveImagePath.set(imagePath);
     }
 
     private BooleanProperty displayOriginalImageProperty() {
