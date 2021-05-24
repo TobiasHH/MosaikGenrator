@@ -39,7 +39,10 @@ public class ImageTiler {
     }
 
     private BufferedImage getTileImageForIndex(BufferedImage scaledSrcImage, int index) {
-        Index2D index2D = indexConverter.convertLinearTo2D(index);
+        return getTileImageForIndex2D(scaledSrcImage, indexConverter.convertLinearTo2D(index));
+    }
+
+    private BufferedImage getTileImageForIndex2D(BufferedImage scaledSrcImage, Index2D index2D) {
         return scaledSrcImage.getSubimage(index2D.getX() * tileSize, index2D.getY() * tileSize, tileSize, tileSize);
     }
 

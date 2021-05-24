@@ -21,10 +21,7 @@ public class Index2D {
 
     @Override
     public String toString() {
-        return "Index2D{" +
-                "x=" + x +
-                ", y=" + y +
-                '}';
+        return "Index2D{x=" + x + ", y=" + y + '}';
     }
 
     @Override
@@ -33,11 +30,6 @@ public class Index2D {
         if (o == null || getClass() != o.getClass()) return false;
         Index2D index2D = (Index2D) o;
         return x == index2D.x && y == index2D.y;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(x, y);
     }
 }
 
