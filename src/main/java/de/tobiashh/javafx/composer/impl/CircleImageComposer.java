@@ -46,6 +46,8 @@ public class CircleImageComposer implements ImageComposer {
         int startIndex = mosaikImageIndex(tilesPerRow / 2, tilesPerColumn / 2, tilesPerRow);
 
         while (areaOfIntrestIndices.size() > 0) {
+            System.out.println("areaOfIntrestIndices.size() = " + areaOfIntrestIndices.size());
+            //TODO No if present check, refactoring needed
             Integer index = areaOfIntrestIndices
                     .stream()
                     .min(Comparator.comparingInt(value -> tilesCircularDistance.calculate(value, startIndex))).get();

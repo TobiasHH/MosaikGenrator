@@ -226,6 +226,11 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     }
 
     @Override
+    public void resetAreaOfIntrest() {
+        areaOfInterest.clear();
+    }
+
+    @Override
     public BufferedImage getTile(int x, int y) {
         LOGGER.debug("getTile " + x + ", " + y);
         OriginalTile originalTile = mosaicImage[mosaikImageIndex(x, y)];

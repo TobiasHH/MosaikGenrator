@@ -27,6 +27,8 @@ public interface MosaicImageModel {
 
     void removeAreaOfIntrest(int x, int y);
 
+    void resetAreaOfIntrest();
+
     BufferedImage getTile(int x, int y);
 
     BufferedImage getOriginalTile(int x, int y);

@@ -182,6 +182,7 @@ public class Controller {
 
     private void initTileViews() {
         System.out.println("Controller.initTileViews");
+
         int tilesPerRow = propertiesManager.tilesPerRowProperty().get();
         int tilesPerColumn = model.getTilesPerColumn();
 
@@ -279,8 +280,15 @@ public class Controller {
     }
 
     private void initPropertiesManagerChangeListener() {
-        propertiesManager.tilesPerRowProperty().addListener((observable, oldValue, newValue) -> initTileViews());
+        propertiesManager.tilesPerRowProperty().addListener((observable, oldValue, newValue) -> {
+            resetAreaOfInterest();
+            initTileViews();
+        });
       }
+
+    private void resetAreaOfInterest() {
+        model.resetAreaOfIntrest();
+    }
 
     private void initControllerPropertyChangeListener() {
         scaleProperty().addListener((observable, oldValue, newValue) -> scaleTiles());
