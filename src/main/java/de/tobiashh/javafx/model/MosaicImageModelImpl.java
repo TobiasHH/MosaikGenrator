@@ -172,6 +172,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
             Platform.runLater(() -> status.set("Bild geladen"));
         });
+
         // don't let thread prevent JVM shutdown
         thread.setDaemon(true);
         thread.start();
@@ -179,16 +180,14 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
     private void calculateTiles(BufferedImage image) {
         LOGGER.info("calculateTiles");
-        mosaicImage = new OriginalTile[getTilesPerColumn() * tilesPerRow.get()];
-        destinationTilesIDs = new ArrayList<>();
-        for (int y = 0; y < getTilesPerColumn(); y++) {
-            for (int x = 0; x < tilesPerRow.get(); x++) {
-                BufferedImage subImage = image.getSubimage(x * tileSize.get(), y * tileSize.get(), tileSize.get(), tileSize.get());
-                int imageImageIndex = mosaikImageIndex(x, y);
-                mosaicImage[imageImageIndex] = new OriginalTile(subImage, compareSize.get());
-                destinationTilesIDs.add(new ArrayList<>());
+        ImageTiler imageTiler = new ImageTiler(image, tileSize.get(), tilesPerRow.get(), tilesPerColumn.get());
+        List<BufferedImage> tiles = imageTiler.getTiles();
+        mosaicImage = tiles.stream().map(tileImage -> new OriginalTile(tileImage, compareSize.get())).toArray(OriginalTile[]::new);
+
+           destinationTilesIDs = new ArrayList<>();
+            for (int x = 0; x < tiles.size(); x++) {
+               destinationTilesIDs.add(new ArrayList<>());
             }
-        }
     }
 
     private void compareTiles(OriginalTile[] mosaicImage, ObservableList<DstTile> dstTilesList) {
