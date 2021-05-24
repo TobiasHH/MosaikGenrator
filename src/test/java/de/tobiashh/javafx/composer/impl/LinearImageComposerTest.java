@@ -33,6 +33,7 @@ class LinearImageComposerTest {
 
         assertThat(result, is(Collections.singletonList(2)));
     }
+
     @Test
     void generate2() {
         LinearImageComposer linearImageComposer = new LinearImageComposer();
@@ -61,5 +62,36 @@ class LinearImageComposerTest {
                 destinationTileIDs);
 
         assertThat(result, is(Arrays.asList( 1, 2,  0,-1,-1,-1,-1,-1,-1)));
+    }
+
+
+    @Test
+    void generate3() {
+        LinearImageComposer linearImageComposer = new LinearImageComposer();
+        int tilesPerRow = 3;
+        int tilesPerColumn = 3;
+        int reuseDistance = 1;
+        int maxReuses = 0;
+        List<Integer> areaOfInterest = new ArrayList<>(Collections.singletonList(6));
+
+        List<List<Integer>> destinationTileIDs = new ArrayList<>();
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 2, 0, 1)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
+
+        List<Integer> result = linearImageComposer.generate(tilesPerRow,
+                tilesPerColumn,
+                maxReuses,
+                reuseDistance,
+                areaOfInterest,
+                destinationTileIDs);
+
+        assertThat(result, is(Arrays.asList( 0, 2,  -1,-1,-1,-1,1,-1,-1)));
     }
 }
