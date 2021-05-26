@@ -75,7 +75,6 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     public MosaicImageModelImpl() {
         LOGGER.info("MosaicImageModelImpl");
         initChangeListener();
-
     }
 
     private void initChangeListener() {
@@ -122,6 +121,8 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     }
 
     private void loadDstTiles(Path path) {
+        if(path == null) return;
+
         int tileSize = this.tileSize.get();
         int compareSize = this.compareSize.get();
 
