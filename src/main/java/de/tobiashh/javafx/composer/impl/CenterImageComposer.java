@@ -43,25 +43,28 @@ public class CenterImageComposer implements ImageComposer {
         }
 
         List<Integer> tileIndices = IntStream.range(0, tilesPerColumn * tilesPerRow).boxed().collect(Collectors.toList());
-        List<Integer> areaOfIntrestIndices = new ArrayList<>(areaOfInterest);
-        tileIndices.removeAll(areaOfIntrestIndices);
+        List<Integer> areaOfInterestIndices = new ArrayList<>(areaOfInterest);
+        tileIndices.removeAll(areaOfInterestIndices);
+
         int startIndex = mosaikImageIndex(tilesPerRow / 2, tilesPerColumn / 2, tilesPerRow);
 
-        while (areaOfIntrestIndices.size() > 0) {
-            Integer index = areaOfIntrestIndices
-                    .stream()
-                    .min(Comparator.comparingInt(value -> tilesStraightDistance.calculate(value, startIndex))).get();
+        tileIndices = sort(tileIndices, tilesStraightDistance, startIndex);
+        areaOfInterestIndices = sort(areaOfInterestIndices, tilesStraightDistance, startIndex);
+
+        while (areaOfInterestIndices.size() > 0) {
+            Integer index = areaOfInterestIndices.remove(0);
             if (indexUpdater.setDstTileIndex(index, indexManagers)) return idListFromIndexMangers(indexManagers);
-            areaOfIntrestIndices.remove(index);
         }
 
         while (tileIndices.size() > 0) {
-            Integer index = tileIndices.stream()
-                    .min(Comparator.comparingInt(value -> tilesStraightDistance.calculate(value, startIndex))).get();
+            Integer index = tileIndices.remove(0);
             if (indexUpdater.setDstTileIndex(index, indexManagers)) return idListFromIndexMangers(indexManagers);
-            tileIndices.remove(index);
         }
 
         return idListFromIndexMangers(indexManagers);
+    }
+
+    private List<Integer> sort(List<Integer> list, TilesStraightDistance tilesStraightDistance, int startIndex) {
+        return list.stream().sorted(Comparator.comparingInt(value -> tilesStraightDistance.calculate(value, startIndex))).collect(Collectors.toList());
     }
 }

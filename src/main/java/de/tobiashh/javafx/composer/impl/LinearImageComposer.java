@@ -7,9 +7,11 @@ import de.tobiashh.javafx.composer.IndexUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class LinearImageComposer implements ImageComposer {
     private final static Logger LOGGER = LoggerFactory.getLogger(LinearImageComposer.class.getName());
@@ -38,20 +40,18 @@ public class LinearImageComposer implements ImageComposer {
             }
         }
 
-        for (int y = 0; y < tilesPerColumn; y++) {
-            for (int x = 0; x < tilesPerRow; x++) {
-                if (areaOfInterest.contains(mosaikImageIndex(x, y, tilesPerRow))) {
-                    if (indexUpdater.setDstTileIndex(mosaikImageIndex(x, y, tilesPerRow), indexManagers)) return idListFromIndexMangers(indexManagers);
-                }
-            }
+        List<Integer> tileIndices = IntStream.range(0, tilesPerColumn * tilesPerRow).boxed().collect(Collectors.toList());
+        List<Integer> areaOfInterestIndices = new ArrayList<>(areaOfInterest);
+        tileIndices.removeAll(areaOfInterestIndices);
+
+        while (areaOfInterestIndices.size() > 0) {
+            Integer index = areaOfInterestIndices.remove(0);
+            if (indexUpdater.setDstTileIndex(index, indexManagers)) return idListFromIndexMangers(indexManagers);
         }
 
-        for (int y = 0; y < tilesPerColumn; y++) {
-            for (int x = 0; x < tilesPerRow; x++) {
-                if (!areaOfInterest.contains(mosaikImageIndex(x, y, tilesPerRow))) {
-                    if (indexUpdater.setDstTileIndex(mosaikImageIndex(x, y, tilesPerRow), indexManagers)) return idListFromIndexMangers(indexManagers);
-                }
-            }
+        while (tileIndices.size() > 0) {
+            Integer index = tileIndices.remove(0);
+            if (indexUpdater.setDstTileIndex(index, indexManagers)) return idListFromIndexMangers(indexManagers);
         }
 
         return idListFromIndexMangers(indexManagers);

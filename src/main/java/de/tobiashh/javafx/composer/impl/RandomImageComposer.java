@@ -48,15 +48,13 @@ public class RandomImageComposer implements ImageComposer {
         tileIndices.removeAll(areaOfInterestIndices);
 
         while (areaOfInterestIndices.size() > 0) {
-            if (indexUpdater.setDstTileIndex(areaOfInterestIndices.remove(rand.nextInt(areaOfInterestIndices.size())), indexManagers)) {
-                idListFromIndexMangers(indexManagers);
-            }
+            Integer index = areaOfInterestIndices.remove(rand.nextInt(areaOfInterest.size()));
+            if (indexUpdater.setDstTileIndex(index, indexManagers)) return idListFromIndexMangers(indexManagers);
         }
 
         while (tileIndices.size() > 0) {
-            if (indexUpdater.setDstTileIndex(tileIndices.remove(rand.nextInt(tileIndices.size())), indexManagers)){
-                idListFromIndexMangers(indexManagers);
-            }
+            Integer index = tileIndices.remove(rand.nextInt(tileIndices.size()));
+            if (indexUpdater.setDstTileIndex(index, indexManagers)) return idListFromIndexMangers(indexManagers);
         }
 
         return idListFromIndexMangers(indexManagers);
