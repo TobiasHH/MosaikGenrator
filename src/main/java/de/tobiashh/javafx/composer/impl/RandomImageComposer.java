@@ -32,12 +32,9 @@ public class RandomImageComposer implements ImageComposer {
 
         IndexManager[] indexManagers = new IndexManager[tilesPerRow * tilesPerColumn];
 
-        for (int y = 0; y < tilesPerColumn; y++) {
-            for (int x = 0; x < tilesPerRow; x++) {
-                int index = indexConverter.convert2DToLinear(new Index2D(x,y));
-                indexManagers[index] = new IndexManager();
-                indexManagers[index].setDstTileIDs(destinationTileIDs.get(index));
-            }
+        for (int index = 0; index < tilesPerColumn * tilesPerRow; index++) {
+            indexManagers[index] = new IndexManager();
+            indexManagers[index].setDstTileIDs(destinationTileIDs.get(index));
         }
 
         Random rand = new Random();
