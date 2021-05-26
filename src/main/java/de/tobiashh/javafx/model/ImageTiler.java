@@ -1,6 +1,8 @@
 package de.tobiashh.javafx.model;
 
 import de.tobiashh.javafx.tools.ImageTools;
+import de.tobiashh.javafx.tools.Index2D;
+import de.tobiashh.javafx.tools.IndexConverter;
 
 import java.awt.image.BufferedImage;
 import java.util.List;

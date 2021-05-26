@@ -1,5 +1,7 @@
 package de.tobiashh.javafx.model;
 
+import de.tobiashh.javafx.tools.Index2D;
+import de.tobiashh.javafx.tools.IndexConverter;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.equalTo;

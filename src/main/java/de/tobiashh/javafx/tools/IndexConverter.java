@@ -1,9 +1,9 @@
-package de.tobiashh.javafx.model;
+package de.tobiashh.javafx.tools;
 
 public class IndexConverter {
     private final int tilesPerRow;
 
-    IndexConverter(int tilesPerRow)
+    public IndexConverter(int tilesPerRow)
     {
         this.tilesPerRow = tilesPerRow;
     }

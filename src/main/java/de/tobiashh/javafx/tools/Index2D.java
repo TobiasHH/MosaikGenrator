@@ -1,12 +1,10 @@
-package de.tobiashh.javafx.model;
-
-import java.util.Objects;
+package de.tobiashh.javafx.tools;
 
 public class Index2D {
     private int x;
     private int y;
 
-    Index2D(int x, int y){
+    public Index2D(int x, int y){
         this.x = x;
         this.y = y;
     }
