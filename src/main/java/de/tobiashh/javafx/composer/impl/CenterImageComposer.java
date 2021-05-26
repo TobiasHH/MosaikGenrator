@@ -38,6 +38,8 @@ public class CenterImageComposer implements ImageComposer {
             indexManagers[index].setDstTileIDs(destinationTileIDs.get(index));
         }
 
+        // TODO die Composer unterscheiden sich nur noch von der Sortierung der Index Liste
+
         List<Integer> tileIndices = IntStream.range(0, tilesPerColumn * tilesPerRow).boxed().collect(Collectors.toList());
         List<Integer> areaOfInterestIndices = new ArrayList<>(areaOfInterest);
         tileIndices.removeAll(areaOfInterestIndices);
