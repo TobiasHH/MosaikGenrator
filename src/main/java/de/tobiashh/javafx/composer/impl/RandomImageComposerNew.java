@@ -42,12 +42,10 @@ public class RandomImageComposerNew implements ImageComposer {
             Integer index = areaOfInterestIndices.remove(0);
             List<Integer> idList = destinationTileIDs.get(index);
             for (Integer id : idList) {
-                boolean isUsedLessThenMaxReuses = isUsedLessThenMaxReuses(id, returnValue);
-                boolean isReuseableAtPosition = isReuseableAtPosition(id, returnValue, index);
-                if(isUsedLessThenMaxReuses && isReuseableAtPosition)
+                if(isUsedLessThenMaxReuses(id, returnValue) && isReuseableAtPosition(id, returnValue, index))
                 {
-                   returnValue[index] = id;
-                   break;
+                    returnValue[index] = id;
+                    break;
                 }
             }
         }
@@ -56,9 +54,7 @@ public class RandomImageComposerNew implements ImageComposer {
             Integer index = tileIndices.remove(0);
             List<Integer> idList = destinationTileIDs.get(index);
             for (Integer id : idList) {
-                boolean isUsedLessThenMaxReuses = isUsedLessThenMaxReuses(id, returnValue);
-                boolean isReuseableAtPosition = isReuseableAtPosition(id, returnValue, index);
-                if(isUsedLessThenMaxReuses && isReuseableAtPosition)
+                if(isUsedLessThenMaxReuses(id, returnValue) && isReuseableAtPosition(id, returnValue, index))
                 {
                     returnValue[index] = id;
                     break;
