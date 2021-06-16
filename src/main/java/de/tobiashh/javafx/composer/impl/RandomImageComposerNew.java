@@ -90,8 +90,4 @@ public class RandomImageComposerNew implements ImageComposer {
     {
         return Arrays.stream(imageIds).filter(imageID -> imageID == id).count() <= maxReuses;
     }
-
-    private List<Integer> sort(List<Integer> list, TilesCircularDistance tilesCircularDistance, int startIndex) {
-        return list.stream().sorted(Comparator.comparingInt(value -> tilesCircularDistance.calculate(value, startIndex))).collect(Collectors.toList());
-    }
 }
