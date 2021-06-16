@@ -3,8 +3,6 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<?import javafx.collections.FXCollections?>
-<?import de.tobiashh.javafx.Mode?>
 <BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tobiashh.javafx.Controller">
    <top>
       <MenuBar fx:id="menuBar" focusTraversable="true" BorderPane.alignment="CENTER">
@@ -26,16 +24,7 @@
            <Button onAction="#gc" text="GC" />
             <Button layoutX="37.0" layoutY="10.0" mnemonicParsing="false" onAction="#recalculateImage" text="Neu berechnen" />
             <CheckBox fx:id="originalCheck" mnemonicParsing="false" onAction="#originalCheckAction" text="Original" />
-            <ChoiceBox fx:id="modeChoiceBox" prefWidth="150.0" value="LINEAR">
-               <items>
-                     <FXCollections fx:factory="observableArrayList">
-                        <Mode fx:value="LINEAR"/>
-                        <Mode fx:value="RANDOM"/>
-                        <Mode fx:value="CIRCULAR"/>
-                        <Mode fx:value="TILE_DISTANCE"/>
-                     </FXCollections>
-               </items>
-            </ChoiceBox>
+            <ChoiceBox fx:id="modeChoiceBox" prefWidth="150.0" value="LINEAR" />
              <CheckBox fx:id="scanSubfolderCheck" layoutX="497.0" layoutY="14.0" mnemonicParsing="false" text="Unterordner einbeziehen" />
          </HBox>
          <HBox alignment="CENTER" spacing="5.0">

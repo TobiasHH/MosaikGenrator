@@ -15,7 +15,7 @@ class RandomImageComposerTest {
 
     @Test
     void generate() {
-        RandomImageComposer randomImageComposer = new RandomImageComposer();
+        RandomImageComposerNew randomImageComposer = new RandomImageComposerNew();
         int tilesPerRow = 1;
         int tilesPerColumn = 1;
         int reuseDistance = 1;
@@ -37,7 +37,7 @@ class RandomImageComposerTest {
 
     @Test
     void generate2() {
-        RandomImageComposer randomImageComposer = new RandomImageComposer();
+        RandomImageComposerNew randomImageComposer = new RandomImageComposerNew();
         int tilesPerRow = 3;
         int tilesPerColumn = 3;
         int reuseDistance = 1;
@@ -70,7 +70,7 @@ class RandomImageComposerTest {
 
     @RepeatedTest(value = 100, name = "Wiederholungs Lauf {currentRepetition} von {totalRepetitions}")
     void generate3() {
-        RandomImageComposer randomImageComposer = new RandomImageComposer();
+        RandomImageComposerNew randomImageComposer = new RandomImageComposerNew();
         int tilesPerRow = 3;
         int tilesPerColumn = 3;
         int reuseDistance = 1;

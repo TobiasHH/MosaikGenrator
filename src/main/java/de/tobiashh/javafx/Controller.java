@@ -95,10 +95,15 @@ public class Controller {
     @FXML
     private void initialize() {
         LOGGER.info("initialize");
+        initModeChoiceBox();
         initChangeListener();
         initEventHandler();
         initBindings();
         initCanvas();
+    }
+
+    private void initModeChoiceBox() {
+            modeChoiceBox.getItems().addAll(Mode.values());
     }
 
     private void initBindings() {

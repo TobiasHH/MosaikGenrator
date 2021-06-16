@@ -60,7 +60,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     private final IntegerProperty tileSize = new SimpleIntegerProperty();
     private final IntegerProperty opacity = new SimpleIntegerProperty();
     private final IntegerProperty postColorAlignment = new SimpleIntegerProperty();
-    private final ObjectProperty<Mode> mode = new SimpleObjectProperty<>(Mode.LINEAR);
+    private final ObjectProperty<Mode> mode = new SimpleObjectProperty<>(Mode.LINEAR_NEW);
     private final IntegerProperty reuseDistance = new SimpleIntegerProperty();
     private final IntegerProperty maxReuses = new SimpleIntegerProperty();
     private final IntegerProperty compareSize = new SimpleIntegerProperty();

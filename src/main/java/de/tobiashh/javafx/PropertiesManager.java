@@ -27,7 +27,7 @@ public class PropertiesManager {
     private static final int TILES_PER_ROW_DEFAULT = 20;
     private static final int TILE_SIZE_DEFAULT = 128;
     private static final String TILES_PATH_DEFAULT = "tiles";
-    private static final Mode MODE_DEFAULT = Mode.LINEAR;
+    private static final Mode MODE_DEFAULT = Mode.LINEAR_NEW;
     private static final int COMPARE_SIZE_DEFAULT = 8;
     private static final int OPACITY_DEFAULT = 8;
     private static final int COLOR_ALIGNMENT_DEFAULT = 80;

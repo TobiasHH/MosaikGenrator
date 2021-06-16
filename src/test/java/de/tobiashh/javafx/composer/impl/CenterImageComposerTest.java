@@ -14,7 +14,7 @@ class CenterImageComposerTest {
 
     @Test
     void generate() {
-        CenterImageComposer centerImageComposer = new CenterImageComposer();
+        CenterImageComposerNew centerImageComposer = new CenterImageComposerNew();
         int tilesPerRow = 1;
         int tilesPerColumn = 1;
         int reuseDistance = 1;
@@ -35,7 +35,7 @@ class CenterImageComposerTest {
     }
     @Test
     void generate2() {
-        CenterImageComposer centerImageComposer = new CenterImageComposer();
+        CenterImageComposerNew centerImageComposer = new CenterImageComposerNew();
         int tilesPerRow = 3;
         int tilesPerColumn = 3;
         int reuseDistance = 1;
@@ -65,7 +65,7 @@ class CenterImageComposerTest {
 
     @Test
     void generate3() {
-        CenterImageComposer centerImageComposer = new CenterImageComposer();
+        CenterImageComposerNew centerImageComposer = new CenterImageComposerNew();
         int tilesPerRow = 3;
         int tilesPerColumn = 3;
         int reuseDistance = 1;

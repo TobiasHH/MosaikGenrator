@@ -14,7 +14,7 @@ class CircleImageComposerTest {
 
     @Test
     void generate() {
-        CircleImageComposer circleImageComposer = new CircleImageComposer();
+        CircleImageComposerNew circleImageComposer = new CircleImageComposerNew();
         int tilesPerRow = 1;
         int tilesPerColumn = 1;
         int reuseDistance = 1;
@@ -35,7 +35,7 @@ class CircleImageComposerTest {
     }
     @Test
     void generate2() {
-        CircleImageComposer circleImageComposer = new CircleImageComposer();
+        CircleImageComposerNew circleImageComposer = new CircleImageComposerNew();
         int tilesPerRow = 3;
         int tilesPerColumn = 3;
         int reuseDistance = 1;
@@ -65,7 +65,7 @@ class CircleImageComposerTest {
 
     @Test
     void generate3() {
-        CircleImageComposer circleImageComposer = new CircleImageComposer();
+        CircleImageComposerNew circleImageComposer = new CircleImageComposerNew();
         int tilesPerRow = 3;
         int tilesPerColumn = 3;
         int reuseDistance = 1;

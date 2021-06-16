@@ -14,7 +14,7 @@ class LinearImageComposerTest {
 
     @Test
     void generate() {
-        LinearImageComposer linearImageComposer = new LinearImageComposer();
+        LinearImageComposerNew linearImageComposer = new LinearImageComposerNew();
         int tilesPerRow = 1;
         int tilesPerColumn = 1;
         int reuseDistance = 1;
@@ -36,7 +36,7 @@ class LinearImageComposerTest {
 
     @Test
     void generate2() {
-        LinearImageComposer linearImageComposer = new LinearImageComposer();
+        LinearImageComposerNew linearImageComposer = new LinearImageComposerNew();
         int tilesPerRow = 3;
         int tilesPerColumn = 3;
         int reuseDistance = 1;
@@ -67,7 +67,7 @@ class LinearImageComposerTest {
 
     @Test
     void generate3() {
-        LinearImageComposer linearImageComposer = new LinearImageComposer();
+        LinearImageComposerNew linearImageComposer = new LinearImageComposerNew();
         int tilesPerRow = 3;
         int tilesPerColumn = 3;
         int reuseDistance = 1;
