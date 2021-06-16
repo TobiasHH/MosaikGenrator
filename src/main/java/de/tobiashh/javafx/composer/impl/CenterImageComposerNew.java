@@ -38,6 +38,7 @@ public class CenterImageComposerNew implements ImageComposer {
         List<Integer> areaOfInterestIndices = new ArrayList<>(areaOfInterest);
         tileIndices.removeAll(areaOfInterestIndices);
 
+        // TODO ImageComposer Klassen weiter überarbeiten, da sich diese nur in den folgenden 5 bis 6 Zeilen untersvheiden
         IndexConverter indexConverter = new IndexConverter(tilesPerRow);
         TilesStraightDistance tilesStraightDistance = new TilesStraightDistance(tilesPerRow);
 
