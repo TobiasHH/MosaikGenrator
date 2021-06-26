@@ -35,10 +35,20 @@ import java.util.stream.Collectors;
 
 public class Controller {
     private final static Logger LOGGER = LoggerFactory.getLogger(Controller.class.getName());
+    private static final double SCALE_DEFAULT = 1.0;
+    private static final double SCALE_MIN = 0.1;
+    private static final double SCALE_MAX = 10.0;
+    private final MosaicImageModel model;
+    private final DoubleProperty scale = new SimpleDoubleProperty(SCALE_DEFAULT);
+    private final BooleanProperty displayOriginalImage = new SimpleBooleanProperty();
+    private final ObjectProperty<Path> imagePath = new SimpleObjectProperty<>();
+    private final ObjectProperty<Path> saveImagePath = new SimpleObjectProperty<>(Path.of(System.getProperty("user.home")));
     @FXML
     public ChoiceBox<Mode> modeChoiceBox;
     @FXML
     public Label imageTilesCount;
+    PropertiesManager propertiesManager = new PropertiesManager();
+    List<TileView> tiles = new ArrayList<>();
     @FXML
     private MenuBar menuBar;
     @FXML
@@ -74,19 +84,6 @@ public class Controller {
     @FXML
     private Label statusLabel;
 
-    private final MosaicImageModel model;
-
-    PropertiesManager propertiesManager = new PropertiesManager();
-
-    private static final double SCALE_DEFAULT = 1.0;
-    private static final double SCALE_MIN = 0.1;
-    private static final double SCALE_MAX = 10.0;
-
-    private final DoubleProperty scale = new SimpleDoubleProperty(SCALE_DEFAULT);
-    private final BooleanProperty displayOriginalImage = new SimpleBooleanProperty();
-    private final ObjectProperty<Path> imagePath = new SimpleObjectProperty<>();
-    private final ObjectProperty<Path> saveImagePath = new SimpleObjectProperty<>(Path.of(System.getProperty("user.home")));
-
     public Controller(MosaicImageModel model) {
         LOGGER.info("Controller");
         this.model = model;
@@ -103,12 +100,12 @@ public class Controller {
     }
 
     private void initModeChoiceBox() {
-            modeChoiceBox.getItems().addAll(Mode.values());
+        modeChoiceBox.getItems().addAll(Mode.values());
     }
 
     private void initBindings() {
         LOGGER.info("initBindings");
-        model.tilesPerColumnProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(()->imageTilesCount.setText(String.valueOf(newValue.intValue() * model.tilesPerRowProperty().get()))));
+        model.tilesPerColumnProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(() -> imageTilesCount.setText(String.valueOf(newValue.intValue() * model.tilesPerRowProperty().get()))));
 
         pathLabel.textProperty().bind(Bindings.when(propertiesManager.tilesPathProperty().isNull()).then("Kein Pfad gewählt.").otherwise(propertiesManager.tilesPathProperty().asString()));
         filesCountLabel.textProperty().bind(model.dstTilesCountProperty().asString());
@@ -161,26 +158,23 @@ public class Controller {
 
         LOGGER.info("visible tiles count = " + count);
         LOGGER.info("tileCoordinates = " + tileCoordinates);
-      }
-
+    }
 
     private void scaleTiles() {
-        int tileSize = (int)( propertiesManager.tileSizeProperty().get() * getScale());
+        int tileSize = (int) (propertiesManager.tileSizeProperty().get() * getScale());
         tiles.forEach(tileView -> tileView.setTileSize(tileSize));
         canvasPane.setPrefWidth(tileSize * propertiesManager.tilesPerRowProperty().get());
         canvasPane.setPrefHeight(tileSize * model.getTilesPerColumn());
     }
 
     private void setTiles() {
-            tiles.forEach(tileView -> {
+        tiles.forEach(tileView -> {
             int x = tileView.getTilePositionX();
             int y = tileView.getTilePositionY();
 
             tileView.setTile((isDisplayOriginalImage()) ? model.getOriginalTile(x, y) : model.getTile(x, y));
         });
     }
-
-    List<TileView> tiles = new ArrayList<>();
 
     private void initTileViews() {
         int tilesPerRow = propertiesManager.tilesPerRowProperty().get();
@@ -201,14 +195,12 @@ public class Controller {
             }
         }
 
-        if(Platform.isFxApplicationThread()){
+        if (Platform.isFxApplicationThread()) {
             canvasPane.getChildren().clear();
             canvasPane.getChildren().addAll(tiles);
             canvasPane.setPrefWidth(tileSize * propertiesManager.tilesPerRowProperty().get());
             canvasPane.setPrefHeight(tileSize * model.getTilesPerColumn());
-        }
-        else
-        {
+        } else {
             Platform.runLater(() -> {
                 canvasPane.getChildren().clear();
                 canvasPane.getChildren().addAll(tiles);
@@ -261,7 +253,7 @@ public class Controller {
         return mouseEvent -> {
             int tileX = (int) (mouseEvent.getX() / (propertiesManager.tileSizeProperty().get() * getScale()));
             int tileY = (int) (mouseEvent.getY() / (propertiesManager.tileSizeProperty().get() * getScale()));
-            if(propertiesManager.tilesPerRowProperty().get() > tileX && model.getTilesPerColumn() > tileY) {
+            if (propertiesManager.tilesPerRowProperty().get() > tileX && model.getTilesPerColumn() > tileY) {
                 tileImageInformations.setText(model.getDstTileInformation(tileX, tileY));
             }
         };
@@ -276,7 +268,9 @@ public class Controller {
 
     private void initModelChangeListener() {
         model.tilesPerColumnProperty().addListener((observable, oldValue, newValue) -> initTileViews());
-        model.imageCalculatedProperty().addListener((observable, oldValue, newValue) -> { if(newValue) setTiles(); });
+        model.imageCalculatedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) setTiles();
+        });
     }
 
     private void initPropertiesManagerChangeListener() {
@@ -284,7 +278,7 @@ public class Controller {
             resetAreaOfInterest();
             initTileViews();
         });
-      }
+    }
 
     private void resetAreaOfInterest() {
         model.resetAreaOfIntrest();
@@ -390,21 +384,16 @@ public class Controller {
     private void dragDropped(DragEvent dragEvent) {
         LOGGER.info("dragDropped");
         Dragboard dragboard = dragEvent.getDragboard();
-        boolean success = false;
-        if (dragboard.hasFiles()) {
-            if (hasDirectory(dragboard)) {
-                File folder = dragboard.getFiles().get(0);
-                propertiesManager.tilesPathProperty().set(folder.toPath());
-                success = true;
-            } else if (hasImageFile(dragboard)) {
-                Path path = dragboard.getFiles().get(0).toPath();
-                if (isImage(path)) {
-                    setImagePath(path);
-                }
+        if (dragboard.getFiles().size() == 1) {
+            File file = dragboard.getFiles().get(0);
+            if (isDirectory(file)) {
+                propertiesManager.tilesPathProperty().set(file.toPath());
+                dragEvent.setDropCompleted(true);
+            } else if (isImage(file)) {
+                setImagePath(file.toPath());
+                dragEvent.setDropCompleted(true);
             }
         }
-
-        dragEvent.setDropCompleted(success);
 
         dragEvent.consume();
     }
@@ -413,29 +402,23 @@ public class Controller {
     private void dragOver(DragEvent dragEvent) {
         LOGGER.debug("dragOver");
         Dragboard dragboard = dragEvent.getDragboard();
-        if (dragEvent.getGestureSource() != scrollPane) {
 
-            if (dragboard.hasFiles()) {
-
-                if (hasDirectory(dragboard) || hasImageFile(dragboard)) {
-                    dragEvent.acceptTransferModes(TransferMode.ANY);
-                }
-            } else {
-                dragEvent.consume();
+        if (dragboard.getFiles().size() == 1) {
+            File file = dragboard.getFiles().get(0);
+            if (isDirectory(file) || isImage(file)) {
+                dragEvent.acceptTransferModes(TransferMode.ANY);
             }
         }
+
+        dragEvent.consume();
     }
 
-    private boolean hasDirectory(Dragboard dragboard) {
-        return dragboard.getFiles().size() == 1 && dragboard.getFiles().get(0).isDirectory();
+    private boolean isDirectory(File file) {
+        return file.isDirectory();
     }
 
-    private boolean hasImageFile(Dragboard dragboard) {
-        return dragboard.getFiles().size() == 1 && isImage(dragboard.getFiles().get(0).toPath());
-    }
-
-    private boolean isImage(Path path) {
-        return Arrays.stream(MosaicImageModelImpl.FILE_EXTENSION).anyMatch(e -> path.toString().toLowerCase().endsWith(".".concat(e.toLowerCase())));
+    private boolean isImage(File file) {
+        return Arrays.stream(MosaicImageModelImpl.FILE_EXTENSION).anyMatch(e -> file.toString().toLowerCase().endsWith(".".concat(e.toLowerCase())));
     }
 
     @FXML
@@ -461,7 +444,7 @@ public class Controller {
         File file = fileChooser.showSaveDialog(menuBar.getScene().getWindow());
         if (file != null) {
             Path path = file.toPath();
-           if (Arrays.stream(MosaicImageModelImpl.FILE_EXTENSION).anyMatch(e -> path.toString().endsWith("." + e))) {
+            if (Arrays.stream(MosaicImageModelImpl.FILE_EXTENSION).anyMatch(e -> path.toString().endsWith("." + e))) {
                 model.saveMosaicImage(path);
                 setSaveImagePath(path.getParent());
             }
@@ -508,7 +491,8 @@ public class Controller {
         displayOriginalImage.set(value);
     }
 
-    @FXML public void gc() {
+    @FXML
+    public void gc() {
         System.gc();
     }
 }
