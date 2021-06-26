@@ -139,7 +139,6 @@ public class Controller {
 
     // todo Wird noch interessant beim laden von bilder nach opacity und co () nur visible updaten
     private void countVisibleTiles() {
-        System.out.println("Controller.setTileVisibility");
         double hmin = scrollPane.getHmin();
         double hmax = scrollPane.getHmax();
         double hvalue = scrollPane.getHvalue();
@@ -159,14 +158,13 @@ public class Controller {
         long count = tiles.stream().filter(tileView -> tileView.intersects(new BoundingBox(hoffset, voffset, viewportWidth, viewportHeight))).count();
         String tileCoordinates = tiles.stream().filter(tileView -> tileView.intersects(new BoundingBox(hoffset, voffset, viewportWidth, viewportHeight)))
                 .map(tileView -> "" + tileView.getTilePositionX() + "," + tileView.getTilePositionY()).collect(Collectors.joining(" "));
-        System.out.println("count = " + count);
-        System.out.println("tileCoordinates = " + tileCoordinates);
-    }
+
+        LOGGER.info("visible tiles count = " + count);
+        LOGGER.info("tileCoordinates = " + tileCoordinates);
+      }
 
 
     private void scaleTiles() {
-        System.out.println("Controller.scaleTiles");
-
         int tileSize = (int)( propertiesManager.tileSizeProperty().get() * getScale());
         tiles.forEach(tileView -> tileView.setTileSize(tileSize));
         canvasPane.setPrefWidth(tileSize * propertiesManager.tilesPerRowProperty().get());
@@ -174,8 +172,7 @@ public class Controller {
     }
 
     private void setTiles() {
-        System.out.println("Controller.setTiles");
-        tiles.forEach(tileView -> {
+            tiles.forEach(tileView -> {
             int x = tileView.getTilePositionX();
             int y = tileView.getTilePositionY();
 
@@ -186,8 +183,6 @@ public class Controller {
     List<TileView> tiles = new ArrayList<>();
 
     private void initTileViews() {
-        System.out.println("Controller.initTileViews");
-
         int tilesPerRow = propertiesManager.tilesPerRowProperty().get();
         int tilesPerColumn = model.getTilesPerColumn();
 
@@ -237,11 +232,11 @@ public class Controller {
         return mouseEvent -> {
             int x = (int) (mouseEvent.getX() / (propertiesManager.tileSizeProperty().get() * getScale()));
             int y = (int) (mouseEvent.getY() / (propertiesManager.tileSizeProperty().get() * getScale()));
-            if (mouseEvent.getButton() == MouseButton.PRIMARY) {
+            if (mouseEvent.getButton() == MouseButton.PRIMARY && mouseEvent.isStillSincePress()) {
                 model.addAreaOfIntrest(x, y);
             }
 
-            if (mouseEvent.getButton() == MouseButton.SECONDARY) {
+            if (mouseEvent.getButton() == MouseButton.SECONDARY && mouseEvent.isStillSincePress()) {
                 model.removeAreaOfIntrest(x, y);
             }
         };
@@ -319,13 +314,11 @@ public class Controller {
         textField.setText(String.valueOf(property.get()));
     }
 
-
     private int getIntFromString(String value, int min, int max) {
         String digitString = value.replaceAll("[^\\d]", "");
         digitString = digitString.substring(0, Math.min(5, digitString.length()));
         return Math.min(Math.max(min, Integer.parseInt("0" + digitString)), max);
     }
-
 
     private EventHandler<ScrollEvent> getScrollEventHandler() {
         LOGGER.info("getScrollEventHandler");
@@ -347,19 +340,6 @@ public class Controller {
             e.printStackTrace();
         }
     }
-
-//    private void drawImage() {
-//        LOGGER.info("drawImage");
-//        BufferedImage bufferedImage = (isDisplayOriginalImage()) ? model.getOriginalImage() : model.getCompositeImage();
-//
-//        canvasPane.setPrefWidth((int) (bufferedImage.getWidth() * getScale()));
-//        canvasPane.setPrefHeight((int) (bufferedImage.getHeight() * getScale()));
-//
-//        Image image = SwingFXUtils.toFXImage(bufferedImage, null);
-//        GraphicsContext gc = canvas.getGraphicsContext2D();
-//        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-//        gc.drawImage(image, 0, 0, canvas.getWidth(), canvas.getHeight());
-//    }
 
     @FXML
     private void processExit() {
@@ -475,7 +455,7 @@ public class Controller {
         LOGGER.info("processSave");
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Bild speichern");
-        System.out.println(getSaveImagePath());
+
         if (getImagePath() != null) fileChooser.setInitialDirectory(getSaveImagePath().getParent().toFile());
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Bilder", Arrays.stream(MosaicImageModelImpl.FILE_EXTENSION).map("*."::concat).toArray(String[]::new)));
         File file = fileChooser.showSaveDialog(menuBar.getScene().getWindow());

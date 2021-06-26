@@ -1,6 +1,5 @@
 package de.tobiashh.javafx.composer.impl;
 
-import de.tobiashh.javafx.TilesCircularDistance;
 import de.tobiashh.javafx.TilesStraightDistance;
 import de.tobiashh.javafx.composer.ImageComposer;
 import de.tobiashh.javafx.tools.Index2D;

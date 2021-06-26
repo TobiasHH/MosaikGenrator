@@ -45,8 +45,6 @@ class TileComposerTest {
 
         BufferedImage composedImage = new TileComposer(opacity, postColorAlignment).compose(original, mosaik);
 
-        printRGB(composedImage.getRGB(0, 0));
-
         assertThat(composedImage.getRGB(0, 0), is(result.getRGB(0, 0)));
     }
 
@@ -79,11 +77,5 @@ class TileComposerTest {
         graphics2D.setColor(color);
         graphics2D.fillRect(0, 0, width, height);
         return bufferedImage;
-    }
-
-    private void printRGB(int rgb) {
-        System.out.println("red: " + ImageTools.red(rgb));
-        System.out.println("green: " + ImageTools.green(rgb));
-        System.out.println("blue: " + ImageTools.blue(rgb));
     }
 }

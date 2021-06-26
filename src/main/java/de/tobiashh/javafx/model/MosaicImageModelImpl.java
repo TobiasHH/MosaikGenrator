@@ -203,19 +203,17 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
     @Override
     public void addAreaOfIntrest(int x, int y) {
-        System.out.println("MosaicImageModelImpl.addAreaOfIntrest");
         int mosaikImageIndex = mosaikImageIndex(x, y);
         if (!areaOfInterest.contains(mosaikImageIndex)) {
             areaOfInterest.add(mosaikImageIndex);
         }
-        System.out.println(areaOfInterest.size());
+        LOGGER.info("AreaOfInterest size = " + areaOfInterest.size());
     }
 
     @Override
     public void removeAreaOfIntrest(int x, int y) {
-        System.out.println("MosaicImageModelImpl.removeAreaOfIntrest");
         areaOfInterest.remove((Object) mosaikImageIndex(x, y)); // geht das besser?
-        System.out.println(areaOfInterest.size());
+        LOGGER.info("AreaOfInterest size = " + areaOfInterest.size());
     }
 
     @Override

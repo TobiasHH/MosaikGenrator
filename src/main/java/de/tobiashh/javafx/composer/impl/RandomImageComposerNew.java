@@ -1,10 +1,7 @@
 package de.tobiashh.javafx.composer.impl;
 
-import de.tobiashh.javafx.TilesCircularDistance;
 import de.tobiashh.javafx.TilesStraightDistance;
 import de.tobiashh.javafx.composer.ImageComposer;
-import de.tobiashh.javafx.tools.Index2D;
-import de.tobiashh.javafx.tools.IndexConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

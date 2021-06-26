@@ -30,10 +30,8 @@ public class App extends Application {
     private static Parent loadFXML() throws IOException {
         LOGGER.info("loadFXML");
         URL resource = Controller.class.getResource("primary.fxml");
-        System.out.println(resource);
         FXMLLoader fxmlLoader = new FXMLLoader(resource);
         fxmlLoader.setControllerFactory(c -> new Controller(new MosaicImageModelImpl()));
-        System.out.println(fxmlLoader.getLocation());
         return fxmlLoader.load();
     }
 
