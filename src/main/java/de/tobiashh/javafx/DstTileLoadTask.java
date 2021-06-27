@@ -30,7 +30,7 @@ public class DstTileLoadTask implements Callable<Optional<DstTile>> {
 		try {
 			BufferedImage image = ImageTools.loadTileImage(dstTilesPath.toFile(), tileSize);
 			if (image != null) {
-				tile = new DstTile(ImageTools.calculateScaledImage(image, tileSize, tileSize, false), dstTilesPath.getFileName().toString(), compareSize);
+				tile = new DstTile(ImageTools.calculateScaledImage(image, tileSize, tileSize, false), dstTilesPath, tileSize, compareSize);
 			}
 		}catch (Exception e)
 		{
