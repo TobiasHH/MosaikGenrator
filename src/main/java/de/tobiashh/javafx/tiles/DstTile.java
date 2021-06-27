@@ -23,6 +23,7 @@ public class DstTile extends SimpleSquareComparableImage {
 
     public BufferedImage getImage() {
         LOGGER.debug("getImage");
+        // TODO Softreference can be null
         return srcImage.get();
     }
 

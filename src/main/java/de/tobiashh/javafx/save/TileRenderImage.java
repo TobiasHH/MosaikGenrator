@@ -34,44 +34,54 @@ public class TileRenderImage implements RenderedImage {
 		sm = new SinglePixelPackedSampleModel(DataBuffer.TYPE_INT, tilesPerRow * tileSize, tilesPerColumn * tileSize, new int[] { 0x00FF0000, 0x0000FF00, 0x000000FF });
 		cm = new DirectColorModel(24, 0xff0000, 0xff00, 0xff);
 	}
-	
+
 	@Override
 	public WritableRaster copyData(WritableRaster arg0) {
 		return null;
 	}
-	
+
 	@Override
 	public ColorModel getColorModel() {
 		return cm;
 	}
-	
+
 	@Override
 	public Raster getData() {
 		return getData(new Rectangle(0, 0, getWidth(), getHeight()));
 	}
-	
+
 	@Override
 	public Raster getData(Rectangle rect) {
 		LOGGER.debug("getData {}", rect);
 		SampleModel nsm = sm.createCompatibleSampleModel(rect.width, rect.height);
-		
+
 		WritableRaster wr = Raster.createWritableRaster(nsm, rect.getLocation());
-		
+
 		int width = rect.width;
 		int height = rect.height;
 		int startX = rect.x;
 		int startY = rect.y;
 
 		int[] data = null;
-		Raster raster;
-		
+		Raster raster = null;
+
+		int actualTileX = -1;
+		int actualTileY = -1;
 		for (int y = startY; y < startY + height; y++)
 		{
 			for (int x = startX; x < startX + width; x++)
 			{
-				raster = tiles[index(x / tileSize, y / tileSize)].getComposedImage().getRaster();
-				data = raster.getPixel(x % tileSize, y % tileSize, data);
-				wr.setPixel(x, y, data);
+				int tileX = x / tileSize;
+				int tileY = y / tileSize;
+				if(actualTileX != tileX || actualTileY != tileY) {
+					raster = tiles[index(tileX, tileY)].getComposedImage().getRaster();
+					actualTileX = tileX;
+					actualTileY = tileY;
+				}
+				if (raster != null) {
+					data = raster.getPixel(x % tileSize, y % tileSize, data);
+					wr.setPixel(x, y, data);
+				}
 			}
 		}
 

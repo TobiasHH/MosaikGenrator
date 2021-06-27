@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
-import java.lang.ref.WeakReference;
+import java.lang.ref.SoftReference;
 
 public class OriginalTile extends SimpleSquareComparableImage {
     private final static Logger LOGGER = LoggerFactory.getLogger(OriginalTile.class.getName());
@@ -18,7 +18,7 @@ public class OriginalTile extends SimpleSquareComparableImage {
     private int opacity = 100;
     private int postColorAlignment = 100;
 
-    private WeakReference<BufferedImage> composedImage = new WeakReference<>(null);
+    private SoftReference<BufferedImage> composedImage = new SoftReference<>(null);
 
     public OriginalTile(BufferedImage srcImage, int compareSize)
     {
@@ -55,7 +55,7 @@ public class OriginalTile extends SimpleSquareComparableImage {
 
             if(returnValue == null) {
                 returnValue = new TileComposer(opacity, postColorAlignment).compose(srcImage, dstImage);
-                composedImage = new WeakReference<>(returnValue);
+                composedImage = new SoftReference<>(returnValue);
             }
 
             return returnValue;
