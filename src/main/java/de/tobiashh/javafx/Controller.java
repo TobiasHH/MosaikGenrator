@@ -43,6 +43,7 @@ public class Controller {
     private final BooleanProperty displayOriginalImage = new SimpleBooleanProperty();
     private final ObjectProperty<Path> imagePath = new SimpleObjectProperty<>();
     private final ObjectProperty<Path> saveImagePath = new SimpleObjectProperty<>(Path.of(System.getProperty("user.home")));
+
     @FXML
     public ChoiceBox<Mode> modeChoiceBox;
     @FXML
@@ -83,6 +84,8 @@ public class Controller {
     private TextField reuseDistance;
     @FXML
     private Label statusLabel;
+
+    private boolean setAreaOfInterest;
 
     public Controller(MosaicImageModel model) {
         LOGGER.info("Controller");
@@ -215,9 +218,22 @@ public class Controller {
         canvasPane.addEventHandler(MouseEvent.MOUSE_MOVED, getCursorPositionEventHandler());
         canvasPane.addEventHandler(MouseEvent.MOUSE_MOVED, getTileHoverEventHandler());
         canvasPane.addEventHandler(MouseEvent.MOUSE_MOVED, getTileImageInformationEventHandler());
-        canvasPane.addEventHandler(MouseEvent.MOUSE_CLICKED, changeTileEventHandler());
+        canvasPane.addEventHandler(MouseEvent.MOUSE_PRESSED, setStartTileWithSecondaryButtonDown());
         canvasPane.addEventHandler(MouseEvent.MOUSE_DRAGGED, markTilesWithSecondaryButtonDown());
         scrollPane.addEventFilter(ScrollEvent.SCROLL, getScrollEventHandler());
+    }
+
+    private EventHandler<MouseEvent> setStartTileWithSecondaryButtonDown() {
+        return mouseEvent -> {
+            if(mouseEvent.isSecondaryButtonDown())
+            {
+                int x = (int) (mouseEvent.getX() / (propertiesManager.tileSizeProperty().get() * getScale()));
+                int y = (int) (mouseEvent.getY() / (propertiesManager.tileSizeProperty().get() * getScale()));
+                setAreaOfInterest = !model.isAreaOfInterest(x, y);
+
+                mouseEvent.consume();
+            }
+        };
     }
 
     private EventHandler<MouseEvent> markTilesWithSecondaryButtonDown() {
@@ -226,23 +242,17 @@ public class Controller {
             {
                 int x = (int) (mouseEvent.getX() / (propertiesManager.tileSizeProperty().get() * getScale()));
                 int y = (int) (mouseEvent.getY() / (propertiesManager.tileSizeProperty().get() * getScale()));
-                model.addAreaOfIntrest(x, y);
+
+                if(setAreaOfInterest)
+                {
+                    model.addAreaOfIntrest(x, y);
+                }
+                else
+                {
+                    model.removeAreaOfIntrest(x, y);
+                }
+
                 mouseEvent.consume();
-            }
-        };
-    }
-
-    private EventHandler<MouseEvent> changeTileEventHandler() {
-        LOGGER.info("changeTileEventHandler");
-        return mouseEvent -> {
-            int x = (int) (mouseEvent.getX() / (propertiesManager.tileSizeProperty().get() * getScale()));
-            int y = (int) (mouseEvent.getY() / (propertiesManager.tileSizeProperty().get() * getScale()));
-            if (mouseEvent.getButton() == MouseButton.PRIMARY && mouseEvent.isStillSincePress()) {
-                model.addAreaOfIntrest(x, y);
-            }
-
-            if (mouseEvent.getButton() == MouseButton.SECONDARY && mouseEvent.isStillSincePress()) {
-                model.removeAreaOfIntrest(x, y);
             }
         };
     }

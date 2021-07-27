@@ -211,6 +211,14 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     }
 
     @Override
+    public boolean isAreaOfInterest(int x, int y) {
+        int mosaikImageIndex = mosaikImageIndex(x, y);
+        boolean isAreaOfInterest = areaOfInterest.contains(mosaikImageIndex);
+        LOGGER.info("AreaOfInterest = " + isAreaOfInterest);
+        return isAreaOfInterest;
+    }
+
+    @Override
     public void removeAreaOfIntrest(int x, int y) {
         areaOfInterest.remove((Object) mosaikImageIndex(x, y)); // geht das besser?
         LOGGER.info("AreaOfInterest size = " + areaOfInterest.size());
