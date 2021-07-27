@@ -216,7 +216,20 @@ public class Controller {
         canvasPane.addEventHandler(MouseEvent.MOUSE_MOVED, getTileHoverEventHandler());
         canvasPane.addEventHandler(MouseEvent.MOUSE_MOVED, getTileImageInformationEventHandler());
         canvasPane.addEventHandler(MouseEvent.MOUSE_CLICKED, changeTileEventHandler());
+        canvasPane.addEventHandler(MouseEvent.MOUSE_DRAGGED, markTilesWithSecondaryButtonDown());
         scrollPane.addEventFilter(ScrollEvent.SCROLL, getScrollEventHandler());
+    }
+
+    private EventHandler<MouseEvent> markTilesWithSecondaryButtonDown() {
+        return mouseEvent -> {
+            if(mouseEvent.isSecondaryButtonDown())
+            {
+                int x = (int) (mouseEvent.getX() / (propertiesManager.tileSizeProperty().get() * getScale()));
+                int y = (int) (mouseEvent.getY() / (propertiesManager.tileSizeProperty().get() * getScale()));
+                model.addAreaOfIntrest(x, y);
+                mouseEvent.consume();
+            }
+        };
     }
 
     private EventHandler<MouseEvent> changeTileEventHandler() {
