@@ -8,6 +8,7 @@ import javafx.beans.property.*;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.BoundingBox;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
@@ -131,14 +132,14 @@ public class Controller {
         model.tilesPathProperty().bind(propertiesManager.tilesPathProperty());
         model.srcImagePathProperty().bind(imagePath);
 
-        scrollPane.vvalueProperty().addListener((observable, oldValue, newValue) -> countVisibleTiles());
-        scrollPane.hvalueProperty().addListener((observable, oldValue, newValue) -> countVisibleTiles());
-        scrollPane.widthProperty().addListener((observable, oldValue, newValue) -> countVisibleTiles());
-        scrollPane.heightProperty().addListener((observable, oldValue, newValue) -> countVisibleTiles());
+        scrollPane.vvalueProperty().addListener((observable, oldValue, newValue) -> manageVisibility());
+        scrollPane.hvalueProperty().addListener((observable, oldValue, newValue) -> manageVisibility());
+        scrollPane.widthProperty().addListener((observable, oldValue, newValue) -> manageVisibility());
+        scrollPane.heightProperty().addListener((observable, oldValue, newValue) -> manageVisibility());
     }
 
     // todo Wird noch interessant beim laden von bilder nach opacity und co () nur visible updaten
-    private void countVisibleTiles() {
+    private void manageVisibility() {
         double hmin = scrollPane.getHmin();
         double hmax = scrollPane.getHmax();
         double hvalue = scrollPane.getHvalue();
@@ -155,16 +156,10 @@ public class Controller {
 
         double voffset = Math.max(0, contentHeight - viewportHeight) * (vvalue - vmin) / (vmax - vmin);
 
-        long count = tiles.stream().filter(tileView -> tileView.intersects(new BoundingBox(hoffset, voffset, viewportWidth, viewportHeight))).count();
-        String tileCoordinates = tiles.stream().filter(tileView -> tileView.intersects(new BoundingBox(hoffset, voffset, viewportWidth, viewportHeight)))
-                .map(tileView -> "" + tileView.getTilePositionX() + "," + tileView.getTilePositionY()).collect(Collectors.joining(" "));
-
-        tiles.stream().forEach(tileView -> tileView.setVisible(false));
+        tiles.stream().filter(tileView -> !tileView.intersects(new BoundingBox(hoffset, voffset, viewportWidth, viewportHeight))).forEach(tileView -> tileView.setVisible(false));
         tiles.stream().filter(tileView -> tileView.intersects(new BoundingBox(hoffset, voffset, viewportWidth, viewportHeight))).forEach(tileView -> tileView.setVisible(true));
 
-        LOGGER.info("visible tiles count = " + count);
-        LOGGER.info("tileCoordinates = " + tileCoordinates);
-        LOGGER.info("visible = " + tiles.stream().filter(tileView -> tileView.isVisible()).count());
+        LOGGER.info("visible = " + tiles.stream().filter(Node::isVisible).count());
     }
 
     private void scaleTiles() {

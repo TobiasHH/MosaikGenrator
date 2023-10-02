@@ -291,6 +291,10 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     public String getDstTileInformation(int x, int y) {
         LOGGER.debug("getDstTileInformation {},{}", x, y);
         if (!dstTilesList.isEmpty() && destinationImageIndexes.get(mosaikImageIndex(x, y)) >= 0) {
+            int ii = destinationImageIndexes.get(mosaikImageIndex(x, y));
+            int len = dstTilesList.size();
+            System.out.println("destinationImageIndexes = " + ii);
+            System.out.println("len = " + len);
             return dstTilesList.get(destinationImageIndexes.get(mosaikImageIndex(x, y))).getFilename();
         }
         return "";
