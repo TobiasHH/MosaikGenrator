@@ -16,7 +16,6 @@ public class DstTile extends SimpleSquareComparableImage {
     private final Path file;
     private final int tileSize;
     private SoftReference<BufferedImage> srcImage;
-    private boolean useable = true;
 
     public DstTile(BufferedImage image, Path file, int tileSize, int compareSize) {
         LOGGER.debug("DstTile {} with compareSize {}", file, tileSize, compareSize);
@@ -45,13 +44,5 @@ public class DstTile extends SimpleSquareComparableImage {
     public String getFilename() {
         LOGGER.debug("getFilename");
         return file.getFileName().toString();
-    }
-
-    public void setUsable(boolean usebale) {
-        this.useable = usebale;
-    }
-
-    public boolean isUsable() {
-        return useable;
     }
 }

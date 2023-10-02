@@ -372,7 +372,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     @Override
     public void replaceTile(int x, int y) {
         if (!dstTilesList.isEmpty() && destinationImageIndexes.get(mosaikImageIndex(x, y)) >= 0) {
-            dstTilesList.get(destinationImageIndexes.get(mosaikImageIndex(x, y))).setUsable(false);
+            dstTilesList.remove(dstTilesList.get(destinationImageIndexes.get(mosaikImageIndex(x, y))));
         }
     }
 
