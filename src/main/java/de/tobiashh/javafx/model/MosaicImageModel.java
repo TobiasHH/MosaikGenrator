@@ -56,4 +56,8 @@ public interface MosaicImageModel {
     BooleanProperty scanSubFolderProperty();
 
     IntegerProperty tilesPerRowProperty();
+
+    void replaceTile(int x, int y);
+
+    void ignoreTile(int x, int y);
 }

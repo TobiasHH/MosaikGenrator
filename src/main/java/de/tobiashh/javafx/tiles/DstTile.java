@@ -13,13 +13,12 @@ import java.nio.file.Path;
 
 public class DstTile extends SimpleSquareComparableImage {
     private final static Logger LOGGER = LoggerFactory.getLogger(DstTile.class.getName());
-
-    private SoftReference<BufferedImage> srcImage;
     private final Path file;
     private final int tileSize;
+    private SoftReference<BufferedImage> srcImage;
+    private boolean useable = true;
 
-    public DstTile(BufferedImage image, Path file, int tileSize, int compareSize)
-    {
+    public DstTile(BufferedImage image, Path file, int tileSize, int compareSize) {
         LOGGER.debug("DstTile {} with compareSize {}", file, tileSize, compareSize);
         setDataImage(image, compareSize);
         this.srcImage = new SoftReference<>(image);
@@ -31,8 +30,7 @@ public class DstTile extends SimpleSquareComparableImage {
         LOGGER.debug("getImage");
         // TODO Softreference can be null
         BufferedImage retval = srcImage.get();
-        if(retval == null)
-        {
+        if (retval == null) {
             try {
                 BufferedImage image = ImageTools.loadTileImage(file.toFile(), tileSize);
                 srcImage = new SoftReference<>(image);
@@ -44,7 +42,16 @@ public class DstTile extends SimpleSquareComparableImage {
         return srcImage.get();
     }
 
-    public String getFilename(){
+    public String getFilename() {
         LOGGER.debug("getFilename");
-        return file.getFileName().toString();}
+        return file.getFileName().toString();
+    }
+
+    public void setUsable(boolean usebale) {
+        this.useable = usebale;
+    }
+
+    public boolean isUsable() {
+        return useable;
+    }
 }

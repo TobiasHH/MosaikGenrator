@@ -265,7 +265,6 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
         image.unsetDstImages();
 
-
         destinationImageIndexes = ImageComposerFactory
                 .getComposer(mode.get())
                 .generate(tilesPerRow.get()
@@ -368,6 +367,20 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     @Override
     public IntegerProperty tilesPerRowProperty() {
         return tilesPerRow;
+    }
+
+    @Override
+    public void replaceTile(int x, int y) {
+        if (!dstTilesList.isEmpty() && destinationImageIndexes.get(mosaikImageIndex(x, y)) >= 0) {
+            dstTilesList.get(destinationImageIndexes.get(mosaikImageIndex(x, y))).setUsable(false);
+        }
+    }
+
+    @Override
+    public void ignoreTile(int x, int y) {
+        if (!dstTilesList.isEmpty() && destinationImageIndexes.get(mosaikImageIndex(x, y)) >= 0) {
+            dstTilesList.remove(dstTilesList.get(destinationImageIndexes.get(mosaikImageIndex(x, y))));
+        }
     }
 
     @Override

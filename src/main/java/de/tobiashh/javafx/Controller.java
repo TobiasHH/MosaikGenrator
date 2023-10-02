@@ -71,6 +71,8 @@ public class Controller {
     @FXML
     private CheckBox scanSubfolderCheck;
     @FXML
+    private CheckBox areaOfInterest;
+    @FXML
     private TextField preColorAlignment;
     @FXML
     private TextField postColorAlignment;
@@ -84,8 +86,6 @@ public class Controller {
     private TextField reuseDistance;
     @FXML
     private Label statusLabel;
-
-    private boolean setAreaOfInterest;
 
     public Controller(MosaicImageModel model) {
         LOGGER.info("Controller");
@@ -218,42 +218,34 @@ public class Controller {
         canvasPane.addEventHandler(MouseEvent.MOUSE_MOVED, getCursorPositionEventHandler());
         canvasPane.addEventHandler(MouseEvent.MOUSE_MOVED, getTileHoverEventHandler());
         canvasPane.addEventHandler(MouseEvent.MOUSE_MOVED, getTileImageInformationEventHandler());
-        canvasPane.addEventHandler(MouseEvent.MOUSE_PRESSED, setStartTileWithSecondaryButtonDown());
-        canvasPane.addEventHandler(MouseEvent.MOUSE_DRAGGED, markTilesWithSecondaryButtonDown());
+        canvasPane.addEventHandler(MouseEvent.MOUSE_CLICKED, setStartTileWithSecondaryButtonDown());
         scrollPane.addEventFilter(ScrollEvent.SCROLL, getScrollEventHandler());
     }
 
     private EventHandler<MouseEvent> setStartTileWithSecondaryButtonDown() {
         return mouseEvent -> {
-            if(mouseEvent.isSecondaryButtonDown())
+            int x = (int) (mouseEvent.getX() / (propertiesManager.tileSizeProperty().get() * getScale()));
+            int y = (int) (mouseEvent.getY() / (propertiesManager.tileSizeProperty().get() * getScale()));
+
+            if(areaOfInterest.isSelected())
             {
-                int x = (int) (mouseEvent.getX() / (propertiesManager.tileSizeProperty().get() * getScale()));
-                int y = (int) (mouseEvent.getY() / (propertiesManager.tileSizeProperty().get() * getScale()));
-                setAreaOfInterest = !model.isAreaOfInterest(x, y);
-
-                mouseEvent.consume();
+                if(mouseEvent.getButton().equals(MouseButton.PRIMARY)) { model.addAreaOfIntrest(x, y); }
+                if(mouseEvent.getButton().equals(MouseButton.SECONDARY)) { model.removeAreaOfIntrest(x, y); }
             }
-        };
-    }
 
-    private EventHandler<MouseEvent> markTilesWithSecondaryButtonDown() {
-        return mouseEvent -> {
-            if(mouseEvent.isSecondaryButtonDown())
+            if(!areaOfInterest.isSelected())
             {
-                int x = (int) (mouseEvent.getX() / (propertiesManager.tileSizeProperty().get() * getScale()));
-                int y = (int) (mouseEvent.getY() / (propertiesManager.tileSizeProperty().get() * getScale()));
-
-                if(setAreaOfInterest)
-                {
-                    model.addAreaOfIntrest(x, y);
+                if(mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                    model.replaceTile(x, y);
+                    System.out.println("replace Tile on this position");
                 }
-                else
-                {
-                    model.removeAreaOfIntrest(x, y);
+                if(mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
+                    model.ignoreTile(x, y);
+                    System.out.println("ignore tile");
                 }
-
-                mouseEvent.consume();
             }
+
+            mouseEvent.consume();
         };
     }
 
