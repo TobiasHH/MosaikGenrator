@@ -245,6 +245,7 @@ public class Controller {
                 }
             }
 
+            setTiles();
             mouseEvent.consume();
         };
     }
