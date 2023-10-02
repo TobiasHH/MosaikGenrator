@@ -159,8 +159,12 @@ public class Controller {
         String tileCoordinates = tiles.stream().filter(tileView -> tileView.intersects(new BoundingBox(hoffset, voffset, viewportWidth, viewportHeight)))
                 .map(tileView -> "" + tileView.getTilePositionX() + "," + tileView.getTilePositionY()).collect(Collectors.joining(" "));
 
+        tiles.stream().forEach(tileView -> tileView.setVisible(false));
+        tiles.stream().filter(tileView -> tileView.intersects(new BoundingBox(hoffset, voffset, viewportWidth, viewportHeight))).forEach(tileView -> tileView.setVisible(true));
+
         LOGGER.info("visible tiles count = " + count);
         LOGGER.info("tileCoordinates = " + tileCoordinates);
+        LOGGER.info("visible = " + tiles.stream().filter(tileView -> tileView.isVisible()).count());
     }
 
     private void scaleTiles() {
@@ -175,7 +179,7 @@ public class Controller {
             int x = tileView.getTilePositionX();
             int y = tileView.getTilePositionY();
 
-            tileView.setTile((isDisplayOriginalImage()) ? model.getOriginalTile(x, y) : model.getTile(x, y));
+            tileView.setTile(model.getTile(x, y, isDisplayOriginalImage()));
         });
     }
 

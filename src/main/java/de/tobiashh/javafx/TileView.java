@@ -3,6 +3,7 @@ package de.tobiashh.javafx;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import java.awt.image.BufferedImage;
@@ -53,5 +54,6 @@ public class TileView extends ImageView
             setFitWidth(newValue.intValue());
             setFitHeight(newValue.intValue());
         });
+
     }
 }

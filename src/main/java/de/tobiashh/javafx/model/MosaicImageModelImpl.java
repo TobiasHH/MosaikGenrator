@@ -230,11 +230,11 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     }
 
     @Override
-    public BufferedImage getTile(int x, int y) {
+    public BufferedImage getTile(int x, int y, boolean originalImage) {
         LOGGER.debug("getTile " + x + ", " + y);
         OriginalTile originalTile = image.getTile(mosaikImageIndex(x, y));
         boolean noDestinationTile = dstTilesList.isEmpty() || destinationImageIndexes.get(mosaikImageIndex(x, y)) == -1;
-        return printDebugInformations((noDestinationTile) ? originalTile.getSrcImage() : originalTile.getComposedImage(), x, y);
+        return printDebugInformations((noDestinationTile || originalImage) ? originalTile.getSrcImage() : originalTile.getComposedImage(), x, y);
     }
 
     private BufferedImage printDebugInformations(BufferedImage srcImage, int x, int y) {
@@ -306,12 +306,6 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
     private ReadOnlyIntegerProperty dstTilesLoadProgressProperty() {
         return dstTilesLoadProgress.getReadOnlyProperty();
-    }
-
-    @Override
-    public BufferedImage getOriginalTile(int x, int y) {
-        LOGGER.debug("getOriginalTile " + x + ", " + y);
-        return printDebugInformations(image.getTile(mosaikImageIndex(x, y)).getSrcImage(), x, y);
     }
 
     @Override
