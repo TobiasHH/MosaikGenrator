@@ -34,7 +34,7 @@ public class TileView extends ImageView
         setTileSize(tileSize);
 
         visibleProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue) System.out.println("tile " + tilePositionX + ", " + tilePositionY + " visible");
+         //   if(newValue) System.out.println("tile " + tilePositionX + ", " + tilePositionY + " visible");
         });
     }
 

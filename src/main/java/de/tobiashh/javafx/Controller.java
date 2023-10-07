@@ -156,8 +156,8 @@ public class Controller {
 
         double voffset = Math.max(0, contentHeight - viewportHeight) * (vvalue - vmin) / (vmax - vmin);
 
-        tiles.stream().filter(tileView -> !tileView.intersects(new BoundingBox(hoffset, voffset, viewportWidth, viewportHeight))).forEach(tileView -> tileView.setVisible(false));
-        tiles.stream().filter(tileView -> tileView.intersects(new BoundingBox(hoffset, voffset, viewportWidth, viewportHeight))).forEach(tileView -> tileView.setVisible(true));
+    //    tiles.stream().filter(tileView -> !tileView.intersects(new BoundingBox(hoffset, voffset, viewportWidth, viewportHeight))).forEach(tileView -> tileView.setVisible(false));
+    //    tiles.stream().filter(tileView -> tileView.intersects(new BoundingBox(hoffset, voffset, viewportWidth, viewportHeight))).forEach(tileView -> tileView.setVisible(true));
 
         LOGGER.info("visible = " + tiles.stream().filter(Node::isVisible).count());
     }
@@ -223,29 +223,33 @@ public class Controller {
 
     private EventHandler<MouseEvent> setStartTileWithSecondaryButtonDown() {
         return mouseEvent -> {
-            int x = (int) (mouseEvent.getX() / (propertiesManager.tileSizeProperty().get() * getScale()));
-            int y = (int) (mouseEvent.getY() / (propertiesManager.tileSizeProperty().get() * getScale()));
+            if(mouseEvent.isStillSincePress()) {
+                int x = (int) (mouseEvent.getX() / (propertiesManager.tileSizeProperty().get() * getScale()));
+                int y = (int) (mouseEvent.getY() / (propertiesManager.tileSizeProperty().get() * getScale()));
 
-            if(areaOfInterest.isSelected())
-            {
-                if(mouseEvent.getButton().equals(MouseButton.PRIMARY)) { model.addAreaOfIntrest(x, y); }
-                if(mouseEvent.getButton().equals(MouseButton.SECONDARY)) { model.removeAreaOfIntrest(x, y); }
-            }
-
-            if(!areaOfInterest.isSelected())
-            {
-                if(mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-                    model.replaceTile(x, y);
-                    System.out.println("replace Tile on this position");
+                if (areaOfInterest.isSelected()) {
+                    if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                        model.addAreaOfIntrest(x, y);
+                    }
+                    if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
+                        model.removeAreaOfIntrest(x, y);
+                    }
                 }
-                if(mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
-                    model.ignoreTile(x, y);
-                    System.out.println("ignore tile");
-                }
-            }
 
-            setTiles();
-            mouseEvent.consume();
+                if (!areaOfInterest.isSelected()) {
+                    if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                        model.replaceTile(x, y);
+                        System.out.println("replace Tile on this position");
+                    }
+                    if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
+                        model.ignoreTile(x, y);
+                        System.out.println("ignore tile");
+                    }
+                }
+
+                setTiles();
+                mouseEvent.consume();
+            }
         };
     }
 
@@ -373,7 +377,16 @@ public class Controller {
     private void processOpen() {
         LOGGER.info("processOpen");
         FileChooser fileChooser = new FileChooser();
-        if (getImagePath() != null) fileChooser.setInitialDirectory(getImagePath().getParent().toFile());
+
+        if (getImagePath() != null && !getImagePath().endsWith("test.png"))
+        {
+            LOGGER.info("imagePath");
+            fileChooser.setInitialDirectory(getImagePath().getParent().toFile());
+        } else {
+            LOGGER.info("tilesPath");
+            fileChooser.setInitialDirectory(propertiesManager.tilesPathProperty().get().toFile());
+        }
+
         fileChooser.setTitle("Bild öffnen");
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Bilder", Arrays.stream(MosaicImageModelImpl.FILE_EXTENSION).map("*."::concat).toArray(String[]::new)));
         File file = fileChooser.showOpenDialog(menuBar.getScene().getWindow());

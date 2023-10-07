@@ -14,43 +14,28 @@ import java.util.stream.IntStream;
 public class LinearImageComposerNew implements ImageComposer {
     private final static Logger LOGGER = LoggerFactory.getLogger(LinearImageComposerNew.class.getName());
 
-    private int tilesPerRow;
-    private int tilesPerColumn;
     private int maxReuses;
-    private int reuseDistance;
 
     @Override
     public List<Integer> generate(int tilesPerRow, int tilesPerColumn, int maxReuses, int reuseDistance, List<Integer> areaOfInterest, List<List<Integer>> destinationTileIDs) {
-        this.tilesPerRow = tilesPerRow;
-        this.tilesPerColumn = tilesPerColumn;
+        ReuseableChecker reuseableChecker = new ReuseableChecker(tilesPerRow, tilesPerColumn, reuseDistance);
         this.maxReuses = maxReuses;
-        this.reuseDistance = reuseDistance;
         LOGGER.info("generateLinearImage");
 
         int[] returnValue = new int[tilesPerRow * tilesPerColumn];
         Arrays.fill(returnValue, -1);
 
         List<Integer> tileIndices = IntStream.range(0, tilesPerColumn * tilesPerRow).boxed().collect(Collectors.toList());
-        List<Integer> areaOfInterestIndices = new ArrayList<>(areaOfInterest);
-        tileIndices.removeAll(areaOfInterestIndices);
+        List<Integer> indices = new ArrayList<>(areaOfInterest);
 
-        while (areaOfInterestIndices.size() > 0) {
-            Integer index = areaOfInterestIndices.remove(0);
+        tileIndices.removeAll(indices);
+        indices.addAll(tileIndices);
+
+        while (indices.size() > 0) {
+            Integer index = indices.remove(0);
             List<Integer> idList = destinationTileIDs.get(index);
             for (Integer id : idList) {
-                if(isUsedLessThenMaxReuses(id, returnValue) && isReuseableAtPosition(id, returnValue, index))
-                {
-                    returnValue[index] = id;
-                    break;
-                }
-            }
-        }
-
-        while (tileIndices.size() > 0) {
-            Integer index = tileIndices.remove(0);
-            List<Integer> idList = destinationTileIDs.get(index);
-            for (Integer id : idList) {
-                if(isUsedLessThenMaxReuses(id, returnValue) && isReuseableAtPosition(id, returnValue, index))
+                if(isUsedLessThenMaxReuses(id, returnValue) && reuseableChecker.isReuseableAtPosition(id, returnValue, index))
                 {
                     returnValue[index] = id;
                     break;
@@ -61,18 +46,8 @@ public class LinearImageComposerNew implements ImageComposer {
         return Arrays.stream(returnValue).boxed().collect(Collectors.toList());
     }
 
-    private boolean isReuseableAtPosition(Integer id, int[] returnValue, int index) {
-        TilesStraightDistance tilesStraightDistance = new TilesStraightDistance(tilesPerRow);
-        return IntStream.range(0, tilesPerRow * tilesPerColumn).noneMatch(i -> {
-            boolean notSamePosition = i != index;
-            boolean insideReuseDistance = tilesStraightDistance.calculate(i, index) < reuseDistance;
-            boolean sameID = returnValue[i] == id;
-            return insideReuseDistance && notSamePosition && sameID;
-        });
-    }
-
     private boolean isUsedLessThenMaxReuses(int id, int[] imageIds)
     {
-        return Arrays.stream(imageIds).filter(imageID -> imageID == id).count() <= maxReuses;
+        return Arrays.stream(imageIds).parallel().filter(imageID -> imageID == id).count() <= maxReuses;
     }
 }

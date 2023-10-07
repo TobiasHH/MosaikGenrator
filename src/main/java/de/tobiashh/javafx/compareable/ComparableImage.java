@@ -9,19 +9,24 @@ import java.awt.image.BufferedImage;
 public abstract class ComparableImage {
 	private final static Logger LOGGER = LoggerFactory.getLogger(ComparableImage.class.getName());
 
+	private int compareSize;
+
 	protected int[] red;
 	protected int[] green;
 	protected int[] blue;
-	
-	private int compareSize;
 
 	protected void setDataImage(BufferedImage dataImage, int compareSize) {
 		LOGGER.trace("setDataImage");
 		this.compareSize = compareSize;
+
+		red = new int[compareSize * compareSize];
+		green = new int[compareSize * compareSize];
+		blue = new int[compareSize * compareSize];
+
 		calculateData(dataImage);
 	}
 
-	protected void calculateData(BufferedImage compareImage) {
+	private void calculateData(BufferedImage compareImage) {
 		LOGGER.trace("compareColor");
 		BufferedImage dataImage = compareImage;
 
@@ -29,10 +34,6 @@ public abstract class ComparableImage {
 			dataImage = new BufferedImage(compareSize, compareSize, BufferedImage.TYPE_INT_RGB);
 			dataImage.getGraphics().drawImage(compareImage, 0, 0, compareSize, compareSize, null);
 		}
-
-		red = new int[compareSize * compareSize];
-		green = new int[compareSize * compareSize];
-		blue = new int[compareSize * compareSize];
 
 		int rgb, index;
 

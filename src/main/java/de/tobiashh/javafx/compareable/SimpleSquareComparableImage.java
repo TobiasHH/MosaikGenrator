@@ -15,17 +15,17 @@ public class SimpleSquareComparableImage extends ComparableImage {
 		
 		return result;
 	}
-	
+
 	private int compareColor(int[] color, int[] color2) {
 		LOGGER.trace("compareColor");
 		int result = 0;
-		
+
 		for (int i = 0; i < color.length; i++)
 		{
 			int diff = color[i] - color2[i];
 			result += diff * diff;
 		}
-		
+
 		return result;
 	}
 }

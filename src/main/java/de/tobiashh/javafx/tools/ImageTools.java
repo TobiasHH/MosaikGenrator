@@ -133,22 +133,9 @@ public class ImageTools {
             for (int x = 0; x < width; x++) {
                 rgb1 = mosaic.getRGB(x, y);
 
-                red = (int) (red(rgb1) - (sr1 - sr2) * percent / 100);
-                green = (int) (green(rgb1) - (sg1 - sg2) * percent / 100);
-                blue = (int) (blue(rgb1) - (sb1 - sb2) * percent / 100);
-
-                if (red < 0)
-                    red = 0;
-                if (green < 0)
-                    green = 0;
-                if (blue < 0)
-                    blue = 0;
-                if (red > 255)
-                    red = 255;
-                if (green > 255)
-                    green = 255;
-                if (blue > 255)
-                    blue = 255;
+                red = (int) clamp(red(rgb1) - (sr1 - sr2) * percent / 100, 0, 255);
+                green = (int) clamp(green(rgb1) - (sg1 - sg2) * percent / 100, 0, 255);
+                blue = (int) clamp(blue(rgb1) - (sb1 - sb2) * percent / 100, 0, 255);
 
                 returnValue.setRGB(x, y, new Color(red, green, blue).getRGB());
             }
@@ -156,6 +143,8 @@ public class ImageTools {
 
         return returnValue;
     }
+
+    private static long clamp(long value, long min, long max) { return Math.max(min, Math.min(max, value)); }
 
     public static BufferedImage opacityAdaption(BufferedImage mosaic,
                                                 BufferedImage original, int percent) {
@@ -188,8 +177,7 @@ public class ImageTools {
                 rgb2 = original.getRGB(x, y);
 
                 red = red(rgb2) + (red(rgb1) - red(rgb2)) * percent / 100;
-                green = green(rgb2) + (green(rgb1) - green(rgb2)) * percent
-                        / 100;
+                green = green(rgb2) + (green(rgb1) - green(rgb2)) * percent / 100;
                 blue = blue(rgb2) + (blue(rgb1) - blue(rgb2)) * percent / 100;
 
                 returnValue.setRGB(x, y, new Color(red, green, blue).getRGB());
@@ -232,9 +220,7 @@ public class ImageTools {
         return new RenderingHints(map);
     }
 
-    public static int red(int rgb) {
-        return (rgb >> 16) & 0x000000FF;
-    }
+    public static int red(int rgb) { return (rgb >> 16) & 0x000000FF; }
 
     public static int green(int rgb) {
         return (rgb >> 8) & 0x000000FF;
