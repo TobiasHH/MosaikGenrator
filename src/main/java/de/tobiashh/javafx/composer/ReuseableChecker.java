@@ -1,4 +1,4 @@
-package de.tobiashh.javafx.composer.impl;
+package de.tobiashh.javafx.composer;
 
 import de.tobiashh.javafx.TilesStraightDistance;
 
@@ -21,8 +21,7 @@ public class ReuseableChecker {
         return IntStream.range(0, tilesPerRow * tilesPerColumn).parallel().allMatch(i -> {
             if( i == index ) return true;
             if (destinationTileIDs[i] != destinationTileID) return true;
-            if( tilesStraightDistance.calculate(i, index) >= reuseDistance ) return true;
-            return false;
+            return tilesStraightDistance.calculate(i, index) >= reuseDistance;
         });
     }
 }

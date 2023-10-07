@@ -1,5 +1,6 @@
-package de.tobiashh.javafx.composer.impl;
+package de.tobiashh.javafx.composer;
 
+import de.tobiashh.javafx.composer.ReuseableChecker;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

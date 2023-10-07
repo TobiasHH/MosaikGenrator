@@ -285,7 +285,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         image.setOpacity(opacity.get());
         image.setPostColorAlignment(postColorAlignment.get());
 
-        IntStream.range(0, destinationTileIndexes.size()).forEach(index -> {
+        IntStream.range(0, destinationTileIndexes.size()).parallel().forEach(index -> {
             int dstTileID = destinationTileIndexes.get(index);
             if (dstTileID >= 0) {
                 image.getTile(index).setDstImage(dstTilesList.get(dstTileID).getImage());
