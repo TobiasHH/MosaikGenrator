@@ -7,7 +7,6 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.geometry.BoundingBox;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -32,7 +31,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Controller {
     private final static Logger LOGGER = LoggerFactory.getLogger(Controller.class.getName());
@@ -42,6 +40,7 @@ public class Controller {
     private final MosaicImageModel model;
     private final DoubleProperty scale = new SimpleDoubleProperty(SCALE_DEFAULT);
     private final BooleanProperty displayOriginalImage = new SimpleBooleanProperty();
+    private final BooleanProperty drawDebugInfo = new SimpleBooleanProperty();
     private final ObjectProperty<Path> imagePath = new SimpleObjectProperty<>();
     private final ObjectProperty<Path> saveImagePath = new SimpleObjectProperty<>(Path.of(System.getProperty("user.home")));
 
@@ -72,7 +71,9 @@ public class Controller {
     @FXML
     private CheckBox scanSubfolderCheck;
     @FXML
-    private CheckBox areaOfInterest;
+    private CheckBox areaOfInterestCheck;
+    @FXML
+    private CheckBox drawDebugInfoCheck;
     @FXML
     private TextField preColorAlignment;
     @FXML
@@ -101,6 +102,7 @@ public class Controller {
         initEventHandler();
         initBindings();
         initCanvas();
+        setDebugInfo(propertiesManager.drawDebugInfoProperty().get());
     }
 
     private void initModeChoiceBox() {
@@ -115,6 +117,7 @@ public class Controller {
         filesCountLabel.textProperty().bind(model.dstTilesCountProperty().asString());
         modeChoiceBox.valueProperty().bindBidirectional(propertiesManager.modeProperty());
         scanSubfolderCheck.selectedProperty().bindBidirectional(propertiesManager.scanSubFolderProperty());
+        drawDebugInfoCheck.selectedProperty().bindBidirectional(propertiesManager.drawDebugInfoProperty());
         statusLabel.textProperty().bind(model.statusProperty());
 
         initTextFieldBindings();
@@ -128,6 +131,7 @@ public class Controller {
         model.maxReusesProperty().bind(propertiesManager.maxReusesProperty());
         model.compareSizeProperty().bind(propertiesManager.compareSizeProperty());
         model.scanSubFolderProperty().bind(propertiesManager.scanSubFolderProperty());
+        model.drawDebugInfoProperty().bind(propertiesManager.drawDebugInfoProperty());
 
         model.tilesPathProperty().bind(propertiesManager.tilesPathProperty());
         model.srcImagePathProperty().bind(imagePath);
@@ -227,7 +231,7 @@ public class Controller {
                 int x = (int) (mouseEvent.getX() / (propertiesManager.tileSizeProperty().get() * getScale()));
                 int y = (int) (mouseEvent.getY() / (propertiesManager.tileSizeProperty().get() * getScale()));
 
-                if (areaOfInterest.isSelected()) {
+                if (areaOfInterestCheck.isSelected()) {
                     if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
                         model.addAreaOfIntrest(x, y);
                     }
@@ -236,14 +240,14 @@ public class Controller {
                     }
                 }
 
-                if (!areaOfInterest.isSelected()) {
+                if (!areaOfInterestCheck.isSelected()) {
                     if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                        LOGGER.info("replace function");
                         model.replaceTile(x, y);
-                        System.out.println("replace Tile on this position");
                     }
                     if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
+                        LOGGER.info("ignore function");
                         model.ignoreTile(x, y);
-                        System.out.println("ignore tile");
                     }
                 }
 
@@ -306,6 +310,7 @@ public class Controller {
     private void initControllerPropertyChangeListener() {
         scaleProperty().addListener((observable, oldValue, newValue) -> scaleTiles());
         displayOriginalImageProperty().addListener((observable, oldValue, newValue) -> setTiles());
+        drawDebugInfoProperty().addListener((observable, oldValue, newValue) -> setTiles());
     }
 
     private void initTextFieldBindings() {
@@ -462,6 +467,12 @@ public class Controller {
     }
 
     @FXML
+    private void debugInfoCheckAction() {
+        LOGGER.info("debugInfoCheckAction");
+        setDebugInfo(drawDebugInfoCheck.isSelected());
+    }
+
+    @FXML
     private void processSave() {
         LOGGER.info("processSave");
         FileChooser fileChooser = new FileChooser();
@@ -517,6 +528,14 @@ public class Controller {
 
     private void setDisplayOriginalImage(boolean value) {
         displayOriginalImage.set(value);
+    }
+
+    private BooleanProperty drawDebugInfoProperty() {
+        return drawDebugInfo;
+    }
+
+    private void setDebugInfo(boolean value) {
+        drawDebugInfo.set(value);
     }
 
     @FXML

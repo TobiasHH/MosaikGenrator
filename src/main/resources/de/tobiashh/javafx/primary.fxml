@@ -25,8 +25,9 @@
             <Button layoutX="37.0" layoutY="10.0" mnemonicParsing="false" onAction="#recalculateImage" text="Neu berechnen" />
             <CheckBox fx:id="originalCheck" mnemonicParsing="false" onAction="#originalCheckAction" text="Original" />
             <ChoiceBox fx:id="modeChoiceBox" prefWidth="150.0" value="LINEAR" />
-            <CheckBox fx:id="scanSubfolderCheck" layoutX="497.0" layoutY="14.0" mnemonicParsing="false" text="Unterordner einbeziehen" />
-            <CheckBox fx:id="areaOfInterest" layoutX="497.0" layoutY="14.0" mnemonicParsing="false" text="Select AOT" />
+            <CheckBox fx:id="scanSubfolderCheck" text="Unterordner einbeziehen" />
+            <CheckBox fx:id="areaOfInterestCheck" text="Select AOT" />
+            <CheckBox fx:id="drawDebugInfoCheck" onAction="#debugInfoCheckAction" text="Debug Info" />
          </HBox>
          <HBox alignment="CENTER" spacing="5.0">
             <Label text="Pre Farbanpassung:" />
@@ -37,7 +38,7 @@
             <TextField fx:id="opacity" prefWidth="50.0" />
             <Label layoutX="660.0" layoutY="14.0" text="Tiles in Zeile:" />
             <TextField fx:id="tilesPerRow" layoutX="695.0" layoutY="10.0" prefWidth="50.0" />
-            <Label layoutX="660.0" layoutY="14.0" text="Reuses:" />
+            <Label layoutX="660.0" layoutY="14.0" text="Max Reuses:" />
             <TextField fx:id="maxReuses" layoutX="695.0" layoutY="10.0" prefWidth="50.0" />
             <Label layoutX="660.0" layoutY="14.0" text="ReuseDistance:" />
             <TextField fx:id="reuseDistance" layoutX="695.0" layoutY="10.0" prefWidth="50.0" />

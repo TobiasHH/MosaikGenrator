@@ -2,6 +2,7 @@ package de.tobiashh.javafx.model;
 
 import de.tobiashh.javafx.DstTilesLoaderTask;
 import de.tobiashh.javafx.Mode;
+import de.tobiashh.javafx.TilesStraightDistance;
 import de.tobiashh.javafx.composer.*;
 import de.tobiashh.javafx.save.ImageSaver;
 import de.tobiashh.javafx.tiles.DstTile;
@@ -27,25 +28,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-// TODO comparableImage aus tiles herauslösen
-// TODO loadTiles in Controller bzw extra Klasse
-// TODO Aufräumen und Methoden sortieren
-// TODO ImagePool für DST Images
-// TODO DST Images besitzen  liste von Indexes wo sie genutzt sind
-// TODO ImageComparator erstellen
-// TODO Pair Klasse von tile und comparable image
-// TODO ImageComparator hat jeweils 1 SrcTilePair und List preAdjusted dstTilesPairs
-// TODO Generator Klassen
-// TODO abklären wie sich garbage collection beim aufräumen verhält
-// TODO scrollpane / canvas nur ausschnitt berechnen (Zoom Problem)) durch canvas tiles mit z.b. 1000 x 1000 px
-// TODO preColorAlignment implementieren
-// TODO Bilder ausschließen generell
-// TODO Bild ausschließen an einer Position
-// TODO Gibt es bessere Vergleichsalgorhytmen? die z.b. stärker auf kontruren / Details achten? z.b. kantenerkennung und diese kanten mit einbeziehen
-// TODO tests
-// TODO tileWidth 512 führt zu HEAP da zu viele/Große Bilder in Tile Klassen gehalten werden
-// TODO schnelles ändern der tilesPerRow provoziert exception zb. svcgnell 5 0 engeben
-
 public class MosaicImageModelImpl implements MosaicImageModel {
     public static final String[] FILE_EXTENSION = {"png", "jpg", "jpeg"};
     private final static Logger LOGGER = LoggerFactory.getLogger(MosaicImageModelImpl.class.getName());
@@ -67,6 +49,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     private final IntegerProperty maxReuses = new SimpleIntegerProperty();
     private final IntegerProperty compareSize = new SimpleIntegerProperty();
     private final BooleanProperty scanSubFolder = new SimpleBooleanProperty();
+    private final BooleanProperty drawDebugInfo = new SimpleBooleanProperty();
 
     private final MosaikImage image = new MosaikImage();
     private List<List<Integer>> scoredDstTileLists;
@@ -177,7 +160,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         LOGGER.info("calculateTiles");
         ImageTiler imageTiler = new ImageTiler(image, tileSize.get(), tilesPerRow.get(), tilesPerColumn.get());
         List<BufferedImage> tiles = imageTiler.getTiles();
-        this.image.setTiles( tiles.stream().map(tileImage -> new OriginalTile(tileImage, compareSize.get())).toArray(OriginalTile[]::new));
+        this.image.setTiles(tiles.stream().map(tileImage -> new OriginalTile(tileImage, compareSize.get())).toArray(OriginalTile[]::new));
 
         scoredDstTileLists = new ArrayList<>();
         for (int x = 0; x < tiles.size(); x++) {
@@ -216,14 +199,6 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     }
 
     @Override
-    public boolean isAreaOfInterest(int x, int y) {
-        int mosaikImageIndex = getIndex(x, y);
-        boolean isAreaOfInterest = areaOfInterest.contains(mosaikImageIndex);
-        LOGGER.info("AreaOfInterest = " + isAreaOfInterest);
-        return isAreaOfInterest;
-    }
-
-    @Override
     public void removeAreaOfIntrest(int x, int y) {
         areaOfInterest.remove((Object) getIndex(x, y)); // geht das besser?
         LOGGER.info("AreaOfInterest size = " + areaOfInterest.size());
@@ -243,13 +218,32 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     }
 
     private BufferedImage printDebugInformations(BufferedImage srcImage, int x, int y) {
+        LOGGER.info("printDebugInformations " + drawDebugInfo.get());
+        if (!drawDebugInfo.get()) return srcImage;
         BufferedImage bufferedImage = new BufferedImage(srcImage.getWidth(), srcImage.getHeight(), BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = (Graphics2D) bufferedImage.getGraphics();
         g2d.drawImage(srcImage, 0, 0, null);
-        g2d.setColor(Color.red);
-        g2d.drawString(x + ", " + y, 10, 10);
-        g2d.drawString("aoi" + areaOfInterest.contains(getIndex(x, y)), 10, 10 + 15);
-        g2d.drawString("index " + destinationTileIndexes.get(getIndex(x, y)), 10, 10 + 2 * 15);
+        int destinationTileIndex = destinationTileIndexes.get(getIndex(x, y));
+        int[] positions = IntStream.range(0, destinationTileIndexes.size())
+                .filter(i -> Objects.equals(destinationTileIndexes.get(i), destinationTileIndex) && i != getIndex(x, y)).toArray();
+        int scoredTileListIndex = scoredDstTileLists.get(getIndex(x, y)).indexOf(destinationTileIndex);
+
+        int reuses = positions.length;
+
+        g2d.setColor(Color.WHITE);
+        g2d.fillRect(10, 0, 100, 11);
+        g2d.fillRect(10, 15, 100, 11);
+        g2d.fillRect(10, 30, 100, 11);
+        g2d.fillRect(10, 45, 100, 11);
+        g2d.fillRect(10, 60, 100, 11);
+
+        g2d.setColor(Color.BLACK);
+        g2d.drawString("x:" + x + " y:" + y + " i:" + getIndex(x, y), 10, 10);
+        g2d.drawString("aoi:" + areaOfInterest.contains(getIndex(x, y)), 10, 25);
+        g2d.drawString("index:" + destinationTileIndex, 10, 40);
+        g2d.drawString("r:" + reuses + " pos:" + Arrays.toString(positions), 10, 55);
+        g2d.drawString("stli:" + scoredTileListIndex, 10, 70);
+
         return bufferedImage;
     }
 
@@ -297,8 +291,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
     private void checkIntegrity(ObservableList<DstTile> dstTilesList, List<List<Integer>> scoredDstTileLists) {
         for (List<Integer> scoredDstTileList : scoredDstTileLists) {
-            if(dstTilesList.size() != scoredDstTileList.size())
-            {
+            if (dstTilesList.size() != scoredDstTileList.size()) {
                 LOGGER.warn("scored list not correct size");
                 System.exit(-1);
             }
@@ -377,6 +370,11 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     }
 
     @Override
+    public BooleanProperty drawDebugInfoProperty() {
+        return drawDebugInfo;
+    }
+
+    @Override
     public IntegerProperty tilesPerRowProperty() {
         return tilesPerRow;
     }
@@ -386,33 +384,68 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         if (!dstTilesList.isEmpty() && destinationTileIndexes.get(getIndex(x, y)) >= 0) {
             int actualDestinationTileIndex = destinationTileIndexes.get(getIndex(x, y));
             List<Integer> scoredDstTileList = scoredDstTileLists.get(getIndex(x, y));
-            int positionOfIndexInSCoredList = scoredDstTileList.indexOf(actualDestinationTileIndex);
-            // TODO set just next without proofing if is allowed (image already used or reuse range not)
-            destinationTileIndexes.set(getIndex(x, y), scoredDstTileList.get(positionOfIndexInSCoredList + 1));
-            image.getTile(getIndex(x,y)).setDstImage(dstTilesList.get(scoredDstTileList.get(positionOfIndexInSCoredList + 1)).getImage());
+            int actualScoredListIndex = scoredDstTileList.indexOf(actualDestinationTileIndex);
 
+            int nextScoredListIndex = getNextScoredListIndex(scoredDstTileList, actualScoredListIndex, getIndex(x, y), maxReuses.get(), reuseDistance.get());
+
+            if (nextScoredListIndex >= 0) {
+                destinationTileIndexes.set(getIndex(x, y), scoredDstTileList.get(nextScoredListIndex));
+                image.getTile(getIndex(x, y)).setDstImage(dstTilesList.get(scoredDstTileList.get(nextScoredListIndex)).getImage());
+            } else {
+                destinationTileIndexes.set(getIndex(x, y), -1);
+                image.getTile(getIndex(x, y)).setDstImage(null);
+            }
         }
+    }
+
+    private int getNextScoredListIndex(List<Integer> scoredList, int actualScoredListIndex, int positionOfTile, int maxReuses, int reuseDistance) {
+        int newScoredListIndex = actualScoredListIndex;
+
+        while (++newScoredListIndex < scoredList.size()) {
+            int dstTileIndex = scoredList.get(newScoredListIndex);
+            long reuses = destinationTileIndexes.stream().filter(value -> value == dstTileIndex).count();
+            boolean isReuseable = reuses <= maxReuses;
+
+            int[] sameTiles = IntStream.range(0, destinationTileIndexes.size())
+                    .filter(i -> Objects.equals(destinationTileIndexes.get(i), dstTileIndex)).toArray();
+
+            boolean hasTileInDistsance = Arrays.stream(sameTiles).anyMatch(position -> new TilesStraightDistance(tilesPerRow.get()).calculate(positionOfTile, position) < reuseDistance);
+
+            LOGGER.info("test tile " + dstTileIndex);
+            LOGGER.info("hasTileInDistsance: " + hasTileInDistsance + " index:" + positionOfTile + " sameTiles: " + Arrays.toString(sameTiles) + " reuseDistance: " + reuseDistance);
+            LOGGER.info("isReusanle:" + isReuseable + " reuses:" + reuses + " maxReuses:" + maxReuses);
+
+            if (isReuseable && !hasTileInDistsance) return newScoredListIndex;
+        }
+
+        return -1;
     }
 
     @Override
     public void ignoreTile(int x, int y) {
         if (!dstTilesList.isEmpty() && destinationTileIndexes.get(getIndex(x, y)) >= 0) {
             int actualDestinationTileIndex = destinationTileIndexes.get(getIndex(x, y));
-            for (int i = 0; i < destinationTileIndexes.size(); i++) {
-                int destinationTileIndex = destinationTileIndexes.get(i);
+            LOGGER.info("replace image " + actualDestinationTileIndex);
 
-                if(destinationTileIndex == actualDestinationTileIndex)
-                {
-                    List<Integer> scoredDstTileList = scoredDstTileLists.get(i);
-                    int positionOfIndexInSCoredList = scoredDstTileList.indexOf(actualDestinationTileIndex);
-                    int newIndex = scoredDstTileList.get(positionOfIndexInSCoredList + 1);
-                    destinationTileIndexes.set(i, newIndex);
-                    image.getTile(i).setDstImage(dstTilesList.get(newIndex).getImage());
+            int count = 0;
+            for (int imageX = 0; imageX < tilesPerRow.get(); imageX++) {
+                for (int imageY = 0; imageY < tilesPerColumn.get(); imageY++) {
+                    int index = getIndex(imageX, imageY);
+                    if (destinationTileIndexes.get(index) == actualDestinationTileIndex) {
+                        LOGGER.info("Bild " + actualDestinationTileIndex + " an Position " + index + " gefunden.");
+                        replaceTile(imageX, imageY);
+                        count++;
+                    }
                 }
             }
-            for (List<Integer> scoredDstTileList : scoredDstTileLists) {
-                scoredDstTileList.remove((Integer) actualDestinationTileIndex);
-            }
+            LOGGER.info("replaced " + count + " Tiles.");
+            removeTileIndexFromScoredLists(actualDestinationTileIndex);
+        }
+    }
+
+    private void removeTileIndexFromScoredLists(Integer actualDestinationTileIndex) {
+        for (List<Integer> scoredDstTileList : scoredDstTileLists) {
+            scoredDstTileList.remove(actualDestinationTileIndex);
         }
     }
 

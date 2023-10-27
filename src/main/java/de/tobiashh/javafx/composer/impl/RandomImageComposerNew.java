@@ -1,7 +1,6 @@
 package de.tobiashh.javafx.composer.impl;
 
 import de.tobiashh.javafx.composer.ImageComposer;
-import de.tobiashh.javafx.composer.ReuseableChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

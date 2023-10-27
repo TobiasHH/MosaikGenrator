@@ -23,6 +23,7 @@ public class PropertiesManager {
     public static final String MAX_REUSES_PROPERTY_KEY = "maxReuses";
     public static final String REUSE_DISTANCE_PROPERTY_KEY = "reuseDistance";
     public static final String SCAN_SUB_FOLDER_PROPERTY_KEY = "scanSubFolder";
+    public static final String DRAW_DEBUG_INFO_PROPERTY_KEY = "drawDebugInfo";
 
     private static final int TILES_PER_ROW_DEFAULT = 20;
     private static final int TILE_SIZE_DEFAULT = 128;
@@ -34,6 +35,7 @@ public class PropertiesManager {
     private static final int MAX_REUSES_DEFAULT = 0;
     private static final int REUSE_DISTANCE_DEFAULT = 10;
     private static final boolean SCAN_SUB_FOLDER_DEFAULT = true;
+    private static final boolean DRAW_DEBUG_INFO_DEFAULT = true;
 
     private static final int TILE_SIZE_MIN = 2;
     private static final int TILE_SIZE_MAX = 512;
@@ -52,6 +54,7 @@ public class PropertiesManager {
     private final IntegerProperty maxReuses = new SimpleIntegerProperty();
     private final IntegerProperty reuseDistance = new SimpleIntegerProperty();
     private final BooleanProperty scanSubFolder = new SimpleBooleanProperty();
+    private final BooleanProperty drawDebugInfo = new SimpleBooleanProperty();
 
     private final Properties properties = new Properties();
 
@@ -75,6 +78,7 @@ public class PropertiesManager {
         maxReusesProperty().addListener((observable, oldValue, newValue) -> changePropertyAndSave(MAX_REUSES_PROPERTY_KEY, String.valueOf(newValue)));
         reuseDistanceProperty().addListener((observable, oldValue, newValue) -> changePropertyAndSave(REUSE_DISTANCE_PROPERTY_KEY, String.valueOf(newValue)));
         scanSubFolderProperty().addListener((observable, oldValue, newValue) -> changePropertyAndSave(SCAN_SUB_FOLDER_PROPERTY_KEY, String.valueOf(newValue)));
+        drawDebugInfoProperty().addListener((observable, oldValue, newValue) -> changePropertyAndSave(DRAW_DEBUG_INFO_PROPERTY_KEY, String.valueOf(newValue)));
 
         loadProperties();
 
@@ -89,6 +93,7 @@ public class PropertiesManager {
         maxReuses.set(Integer.parseInt(properties.getProperty(MAX_REUSES_PROPERTY_KEY, String.valueOf(MAX_REUSES_DEFAULT))));
         reuseDistance.set(Integer.parseInt(properties.getProperty(REUSE_DISTANCE_PROPERTY_KEY, String.valueOf(REUSE_DISTANCE_DEFAULT))));
         scanSubFolder.set(Boolean.parseBoolean(properties.getProperty(SCAN_SUB_FOLDER_PROPERTY_KEY, String.valueOf(SCAN_SUB_FOLDER_DEFAULT))));
+        drawDebugInfo.set(Boolean.parseBoolean(properties.getProperty(DRAW_DEBUG_INFO_PROPERTY_KEY, String.valueOf(DRAW_DEBUG_INFO_DEFAULT))));
 
         createDefaultTilesPathIfNotExist();
     }
@@ -169,7 +174,7 @@ public class PropertiesManager {
         return reuseDistance;
     }
 
-    public BooleanProperty scanSubFolderProperty() {
-        return scanSubFolder;
-    }
+    public BooleanProperty scanSubFolderProperty() { return scanSubFolder; }
+
+    public BooleanProperty drawDebugInfoProperty() { return drawDebugInfo; }
 }

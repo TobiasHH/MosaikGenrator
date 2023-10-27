@@ -27,8 +27,6 @@ public interface MosaicImageModel {
 
     void removeAreaOfIntrest(int x, int y);
 
-    boolean isAreaOfInterest(int x, int y);
-
     void resetAreaOfIntrest();
 
     BufferedImage getTile(int x, int y, boolean originalImage);
@@ -52,6 +50,8 @@ public interface MosaicImageModel {
     IntegerProperty compareSizeProperty();
 
     BooleanProperty scanSubFolderProperty();
+
+    BooleanProperty drawDebugInfoProperty();
 
     IntegerProperty tilesPerRowProperty();
 

@@ -1,8 +1,8 @@
 package de.tobiashh.javafx.tools;
 
 public class Index2D {
-    private int x;
-    private int y;
+    private final int x;
+    private final int y;
 
     public Index2D(int x, int y){
         this.x = x;

@@ -17,7 +17,7 @@ public class ReuseableChecker {
         this.tilesStraightDistance = new TilesStraightDistance(tilesPerRow);
     }
 
-    protected boolean isReuseableAtPosition(Integer destinationTileID, int[] destinationTileIDs, int index) {
+    public boolean isReuseableAtPosition(Integer destinationTileID, int[] destinationTileIDs, int index) {
         return IntStream.range(0, tilesPerRow * tilesPerColumn).parallel().allMatch(i -> {
             if( i == index ) return true;
             if (destinationTileIDs[i] != destinationTileID) return true;
