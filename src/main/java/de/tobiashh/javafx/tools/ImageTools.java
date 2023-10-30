@@ -129,13 +129,17 @@ public class ImageTools {
         int green;
         int blue;
 
+        int redCorrektion = (int) ((sr1 - sr2) * percent / 100);
+        int greenCorrektion = (int) ((sg1 - sg2) * percent / 100);
+        int blueCorrektion = (int) ((sb1 - sb2) * percent / 100);
+
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 rgb1 = mosaic.getRGB(x, y);
 
-                red = (int) clamp(red(rgb1) - (sr1 - sr2) * percent / 100, 0, 255);
-                green = (int) clamp(green(rgb1) - (sg1 - sg2) * percent / 100, 0, 255);
-                blue = (int) clamp(blue(rgb1) - (sb1 - sb2) * percent / 100, 0, 255);
+                red = clamp(red(rgb1) - redCorrektion, 0, 255);
+                green = clamp(green(rgb1) - greenCorrektion, 0, 255);
+                blue = clamp(blue(rgb1) - blueCorrektion, 0, 255);
 
                 returnValue.setRGB(x, y, new Color(red, green, blue).getRGB());
             }
@@ -144,7 +148,7 @@ public class ImageTools {
         return returnValue;
     }
 
-    private static long clamp(long value, long min, long max) { return Math.max(min, Math.min(max, value)); }
+    private static int clamp(int value, int min, int max) { return Math.max(min, Math.min(max, value)); }
 
     public static BufferedImage opacityAdaption(BufferedImage mosaic,
                                                 BufferedImage original, int percent) {
