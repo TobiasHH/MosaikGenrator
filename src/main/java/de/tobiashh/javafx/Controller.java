@@ -167,10 +167,14 @@ public class Controller {
     }
 
     private void scaleTiles() {
-        int tileSize = (int) (propertiesManager.tileSizeProperty().get() * getScale());
+        int tileSize = getActualTileSize();
         tiles.forEach(tileView -> tileView.setTileSize(tileSize));
         canvasPane.setPrefWidth(tileSize * propertiesManager.tilesPerRowProperty().get());
         canvasPane.setPrefHeight(tileSize * model.getTilesPerColumn());
+    }
+
+    private int getActualTileSize() {
+        return (int) (propertiesManager.tileSizeProperty().get() * getScale());
     }
 
     private void setTiles() {
@@ -188,7 +192,7 @@ public class Controller {
 
         tiles.clear();
 
-        int tileSize = (int) (getScale() * propertiesManager.tileSizeProperty().get());
+        int tileSize = getActualTileSize();
 
         for (int y = 0; y < tilesPerColumn; y++) {
             for (int x = 0; x < tilesPerRow; x++) {
@@ -228,8 +232,8 @@ public class Controller {
     private EventHandler<MouseEvent> setStartTileWithSecondaryButtonDown() {
         return mouseEvent -> {
             if(mouseEvent.isStillSincePress()) {
-                int x = (int) (mouseEvent.getX() / (propertiesManager.tileSizeProperty().get() * getScale()));
-                int y = (int) (mouseEvent.getY() / (propertiesManager.tileSizeProperty().get() * getScale()));
+                int x = getTilePosition(mouseEvent.getX());
+                int y = getTilePosition(mouseEvent.getY());
 
                 if (areaOfInterestCheck.isSelected()) {
                     if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
@@ -262,11 +266,15 @@ public class Controller {
         return mouseEvent -> cursorPositionLabel.setText("x:" + (int) mouseEvent.getX() + " y:" + (int) mouseEvent.getY());
     }
 
+    private int getTilePosition(double mousePosition) {
+        return (int) (mousePosition / getActualTileSize());
+    }
+
     private EventHandler<MouseEvent> getTileHoverEventHandler() {
         LOGGER.info("getTileHoverEventHandler");
         return mouseEvent -> {
-            int tileX = (int) (mouseEvent.getX() / (propertiesManager.tileSizeProperty().get() * getScale()));
-            int tileY = (int) (mouseEvent.getY() / (propertiesManager.tileSizeProperty().get() * getScale()));
+            int tileX = getTilePosition(mouseEvent.getX());
+            int tileY = getTilePosition(mouseEvent.getY());
             tileHoverLabel.setText("x:" + tileX + " y:" + tileY);
         };
     }
@@ -274,8 +282,8 @@ public class Controller {
     private EventHandler<MouseEvent> getTileImageInformationEventHandler() {
         LOGGER.info("getTileImageInformationEventHandler");
         return mouseEvent -> {
-            int tileX = (int) (mouseEvent.getX() / (propertiesManager.tileSizeProperty().get() * getScale()));
-            int tileY = (int) (mouseEvent.getY() / (propertiesManager.tileSizeProperty().get() * getScale()));
+            int tileX = getTilePosition(mouseEvent.getX());
+            int tileY = getTilePosition(mouseEvent.getY());
             if (propertiesManager.tilesPerRowProperty().get() > tileX && model.getTilesPerColumn() > tileY) {
                 tileImageInformations.setText(model.getDstTileInformation(tileX, tileY));
             }

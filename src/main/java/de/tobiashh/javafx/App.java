@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URL;
 
-// TODO Mouse wird bei sehr klein gezoomten Bild nicht korrekt berechnet. klick wird auf faqlsche bild bei klick auf rand angewqendet
 // TODO fehler wenn tile size 512
 // TODO pre color allignment
 // TODO performa3nce bei vielen Bildern
