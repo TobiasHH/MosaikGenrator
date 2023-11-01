@@ -210,15 +210,15 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     }
 
     @Override
-    public BufferedImage getTile(int x, int y, boolean originalImage) {
+    public BufferedImage getTile(int x, int y, boolean originalImage, int size) {
         LOGGER.debug("getTile " + x + ", " + y);
         OriginalTile originalTile = image.getTile(getIndex(x, y));
         boolean noDestinationTile = dstTilesList.isEmpty() || destinationTileIndexes.get(getIndex(x, y)) == -1;
-        return printDebugInformations((noDestinationTile || originalImage) ? originalTile.getSrcImage() : originalTile.getComposedImage(), x, y);
+        return printDebugInformations(ImageTools.calculateScaledImage((noDestinationTile || originalImage) ? originalTile.getSrcImage() : originalTile.getComposedImage(), size, size, true) , x, y);
     }
 
     private BufferedImage printDebugInformations(BufferedImage srcImage, int x, int y) {
-        LOGGER.info("printDebugInformations " + drawDebugInfo.get());
+        LOGGER.debug("printDebugInformations " + drawDebugInfo.get());
         if (!drawDebugInfo.get()) return srcImage;
         BufferedImage bufferedImage = new BufferedImage(srcImage.getWidth(), srcImage.getHeight(), BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = (Graphics2D) bufferedImage.getGraphics();
