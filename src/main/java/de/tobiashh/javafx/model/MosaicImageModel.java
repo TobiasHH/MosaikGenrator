@@ -29,7 +29,7 @@ public interface MosaicImageModel {
 
     void resetAreaOfIntrest();
 
-    BufferedImage getTile(int x, int y, boolean originalImage);
+    BufferedImage getTile(int x, int y, boolean originalImage, int size);
 
     ObjectProperty<Path> tilesPathProperty();
 
