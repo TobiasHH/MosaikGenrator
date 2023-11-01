@@ -11,19 +11,14 @@ import java.awt.image.BufferedImage;
 /**
  * Created by ts on 02.02.2017.
  */
-public class TileView extends ImageView
-{
+public class TileView extends ImageView {
     private static final int DEFAULT_TILE_SIZE = 1;
 
     private final IntegerProperty tileSizeProperty = new SimpleIntegerProperty(DEFAULT_TILE_SIZE);
-
-    public final void setTileSize(int value) {tileSizeProperty.set(value);}
-
     int tilePositionX;
     int tilePositionY;
 
-    public TileView( int tilePositionX, int tilePositionY, int tileSize)
-    {
+    public TileView(int tilePositionX, int tilePositionY, int tileSize) {
         super();
 
         initPropertyListener();
@@ -31,10 +26,10 @@ public class TileView extends ImageView
         this.tilePositionX = tilePositionX;
         this.tilePositionY = tilePositionY;
         setTileSize(tileSize);
+    }
 
-        visibleProperty().addListener((observable, oldValue, newValue) -> {
-         //   if(newValue) System.out.println("tile " + tilePositionX + ", " + tilePositionY + " visible");
-        });
+    public final void setTileSize(int value) {
+        tileSizeProperty.set(value);
     }
 
     public int getTilePositionX() {
@@ -46,7 +41,11 @@ public class TileView extends ImageView
     }
 
     public void setTile(BufferedImage image) {
-        Platform.runLater(() -> setImage(SwingFXUtils.toFXImage(image, null)));
+        if (image != null) {
+            setImage(SwingFXUtils.toFXImage(image, null));
+        } else {
+            Platform.runLater(() -> setImage(null));
+        }
     }
 
     public void initPropertyListener()
