@@ -36,7 +36,7 @@ public class Controller {
     private final static Logger LOGGER = LoggerFactory.getLogger(Controller.class.getName());
     private static final double SCALE_DEFAULT = 1.0;
     private static final double SCALE_MIN = 0.1;
-    private static final double SCALE_MAX = 10.0;
+    private static final double SCALE_MAX = 2.0;
     private final MosaicImageModel model;
     private final DoubleProperty scale = new SimpleDoubleProperty(SCALE_DEFAULT);
     private final BooleanProperty displayOriginalImage = new SimpleBooleanProperty();
