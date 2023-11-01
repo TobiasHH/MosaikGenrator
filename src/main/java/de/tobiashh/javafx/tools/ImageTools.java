@@ -19,7 +19,7 @@ public class ImageTools {
 
     public static BufferedImage loadTileImage(File imageFile, int tileSize)
             throws IOException {
-        LOGGER.debug("loadTileImage {} with tileSize {}", imageFile, tileSize);
+        LOGGER.info("loadTileImage {} with tileSize {}", imageFile, tileSize);
         BufferedImage returnValue = null;
 
         ImageInputStream iis = ImageIO.createImageInputStream(imageFile);
@@ -42,7 +42,6 @@ public class ImageTools {
             }
 
             param.setSourceSubsampling(factor, factor, 0, 0);
-
             Rectangle sourceRegion = new Rectangle();
             boolean orientationLandscape = imageWidth > imageHeight;
 
@@ -58,7 +57,7 @@ public class ImageTools {
 
             param.setSourceRegion(sourceRegion);
 
-            returnValue = reader.read(0, param);
+            returnValue = ImageTools.calculateScaledImage(reader.read(0, param), tileSize, tileSize, true);
 
              if (returnValue.getType() != BufferedImage.TYPE_INT_RGB)
            {
@@ -75,6 +74,7 @@ public class ImageTools {
 
             LOGGER.warn("no compatible reader for {}", imageFile);
         }
+
         return returnValue;
     }
 
