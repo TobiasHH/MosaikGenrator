@@ -7,13 +7,8 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
 import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -136,18 +131,17 @@ public class Controller {
         model.tilesPathProperty().bind(propertiesManager.tilesPathProperty());
         model.srcImagePathProperty().bind(imagePath);
 
+        scrollPane.viewportBoundsProperty().addListener((observable, oldValue, newValue) -> manageVisibility());
+        scrollPane.getContent().boundsInParentProperty().addListener((observable, oldValue, newValue) -> manageVisibility());
         scrollPane.vvalueProperty().addListener((observable, oldValue, newValue) -> manageVisibility());
         scrollPane.hvalueProperty().addListener((observable, oldValue, newValue) -> manageVisibility());
-        scrollPane.widthProperty().addListener((observable, oldValue, newValue) -> manageVisibility());
-        scrollPane.heightProperty().addListener((observable, oldValue, newValue) -> manageVisibility());
     }
 
-    // todo Wird noch interessant beim laden von bilder nach opacity und co () nur visible updaten
     private void manageVisibility() {
         double hmin = scrollPane.getHmin();
         double hmax = scrollPane.getHmax();
         double hvalue = scrollPane.getHvalue();
-        double contentWidth = canvasPane.getLayoutBounds().getWidth();
+        double contentWidth = scrollPane.getContent().getLayoutBounds().getWidth();
         double viewportWidth = scrollPane.getViewportBounds().getWidth();
 
         double hoffset = Math.max(0, contentWidth - viewportWidth) * (hvalue - hmin) / (hmax - hmin);
@@ -155,15 +149,44 @@ public class Controller {
         double vmin = scrollPane.getVmin();
         double vmax = scrollPane.getVmax();
         double vvalue = scrollPane.getVvalue();
-        double contentHeight = canvasPane.getLayoutBounds().getHeight();
+        double contentHeight = scrollPane.getContent().getLayoutBounds().getHeight();
         double viewportHeight = scrollPane.getViewportBounds().getHeight();
 
         double voffset = Math.max(0, contentHeight - viewportHeight) * (vvalue - vmin) / (vmax - vmin);
 
-    //    tiles.stream().filter(tileView -> !tileView.intersects(new BoundingBox(hoffset, voffset, viewportWidth, viewportHeight))).forEach(tileView -> tileView.setVisible(false));
-    //    tiles.stream().filter(tileView -> tileView.intersects(new BoundingBox(hoffset, voffset, viewportWidth, viewportHeight))).forEach(tileView -> tileView.setVisible(true));
+        int x = (int) (hoffset / getActualTileSize());
+        int y = (int) (voffset / getActualTileSize());
+        int tilesOnScreenW = (int) (viewportWidth / getActualTileSize()) + 1;
+        int tilesOnScreenH = (int) (viewportHeight / getActualTileSize()) + 1;
 
-        LOGGER.info("visible = " + tiles.stream().filter(Node::isVisible).count());
+        // TODO mechanismus, der die größe entsprechend lazyLoad anpasst, zum beispiel durch future
+        long visibleTiles = tiles.stream().filter(tile -> tile.getTilePositionX() >= x && tile.getTilePositionX() <= x + tilesOnScreenW && tile.getTilePositionY() >= y && tile.getTilePositionY() <= y + tilesOnScreenH).count();
+        LOGGER.info("visibleTiles = " + visibleTiles);
+        tiles.forEach(tile -> {
+            if (tile.getImage() != null) {
+                if (tile.getTilePositionX() >= x - 0.5 * tilesOnScreenW && tile.getTilePositionX() <= x + 1.5 * tilesOnScreenW && tile.getTilePositionY() >= y - 0.5 * tilesOnScreenH && tile.getTilePositionY() <= y + 1.5 * tilesOnScreenH) {
+
+                    int nextPowerOfTwoImage = getNextPowerOfTwo(tile.getImage().getWidth());
+                    int nextPowerOfTwoImageView = getNextPowerOfTwo(tile.getFitWidth());
+
+                    if (nextPowerOfTwoImage != nextPowerOfTwoImageView) {
+                        tile.setTile(model.getTile(tile.getTilePositionX(), tile.getTilePositionY(), isDisplayOriginalImage(), nextPowerOfTwoImageView));
+                    }
+                } else {
+                    if (tile.getImage().getWidth() != 32) {
+                        tile.setTile(model.getTile(tile.getTilePositionX(), tile.getTilePositionY(), isDisplayOriginalImage(), 32));
+                    }
+                }
+            }
+        });
+    }
+
+    private int getNextPowerOfTwo(double tileSize) {
+        int pow = 1;
+        while ((int) Math.pow(2, pow) < tileSize) {
+            pow++;
+        }
+        return (int) Math.pow(2, pow);
     }
 
     private void scaleTiles() {
@@ -181,9 +204,9 @@ public class Controller {
         tiles.forEach(tileView -> {
             int x = tileView.getTilePositionX();
             int y = tileView.getTilePositionY();
-
-            tileView.setTile(model.getTile(x, y, isDisplayOriginalImage()));
+            tileView.setTile(model.getTile(x, y, isDisplayOriginalImage(), 32));
         });
+        manageVisibility();
     }
 
     private void initTileViews() {
@@ -231,7 +254,7 @@ public class Controller {
 
     private EventHandler<MouseEvent> setStartTileWithSecondaryButtonDown() {
         return mouseEvent -> {
-            if(mouseEvent.isStillSincePress()) {
+            if (mouseEvent.isStillSincePress()) {
                 int x = getTilePosition(mouseEvent.getX());
                 int y = getTilePosition(mouseEvent.getY());
 
@@ -391,8 +414,7 @@ public class Controller {
         LOGGER.info("processOpen");
         FileChooser fileChooser = new FileChooser();
 
-        if (getImagePath() != null && !getImagePath().endsWith("test.png"))
-        {
+        if (getImagePath() != null && !getImagePath().endsWith("test.png")) {
             LOGGER.info("imagePath");
             fileChooser.setInitialDirectory(getImagePath().getParent().toFile());
         } else {
