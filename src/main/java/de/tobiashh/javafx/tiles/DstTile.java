@@ -1,6 +1,5 @@
 package de.tobiashh.javafx.tiles;
 
-import de.tobiashh.javafx.DstTileLoadTask;
 import de.tobiashh.javafx.compareable.SimpleSquareComparableImage;
 import de.tobiashh.javafx.tools.ImageTools;
 import org.slf4j.Logger;
@@ -18,16 +17,14 @@ public class DstTile extends SimpleSquareComparableImage {
     private SoftReference<BufferedImage> srcImage;
 
     public DstTile(BufferedImage image, Path file, int tileSize, int compareSize) {
-        LOGGER.debug("DstTile {} with compareSize {}", file, tileSize, compareSize);
+        LOGGER.debug("DstTile {} with tileSize {} and compareSize {}", file, tileSize, compareSize);
         setDataImage(image, compareSize);
-        this.srcImage = new SoftReference<>(image);
+        this.srcImage = new SoftReference<>(null);
         this.file = file;
         this.tileSize = tileSize;
     }
 
     public BufferedImage getImage() {
-        LOGGER.debug("getImage");
-        // TODO Softreference can be null
         BufferedImage retval = srcImage.get();
         if (retval == null) {
             try {
@@ -37,7 +34,6 @@ public class DstTile extends SimpleSquareComparableImage {
                 e.printStackTrace();
             }
         }
-
         return srcImage.get();
     }
 
