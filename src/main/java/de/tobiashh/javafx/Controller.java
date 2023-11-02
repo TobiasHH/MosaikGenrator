@@ -32,6 +32,7 @@ public class Controller {
     private static final double SCALE_DEFAULT = 1.0;
     private static final double SCALE_MIN = 0.1;
     private static final double SCALE_MAX = 2.0;
+    private static final int HIDDEN_TILE_SIZE = 16;
     private final MosaicImageModel model;
     private final DoubleProperty scale = new SimpleDoubleProperty(SCALE_DEFAULT);
     private final BooleanProperty displayOriginalImage = new SimpleBooleanProperty();
@@ -160,25 +161,35 @@ public class Controller {
         int tilesOnScreenH = (int) (viewportHeight / getActualTileSize()) + 1;
 
         // TODO mechanismus, der die größe entsprechend lazyLoad anpasst, zum beispiel durch future
-        long visibleTiles = tiles.stream().filter(tile -> tile.getTilePositionX() >= x && tile.getTilePositionX() <= x + tilesOnScreenW && tile.getTilePositionY() >= y && tile.getTilePositionY() <= y + tilesOnScreenH).count();
-        LOGGER.info("visibleTiles = " + visibleTiles);
+
         tiles.forEach(tile -> {
             if (tile.getImage() != null) {
-                if (tile.getTilePositionX() >= x - 0.5 * tilesOnScreenW && tile.getTilePositionX() <= x + 1.5 * tilesOnScreenW && tile.getTilePositionY() >= y - 0.5 * tilesOnScreenH && tile.getTilePositionY() <= y + 1.5 * tilesOnScreenH) {
+                if (isVisibleTile(x, y, tilesOnScreenW, tilesOnScreenH, tile)) {
 
                     int nextPowerOfTwoImage = getNextPowerOfTwo(tile.getImage().getWidth());
                     int nextPowerOfTwoImageView = getNextPowerOfTwo(tile.getFitWidth());
 
                     if (nextPowerOfTwoImage != nextPowerOfTwoImageView) {
+                        LOGGER.debug("get new visible image for " + tile.getTilePositionX() + ", " + tile.getTilePositionY());
                         tile.setTile(model.getTile(tile.getTilePositionX(), tile.getTilePositionY(), isDisplayOriginalImage(), nextPowerOfTwoImageView));
                     }
                 } else {
-                    if (tile.getImage().getWidth() != 32) {
-                        tile.setTile(model.getTile(tile.getTilePositionX(), tile.getTilePositionY(), isDisplayOriginalImage(), 32));
+                    if (tile.getImage().getWidth() != HIDDEN_TILE_SIZE) {
+                        LOGGER.debug("get new hidden image for " + tile.getTilePositionX() + ", " + tile.getTilePositionY());
+                        tile.setTile(model.getTile(tile.getTilePositionX(), tile.getTilePositionY(), isDisplayOriginalImage(), HIDDEN_TILE_SIZE));
                     }
                 }
             }
         });
+
+        LOGGER.debug("visibleTiles = " + tiles.stream().filter(tile -> isVisibleTile(x, y, tilesOnScreenW, tilesOnScreenH, tile)).count());
+        LOGGER.debug("tilesWithHiddenWidth = " + tiles.stream().filter(tile -> tile.getImage() != null && tile.getImage().getWidth() == HIDDEN_TILE_SIZE).count());
+        tiles.stream().map(tile -> tile.getImage() != null ? tile.getImage().getWidth(): 0).sorted().distinct().forEach(size -> LOGGER.debug(size + ": " + tiles.stream().filter(tile -> size == (tile.getImage() != null ? tile.getImage().getWidth(): 0)).count()));
+
+    }
+
+    private boolean isVisibleTile(int x, int y, int tilesOnScreenW, int tilesOnScreenH, TileView tile) {
+        return tile.getImage() != null && tile.getTilePositionX() >= x && tile.getTilePositionX() <= x + tilesOnScreenW && tile.getTilePositionY() >= y && tile.getTilePositionY() <= y + tilesOnScreenH;
     }
 
     private int getNextPowerOfTwo(double tileSize) {
@@ -204,7 +215,7 @@ public class Controller {
         tiles.forEach(tileView -> {
             int x = tileView.getTilePositionX();
             int y = tileView.getTilePositionY();
-            tileView.setTile(model.getTile(x, y, isDisplayOriginalImage(), 32));
+            tileView.setTile(model.getTile(x, y, isDisplayOriginalImage(), HIDDEN_TILE_SIZE));
         });
         manageVisibility();
     }

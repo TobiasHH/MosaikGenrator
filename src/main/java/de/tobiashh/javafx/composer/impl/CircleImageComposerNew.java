@@ -18,7 +18,7 @@ public class CircleImageComposerNew extends ImageComposer {
 
     @Override
     public List<Integer> generate(int tilesPerRow, int tilesPerColumn, int maxReuses, int reuseDistance, List<Integer> areaOfInterest, List<List<Integer>> destinationTileIDs) {
-        LOGGER.info("generateLinearImage");
+        LOGGER.info("generateCircleImage");
 
         int startIndex = new IndexConverter(tilesPerRow).convert2DToLinear(new Index2D(tilesPerRow / 2, tilesPerColumn / 2));
         TilesCircularDistance tilesCircularDistance = new TilesCircularDistance(tilesPerRow);

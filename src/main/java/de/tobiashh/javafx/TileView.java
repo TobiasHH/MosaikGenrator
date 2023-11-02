@@ -42,14 +42,13 @@ public class TileView extends ImageView {
 
     public void setTile(BufferedImage image) {
         if (image != null) {
+            setVisible(false);
             setImage(SwingFXUtils.toFXImage(image, null));
-        } else {
-            Platform.runLater(() -> setImage(null));
+            setVisible(true);
         }
     }
 
-    public void initPropertyListener()
-    {
+    public void initPropertyListener() {
         tileSizeProperty.addListener((observable, oldValue, newValue) -> {
             setX(newValue.intValue() * tilePositionX);
             setY(newValue.intValue() * tilePositionY);

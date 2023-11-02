@@ -43,7 +43,7 @@ public class TileComposer {
             }
 
 
-            if (postColorAlignment < 100)
+            if (opacity < 100)
             {
                 returnValue = ImageTools.opacityAdaption(returnValue, originalImage, opacity);
             }

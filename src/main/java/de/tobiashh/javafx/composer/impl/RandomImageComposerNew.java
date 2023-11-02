@@ -13,7 +13,7 @@ public class RandomImageComposerNew extends ImageComposer {
 
     @Override
     public List<Integer> generate(int tilesPerRow, int tilesPerColumn, int maxReuses, int reuseDistance, List<Integer> areaOfInterest, List<List<Integer>> destinationTileIDs) {
-        LOGGER.info("generateLinearImage");
+        LOGGER.info("generateRandomImage");
 
         List<Integer> tileIndices = randomize(IntStream.range(0, tilesPerColumn * tilesPerRow).boxed().collect(Collectors.toList()));
         List<Integer> indices = randomize(new ArrayList<>(areaOfInterest));

@@ -11,16 +11,17 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ImageTools {
     private final static Logger LOGGER = LoggerFactory.getLogger(ImageTools.class.getName());
 
-    public static BufferedImage loadTileImage(File imageFile, int tileSize)
+    public static BufferedImage loadTileImage(File imageFile, int tileSize, boolean highQuality)
             throws IOException {
         LOGGER.info("loadTileImage {} with tileSize {}", imageFile, tileSize);
-        BufferedImage returnValue = null;
+        BufferedImage returnValue;
 
         ImageInputStream iis = ImageIO.createImageInputStream(imageFile);
         Iterator<ImageReader> iterator = ImageIO.getImageReaders(iis);
@@ -57,10 +58,9 @@ public class ImageTools {
 
             param.setSourceRegion(sourceRegion);
 
-            returnValue = ImageTools.calculateScaledImage(reader.read(0, param), tileSize, tileSize, true);
+            returnValue = ImageTools.calculateScaledImage(reader.read(0, param), tileSize, tileSize, highQuality);
 
-             if (returnValue.getType() != BufferedImage.TYPE_INT_RGB)
-           {
+            if (returnValue.getType() != BufferedImage.TYPE_INT_RGB) {
                 BufferedImage noAlphaImage = new BufferedImage(returnValue.getWidth(), returnValue.getHeight(), BufferedImage.TYPE_INT_RGB);
                 Graphics2D g2d = (Graphics2D) noAlphaImage.getGraphics();
                 g2d.addRenderingHints(getHighQualityRenderingHints());
@@ -73,6 +73,7 @@ public class ImageTools {
 //            no compatible reader for: C:\Users\luech\Dropbox\Docs and Images\Interessante Bilder Dropbox\XXX\2D\playful-promises-corsets-waspies-playful-promises-anneliese-black-lace-curve-waspie-15779894624304_1024x1024_3eceabba-5bd7-4b83-beb8-3aea0672fcd0.jpg
 
             LOGGER.warn("no compatible reader for {}", imageFile);
+            return null;
         }
 
         return returnValue;
@@ -148,7 +149,9 @@ public class ImageTools {
         return returnValue;
     }
 
-    private static int clamp(int value, int min, int max) { return Math.max(min, Math.min(max, value)); }
+    private static int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
+    }
 
     public static BufferedImage opacityAdaption(BufferedImage mosaic,
                                                 BufferedImage original, int percent) {
@@ -224,7 +227,9 @@ public class ImageTools {
         return new RenderingHints(map);
     }
 
-    public static int red(int rgb) { return (rgb >> 16) & 0x000000FF; }
+    public static int red(int rgb) {
+        return (rgb >> 16) & 0x000000FF;
+    }
 
     public static int green(int rgb) {
         return (rgb >> 8) & 0x000000FF;

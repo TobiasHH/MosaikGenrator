@@ -19,16 +19,15 @@ public class DstTile extends SimpleSquareComparableImage {
     public DstTile(BufferedImage image, Path file, int tileSize, int compareSize) {
         LOGGER.debug("DstTile {} with tileSize {} and compareSize {}", file, tileSize, compareSize);
         setDataImage(image, compareSize);
-        this.srcImage = new SoftReference<>(null);
         this.file = file;
         this.tileSize = tileSize;
     }
 
     public BufferedImage getImage() {
-        BufferedImage retval = srcImage.get();
+        BufferedImage retval = srcImage != null ? srcImage.get() : null;
         if (retval == null) {
             try {
-                BufferedImage image = ImageTools.loadTileImage(file.toFile(), tileSize);
+                BufferedImage image = ImageTools.loadTileImage(file.toFile(), tileSize, true);
                 srcImage = new SoftReference<>(image);
             } catch (IOException e) {
                 e.printStackTrace();

@@ -12,9 +12,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URL;
 
-// TODO fehler wenn tile size 512
-// TODO pre color allignment
-// TODO performa3nce bei vielen Bildern
+// TODO heapSize fehler wenn tile size 512 und viele Bilder
+// TODO cache mini image files on load
 
 /**
  * JavaFX App
@@ -25,7 +24,7 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         LOGGER.info("start");
-        Scene scene = new Scene(loadFXML(), 640, 480);
+        Scene scene = new Scene(loadFXML(), 1280, 960);
         stage.setScene(scene);
    //     stage.setMaximized(true);
         stage.show();

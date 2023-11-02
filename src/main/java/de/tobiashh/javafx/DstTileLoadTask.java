@@ -28,9 +28,9 @@ public class DstTileLoadTask implements Callable<Optional<DstTile>> {
 		LOGGER.debug("Load Tile: " + dstTilesPath.getFileName());
 		DstTile tile = null;
 		try {
-			BufferedImage image = ImageTools.loadTileImage(dstTilesPath.toFile(), tileSize);
+			BufferedImage image = ImageTools.loadTileImage(dstTilesPath.toFile(), compareSize, false);
 			if (image != null) {
-				tile = new DstTile(ImageTools.calculateScaledImage(image, tileSize, tileSize, false), dstTilesPath, tileSize, compareSize);
+				tile = new DstTile(ImageTools.calculateScaledImage(image, compareSize, compareSize, false), dstTilesPath, tileSize, compareSize);
 			}
 		}catch (Exception e)
 		{

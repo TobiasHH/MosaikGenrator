@@ -267,6 +267,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
         checkIntegrity(dstTilesList, scoredDstTileLists);
 
+        LOGGER.info("generate image start");
         destinationTileIndexes = ImageComposerFactory
                 .getComposer(mode.get())
                 .generate(tilesPerRow.get()
@@ -275,6 +276,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
                         , reuseDistance.get()
                         , areaOfInterest
                         , scoredDstTileLists);
+        LOGGER.info("generate image finished");
 
         image.setOpacity(opacity.get());
         image.setPostColorAlignment(postColorAlignment.get());
