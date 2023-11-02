@@ -132,10 +132,10 @@ public class Controller {
         model.tilesPathProperty().bind(propertiesManager.tilesPathProperty());
         model.srcImagePathProperty().bind(imagePath);
 
-        scrollPane.viewportBoundsProperty().addListener((observable, oldValue, newValue) -> manageVisibility());
-        scrollPane.getContent().boundsInParentProperty().addListener((observable, oldValue, newValue) -> manageVisibility());
-        scrollPane.vvalueProperty().addListener((observable, oldValue, newValue) -> manageVisibility());
-        scrollPane.hvalueProperty().addListener((observable, oldValue, newValue) -> manageVisibility());
+//        scrollPane.viewportBoundsProperty().addListener((observable, oldValue, newValue) -> manageVisibility());
+//        scrollPane.getContent().boundsInParentProperty().addListener((observable, oldValue, newValue) -> manageVisibility());
+//        scrollPane.vvalueProperty().addListener((observable, oldValue, newValue) -> manageVisibility());
+//        scrollPane.hvalueProperty().addListener((observable, oldValue, newValue) -> manageVisibility());
     }
 
     private void manageVisibility() {
@@ -171,12 +171,12 @@ public class Controller {
 
                     if (nextPowerOfTwoImage != nextPowerOfTwoImageView) {
                         LOGGER.debug("get new visible image for " + tile.getTilePositionX() + ", " + tile.getTilePositionY());
-                        tile.setTile(model.getTile(tile.getTilePositionX(), tile.getTilePositionY(), isDisplayOriginalImage(), nextPowerOfTwoImageView));
+               //         tile.setTile(model.getTile(tile.getTilePositionX(), tile.getTilePositionY(), isDisplayOriginalImage(), nextPowerOfTwoImageView));
                     }
                 } else {
                     if (tile.getImage().getWidth() != HIDDEN_TILE_SIZE) {
                         LOGGER.debug("get new hidden image for " + tile.getTilePositionX() + ", " + tile.getTilePositionY());
-                        tile.setTile(model.getTile(tile.getTilePositionX(), tile.getTilePositionY(), isDisplayOriginalImage(), HIDDEN_TILE_SIZE));
+                //        tile.setTile(model.getTile(tile.getTilePositionX(), tile.getTilePositionY(), isDisplayOriginalImage(), HIDDEN_TILE_SIZE));
                     }
                 }
             }
@@ -215,9 +215,10 @@ public class Controller {
         tiles.forEach(tileView -> {
             int x = tileView.getTilePositionX();
             int y = tileView.getTilePositionY();
-            tileView.setTile(model.getTile(x, y, isDisplayOriginalImage(), HIDDEN_TILE_SIZE));
+            tileView.setTile(model.getTile(x, y, isDisplayOriginalImage()));
+      //      tileView.setTile(model.getTile(x, y, isDisplayOriginalImage(), HIDDEN_TILE_SIZE));
         });
-        manageVisibility();
+        // manageVisibility();
     }
 
     private void initTileViews() {

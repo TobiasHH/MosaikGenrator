@@ -210,11 +210,11 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     }
 
     @Override
-    public BufferedImage getTile(int x, int y, boolean originalImage, int size) {
+    public BufferedImage getTile(int x, int y, boolean originalImage) {
         LOGGER.debug("getTile " + x + ", " + y);
         OriginalTile originalTile = image.getTile(getIndex(x, y));
         boolean noDestinationTile = dstTilesList.isEmpty() || destinationTileIndexes.get(getIndex(x, y)) == -1;
-        return printDebugInformations(ImageTools.calculateScaledImage((noDestinationTile || originalImage) ? originalTile.getSrcImage() : originalTile.getComposedImage(), size, size, true) , x, y);
+        return printDebugInformations((noDestinationTile || originalImage) ? originalTile.getSrcImage() : originalTile.getComposedImage() , x, y);
     }
 
     private BufferedImage printDebugInformations(BufferedImage srcImage, int x, int y) {
@@ -277,6 +277,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
                         , areaOfInterest
                         , scoredDstTileLists);
         LOGGER.info("generate image finished");
+        LOGGER.info("generate image finisgetThed");
 
         image.setOpacity(opacity.get());
         image.setPostColorAlignment(postColorAlignment.get());
