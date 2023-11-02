@@ -13,13 +13,15 @@ import java.nio.file.Path;
 public class DstTile extends SimpleSquareComparableImage {
     private final static Logger LOGGER = LoggerFactory.getLogger(DstTile.class.getName());
     private final Path file;
+    private final Path cachePath;
     private final int tileSize;
     private SoftReference<BufferedImage> srcImage;
 
-    public DstTile(BufferedImage image, Path file, int tileSize, int compareSize) {
+    public DstTile(BufferedImage image, Path file, Path cachePath, int tileSize, int compareSize) {
         LOGGER.debug("DstTile {} with tileSize {} and compareSize {}", file, tileSize, compareSize);
         setDataImage(image, compareSize);
         this.file = file;
+        this.cachePath = cachePath;
         this.tileSize = tileSize;
     }
 
@@ -27,7 +29,7 @@ public class DstTile extends SimpleSquareComparableImage {
         BufferedImage retval = srcImage != null ? srcImage.get() : null;
         if (retval == null) {
             try {
-                BufferedImage image = ImageTools.loadTileImage(file.toFile(), tileSize, true);
+                BufferedImage image = ImageTools.loadTileImage(file, cachePath, tileSize, true);
                 srcImage = new SoftReference<>(image);
             } catch (IOException e) {
                 e.printStackTrace();

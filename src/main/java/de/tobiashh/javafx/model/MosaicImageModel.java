@@ -33,6 +33,8 @@ public interface MosaicImageModel {
 
     ObjectProperty<Path> tilesPathProperty();
 
+    ObjectProperty<Path> cachePathProperty();
+
     ObjectProperty<Path> srcImagePathProperty();
 
     IntegerProperty tileSizeProperty();

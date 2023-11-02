@@ -30,14 +30,16 @@ public class DstTilesLoaderTask extends Task<List<DstTile>> {
         return t;
     });
 
-    private final Path newPath;
+    private final Path tilesPath;
+    private final Path cachePath;
     private final boolean scanSubFolder;
     private final int tileSize;
     private final int compareSize;
 
-    public DstTilesLoaderTask(Path newPath, boolean scanSubFolder, int tileSize, int compareSize) {
+    public DstTilesLoaderTask(Path tilesPath, Path cachePath, boolean scanSubFolder, int tileSize, int compareSize) {
         LOGGER.info("DstTilesLoaderTask");
-        this.newPath = newPath;
+        this.tilesPath = tilesPath;
+        this.cachePath = cachePath;
         this.scanSubFolder = scanSubFolder;
         this.tileSize = tileSize;
         this.compareSize = compareSize;
@@ -45,14 +47,14 @@ public class DstTilesLoaderTask extends Task<List<DstTile>> {
 
     @Override
     protected List<DstTile> call() {
-        LOGGER.info("loading Tiles from {}", newPath);
+        LOGGER.info("loading Tiles from {}", tilesPath);
 
         List<DstTile> tiles = new ArrayList<>();
 
         try {
-            List<Future<Optional<DstTile>>> futures = ((scanSubFolder) ? Files.walk(newPath) : Files.list(newPath))
+            List<Future<Optional<DstTile>>> futures = ((scanSubFolder) ? Files.walk(tilesPath) : Files.list(tilesPath))
                     .filter(this::extensionFilter)
-                    .map(file -> executor.submit(new DstTileLoadTask(file, tileSize, compareSize)))
+                    .map(file -> executor.submit(new DstTileLoadTask(file, cachePath, tileSize, compareSize)))
                     .collect(Collectors.toList());
 
             for (Future<Optional<DstTile>> future : futures) {

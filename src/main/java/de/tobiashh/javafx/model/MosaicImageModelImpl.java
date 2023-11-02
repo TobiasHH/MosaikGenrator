@@ -41,6 +41,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     private final ObjectProperty<Path> srcImagePath = new SimpleObjectProperty<>();
     private final IntegerProperty tilesPerRow = new SimpleIntegerProperty();
     private final ObjectProperty<Path> tilesPath = new SimpleObjectProperty<>();
+    private final ObjectProperty<Path> cachePath = new SimpleObjectProperty<>();
     private final IntegerProperty tileSize = new SimpleIntegerProperty();
     private final IntegerProperty opacity = new SimpleIntegerProperty();
     private final IntegerProperty postColorAlignment = new SimpleIntegerProperty();
@@ -68,8 +69,9 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         dstTilesLoadProgressProperty().addListener((observable, oldValue, newValue) -> dstTilesCount.set(newValue.intValue()));
         dstTilesList.addListener((ListChangeListener<DstTile>) change -> dstTilesCount.set(change.getList().size()));
 
-        tilesPathProperty().addListener((observable, oldValue, newValue) -> loadDstTiles(newValue));
-        scanSubFolderProperty().addListener(((observable, oldValue, newValue) -> loadDstTiles(tilesPath.get())));
+        tilesPathProperty().addListener((observable, oldValue, newValue) -> loadDstTiles(newValue, cachePath.get()));
+        cachePathProperty().addListener((observable, oldValue, newValue) -> loadDstTiles(tilesPath.get(), newValue));
+        scanSubFolderProperty().addListener(((observable, oldValue, newValue) -> loadDstTiles(tilesPath.get(), cachePath.get())));
 
         srcImagePathProperty().addListener((observable, oldValue, newValue) -> loadImage(newValue));
 
@@ -97,19 +99,19 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         imageCalculated.set(true);
     }
 
-    private void loadDstTiles(Path path) {
-        if (path == null) return;
+    private void loadDstTiles(Path tilesPath, Path cachePath) {
+         if (tilesPath == null || cachePath == null) return;
 
         int tileSize = this.tileSize.get();
         int compareSize = this.compareSize.get();
 
         if (tileSize <= 0 || compareSize <= 0) return;
-        LOGGER.info("loadDstTiles {}", path);
+        LOGGER.info("loadDstTiles {}", tilesPath);
 
         if (task != null) task.cancel(true);
         boolean scanSubFolder = this.scanSubFolder.get();
 
-        task = new DstTilesLoaderTask(path, scanSubFolder, tileSize, compareSize);
+        task = new DstTilesLoaderTask(tilesPath, cachePath, scanSubFolder, tileSize, compareSize);
         task.progressProperty().addListener((observable, oldValue, newValue) -> dstTilesLoadProgress.set((int) (newValue.doubleValue() * 100)));
         task.setOnSucceeded(event -> {
             LOGGER.info("{} images loaded", task.getValue().size());
@@ -277,7 +279,6 @@ public class MosaicImageModelImpl implements MosaicImageModel {
                         , areaOfInterest
                         , scoredDstTileLists);
         LOGGER.info("generate image finished");
-        LOGGER.info("generate image finisgetThed");
 
         image.setOpacity(opacity.get());
         image.setPostColorAlignment(postColorAlignment.get());
@@ -325,6 +326,11 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     @Override
     public ObjectProperty<Path> tilesPathProperty() {
         return tilesPath;
+    }
+
+    @Override
+    public ObjectProperty<Path> cachePathProperty() {
+        return cachePath;
     }
 
     @Override

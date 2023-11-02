@@ -6,8 +6,11 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -18,12 +21,18 @@ import org.slf4j.LoggerFactory;
 public class ImageTools {
     private final static Logger LOGGER = LoggerFactory.getLogger(ImageTools.class.getName());
 
-    public static BufferedImage loadTileImage(File imageFile, int tileSize, boolean highQuality)
+    public static BufferedImage loadTileImage(Path imageFile, Path cachePath, int tileSize, boolean highQuality)
             throws IOException {
+        Path cacheFile = getCacheFile(imageFile, cachePath, tileSize);
+        if(Files.exists(cacheFile) && Files.isRegularFile(cacheFile)) {
+            LOGGER.info("loadCachedTileImage {} with tileSize {}", imageFile, tileSize);
+            return ImageIO.read(cacheFile.toFile());
+        }
+
         LOGGER.info("loadTileImage {} with tileSize {}", imageFile, tileSize);
         BufferedImage returnValue;
 
-        ImageInputStream iis = ImageIO.createImageInputStream(imageFile);
+        ImageInputStream iis = ImageIO.createImageInputStream(imageFile.toFile());
         Iterator<ImageReader> iterator = ImageIO.getImageReaders(iis);
 
         if (iterator.hasNext()) {
@@ -76,7 +85,21 @@ public class ImageTools {
             return null;
         }
 
+        ImageIO.write(returnValue, "png", cacheFile.toFile());
+
         return returnValue;
+    }
+
+    private static Path getCacheFile(Path imageFile, Path cachePath, int tileSize) {
+        return cachePath.resolve(imageFile
+                .getFileName()
+                .toString()
+                .substring(0, imageFile.getFileName().toString().lastIndexOf('.'))
+                .concat("_" + Math.abs(imageFile.getParent().hashCode()))
+                .concat("_" + tileSize)
+                .concat("_date" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")))
+                .concat(".png")
+        );
     }
 
     public static BufferedImage colorAlignment(BufferedImage mosaic,
@@ -138,9 +161,9 @@ public class ImageTools {
             for (int x = 0; x < width; x++) {
                 rgb1 = mosaic.getRGB(x, y);
 
-                red = clamp(red(rgb1) - redCorrektion, 0, 255);
-                green = clamp(green(rgb1) - greenCorrektion, 0, 255);
-                blue = clamp(blue(rgb1) - blueCorrektion, 0, 255);
+                red = clampColor(red(rgb1) - redCorrektion);
+                green = clampColor(green(rgb1) - greenCorrektion);
+                blue = clampColor(blue(rgb1) - blueCorrektion);
 
                 returnValue.setRGB(x, y, new Color(red, green, blue).getRGB());
             }
@@ -149,8 +172,8 @@ public class ImageTools {
         return returnValue;
     }
 
-    private static int clamp(int value, int min, int max) {
-        return Math.max(min, Math.min(max, value));
+    private static int clampColor(int value) {
+        return Math.max(0, Math.min(255, value));
     }
 
     public static BufferedImage opacityAdaption(BufferedImage mosaic,

@@ -130,6 +130,7 @@ public class Controller {
         model.drawDebugInfoProperty().bind(propertiesManager.drawDebugInfoProperty());
 
         model.tilesPathProperty().bind(propertiesManager.tilesPathProperty());
+        model.cachePathProperty().bind(propertiesManager.cachePathProperty());
         model.srcImagePathProperty().bind(imagePath);
 
 //        scrollPane.viewportBoundsProperty().addListener((observable, oldValue, newValue) -> manageVisibility());
