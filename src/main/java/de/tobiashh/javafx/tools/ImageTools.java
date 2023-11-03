@@ -24,7 +24,7 @@ public class ImageTools {
     public static BufferedImage loadTileImage(Path imageFile, Path cachePath, int tileSize, boolean highQuality)
             throws IOException {
         Path cacheFile = getCacheFile(imageFile, cachePath, tileSize);
-        if(Files.exists(cacheFile) && Files.isRegularFile(cacheFile)) {
+        if (Files.exists(cacheFile) && Files.isRegularFile(cacheFile)) {
             LOGGER.debug("loadCachedTileImage {} with tileSize {}", imageFile, tileSize);
             return ImageIO.read(cacheFile.toFile());
         }
@@ -105,72 +105,65 @@ public class ImageTools {
 
     public static BufferedImage colorAlignment(BufferedImage mosaic,
                                                BufferedImage original, int percent) {
-        LOGGER.debug("colorAlignment {}%", percent);
+        LOGGER.info("colorAlignment {}%", percent);
         if (percent == 0)
             return mosaic;
         if (mosaic.getWidth() != original.getWidth()
                 || mosaic.getHeight() != original.getHeight())
             return mosaic;
 
-        int width = mosaic.getWidth();
-        int height = mosaic.getHeight();
+        int mosaicMeanColor = getMeanColor(mosaic);
+        int originalMeanColor = getMeanColor(original);
+
+        return getAdjustedImage(
+                (red(mosaicMeanColor) - red(originalMeanColor)) * percent / 100,
+                (green(mosaicMeanColor) - green(originalMeanColor)) * percent / 100,
+                (blue(mosaicMeanColor) - blue(originalMeanColor)) * percent / 100,
+                mosaic
+        );
+    }
+
+    private static BufferedImage getAdjustedImage(int redCorrection, int greenCorrection, int blueCorrection, BufferedImage image) {
+        int rgb;
+        int width = image.getWidth();
+        int height = image.getHeight();
 
         BufferedImage returnValue = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                rgb = image.getRGB(x, y);
 
-        long sr1 = 0;
-        long sg1 = 0;
-        long sb1 = 0;
-        long sr2 = 0;
-        long sg2 = 0;
-        long sb2 = 0;
+                returnValue.setRGB(x, y, new Color(
+                        clampColor(red(rgb) - redCorrection),
+                        clampColor(green(rgb) - greenCorrection),
+                        clampColor(blue(rgb) - blueCorrection)
+                ).getRGB());
+            }
+        }
+        return returnValue;
+    }
 
-        int rgb1;
-        int rgb2;
+    private static int getMeanColor(BufferedImage image) {
+        long redSum = 0;
+        long greenSum = 0;
+        long blueSum = 0;
+
+        int height = image.getHeight();
+        int width = image.getWidth();
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                rgb1 = mosaic.getRGB(x, y);
-                rgb2 = original.getRGB(x, y);
+                int rgb = image.getRGB(x, y);
 
-                sr1 += red(rgb1);
-                sg1 += green(rgb1);
-                sb1 += blue(rgb1);
-                sr2 += red(rgb2);
-                sg2 += green(rgb2);
-                sb2 += blue(rgb2);
+                redSum += red(rgb);
+                greenSum += green(rgb);
+                blueSum += blue(rgb);
             }
         }
 
         int size = width * height;
 
-        sr1 /= size;
-        sg1 /= size;
-        sb1 /= size;
-        sr2 /= size;
-        sg2 /= size;
-        sb2 /= size;
-
-        int red;
-        int green;
-        int blue;
-
-        int redCorrektion = (int) ((sr1 - sr2) * percent / 100);
-        int greenCorrektion = (int) ((sg1 - sg2) * percent / 100);
-        int blueCorrektion = (int) ((sb1 - sb2) * percent / 100);
-
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                rgb1 = mosaic.getRGB(x, y);
-
-                red = clampColor(red(rgb1) - redCorrektion);
-                green = clampColor(green(rgb1) - greenCorrektion);
-                blue = clampColor(blue(rgb1) - blueCorrektion);
-
-                returnValue.setRGB(x, y, new Color(red, green, blue).getRGB());
-            }
-        }
-
-        return returnValue;
+        return rgb((int) (redSum / size), (int) (greenSum / size), (int) (blueSum / size));
     }
 
     private static int clampColor(int value) {
@@ -249,6 +242,10 @@ public class ImageTools {
         map.put(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
 
         return new RenderingHints(map);
+    }
+
+    public static int rgb(int red, int green, int blue) {
+        return red << 16 | green << 8 | blue;
     }
 
     public static int red(int rgb) {
