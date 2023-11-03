@@ -177,7 +177,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             Map<Integer, Integer> scores = new HashMap<>();
 
             for (int index = 0; index < dstTilesList.size(); index++) {
-                scores.put(index, mosaicImage[mosaikImageIndex].compare(dstTilesList.get(index)));
+                scores.put(index, mosaicImage[mosaikImageIndex].compare(dstTilesList.get(index), postColorAlignment.get()));
             }
 
             scoredDstTileLists.get(mosaikImageIndex).clear();
