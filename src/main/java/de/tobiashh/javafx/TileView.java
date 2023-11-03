@@ -1,6 +1,5 @@
 package de.tobiashh.javafx;
 
-import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.ImageView;

@@ -25,11 +25,11 @@ public class ImageTools {
             throws IOException {
         Path cacheFile = getCacheFile(imageFile, cachePath, tileSize);
         if(Files.exists(cacheFile) && Files.isRegularFile(cacheFile)) {
-            LOGGER.info("loadCachedTileImage {} with tileSize {}", imageFile, tileSize);
+            LOGGER.debug("loadCachedTileImage {} with tileSize {}", imageFile, tileSize);
             return ImageIO.read(cacheFile.toFile());
         }
 
-        LOGGER.info("loadTileImage {} with tileSize {}", imageFile, tileSize);
+        LOGGER.debug("loadTileImage {} with tileSize {}", imageFile, tileSize);
         BufferedImage returnValue;
 
         ImageInputStream iis = ImageIO.createImageInputStream(imageFile.toFile());
@@ -85,6 +85,7 @@ public class ImageTools {
             return null;
         }
 
+        LOGGER.info("write cache {} for {}", cacheFile.toString(), imageFile.toString());
         ImageIO.write(returnValue, "png", cacheFile.toFile());
 
         return returnValue;

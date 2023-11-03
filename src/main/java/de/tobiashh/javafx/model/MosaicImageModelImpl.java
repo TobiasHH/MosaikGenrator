@@ -100,7 +100,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     }
 
     private void loadDstTiles(Path tilesPath, Path cachePath) {
-         if (tilesPath == null || cachePath == null) return;
+        if (tilesPath == null || cachePath == null) return;
 
         int tileSize = this.tileSize.get();
         int compareSize = this.compareSize.get();
@@ -216,7 +216,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         LOGGER.debug("getTile " + x + ", " + y);
         OriginalTile originalTile = image.getTile(getIndex(x, y));
         boolean noDestinationTile = dstTilesList.isEmpty() || destinationTileIndexes.get(getIndex(x, y)) == -1;
-        return printDebugInformations((noDestinationTile || originalImage) ? originalTile.getSrcImage() : originalTile.getComposedImage() , x, y);
+        return printDebugInformations((noDestinationTile || originalImage) ? originalTile.getSrcImage() : originalTile.getComposedImage(), x, y);
     }
 
     private BufferedImage printDebugInformations(BufferedImage srcImage, int x, int y) {
@@ -261,36 +261,39 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         if (image.getLength() == 0 || dstTilesList.size() == 0) return;
         LOGGER.info("generateMosaicImage");
 
-        imageCalculated.set(false);
-        // TODO muss das huer passieren auch wenn nur von linear zu random gewechselt wurde aber src und dswt gleich bleiben
-        compareTiles(image.getTiles(), dstTilesList);
+        Platform.runLater(() -> {
+            imageCalculated.set(false);
+            // TODO muss das huer passieren auch wenn nur von linear zu random gewechselt wurde aber src und dswt gleich bleiben
+            compareTiles(image.getTiles(), dstTilesList);
 
-        image.unsetDstImages();
+            image.unsetDstImages();
 
-        checkIntegrity(dstTilesList, scoredDstTileLists);
+            checkIntegrity(dstTilesList, scoredDstTileLists);
 
-        LOGGER.info("generate image start");
-        destinationTileIndexes = ImageComposerFactory
-                .getComposer(mode.get())
-                .generate(tilesPerRow.get()
-                        , tilesPerColumn.get()
-                        , maxReuses.get()
-                        , reuseDistance.get()
-                        , areaOfInterest
-                        , scoredDstTileLists);
-        LOGGER.info("generate image finished");
+            LOGGER.info("generate image start");
+            destinationTileIndexes = ImageComposerFactory
+                    .getComposer(mode.get())
+                    .generate(tilesPerRow.get()
+                            , tilesPerColumn.get()
+                            , maxReuses.get()
+                            , reuseDistance.get()
+                            , areaOfInterest
+                            , scoredDstTileLists);
+            LOGGER.info("generate image finished");
 
-        image.setOpacity(opacity.get());
-        image.setPostColorAlignment(postColorAlignment.get());
+            image.setOpacity(opacity.get());
+            image.setPostColorAlignment(postColorAlignment.get());
 
-        IntStream.range(0, destinationTileIndexes.size()).parallel().forEach(index -> {
-            int dstTileID = destinationTileIndexes.get(index);
-            if (dstTileID >= 0) {
-                image.getTile(index).setDstImage(dstTilesList.get(dstTileID).getImage());
-            }
+            IntStream.range(0, destinationTileIndexes.size()).parallel().forEach(index -> {
+                int dstTileID = destinationTileIndexes.get(index);
+                if (dstTileID >= 0) {
+                    image.getTile(index).setDstImage(dstTilesList.get(dstTileID).getImage());
+                }
+            });
+
+            imageCalculated.set(true);
+
         });
-
-        imageCalculated.set(true);
     }
 
     private void checkIntegrity(ObservableList<DstTile> dstTilesList, List<List<Integer>> scoredDstTileLists) {
