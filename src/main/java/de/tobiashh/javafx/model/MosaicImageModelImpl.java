@@ -34,6 +34,9 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     public static final String[] FILE_EXTENSION = {"png", "jpg", "jpeg"};
     private final static Logger LOGGER = LoggerFactory.getLogger(MosaicImageModelImpl.class.getName());
     private final ReadOnlyIntegerWrapper dstTilesCount = new ReadOnlyIntegerWrapper();
+    private final ReadOnlyIntegerWrapper usedCount = new ReadOnlyIntegerWrapper();
+    private final ReadOnlyIntegerWrapper tilesCount = new ReadOnlyIntegerWrapper();
+    private final ReadOnlyIntegerWrapper tilesMinNeeded = new ReadOnlyIntegerWrapper();
     private final ReadOnlyIntegerWrapper tilesPerColumn = new ReadOnlyIntegerWrapper();
     private final ReadOnlyIntegerWrapper dstTilesLoadProgress = new ReadOnlyIntegerWrapper();
     private final ReadOnlyStringWrapper status = new ReadOnlyStringWrapper();
@@ -57,7 +60,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
     private final MosaikImage image = new MosaikImage();
     private List<List<Integer>> scoredDstTileLists;
-    private List<Integer> destinationTileIndexes;
+    private ObservableList<Integer> destinationTileIndexes;
 
     private DstTilesLoaderTask task;
 
@@ -70,6 +73,10 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         LOGGER.info("initChangeListener");
 
         dstTilesLoadProgressProperty().addListener((observable, oldValue, newValue) -> dstTilesCount.set(newValue.intValue()));
+        imageCalculatedProperty().addListener((observable, oldValue, newValue) -> tilesCount.set(tilesPerRowProperty().get() * tilesPerColumnProperty().get()));
+        imageCalculatedProperty().addListener((observable, oldValue, newValue) -> tilesMinNeeded.set(tilesPerRowProperty().get() * tilesPerColumnProperty().get() / getDivident()));
+        dstTilesLoadProgressProperty().addListener((observable, oldValue, newValue) -> usedCount.set(0));
+
         dstTilesList.addListener((ListChangeListener<DstTile>) change -> dstTilesCount.set(change.getList().size()));
 
         tilesPathProperty().addListener((observable, oldValue, newValue) -> loadDstTiles(newValue, cachePath.get()));
@@ -88,6 +95,13 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         postColorAlignmentProperty().addListener((observable, oldValue, newValue) -> executeDelayed(newValue, this::setPostColorAlignmentInTiles));
 
         tilesPerRowProperty().addListener((observable, oldValue, newValue) -> executeDelayed(() -> loadImage(srcImagePath.get())));
+    }
+
+    private int getDivident() {
+        double maxReuses = maxReusesProperty().get() + 1;
+        double norm2 = maxReuses / tilesPerRowProperty().get();
+        double factor = 1.0 / ((1.0 - norm2) + reuseDistance.get() * norm2);
+        return Math.max((int) (maxReuses * factor), 1);
     }
 
     Task<Void> delayedTask = null;
@@ -313,14 +327,16 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             checkIntegrity(dstTilesList, scoredDstTileLists);
 
             LOGGER.info("generate image start");
-            destinationTileIndexes = ImageComposerFactory
+            destinationTileIndexes = FXCollections.observableList(new ArrayList<>());
+            destinationTileIndexes.addListener((ListChangeListener<Integer>) c -> usedCount.set(destinationTileIndexes != null ? (int) destinationTileIndexes.stream().distinct().count() : 0));
+            destinationTileIndexes.addAll(ImageComposerFactory
                     .getComposer(mode.get())
                     .generate(tilesPerRow.get()
                             , tilesPerColumn.get()
                             , maxReuses.get()
                             , reuseDistance.get()
                             , areaOfInterest
-                            , scoredDstTileLists);
+                            , scoredDstTileLists));
             LOGGER.info("generate image finished");
 
             image.setOpacity(opacity.get());
@@ -350,7 +366,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     @Override
     public String getDstTileInformation(int x, int y) {
         LOGGER.debug("getDstTileInformation {},{}", x, y);
-        if (!dstTilesList.isEmpty() && destinationTileIndexes.get(getIndex(x, y)) >= 0) {
+        if (!dstTilesList.isEmpty() && destinationTileIndexes != null && destinationTileIndexes.get(getIndex(x, y)) >= 0) {
             return dstTilesList.get(destinationTileIndexes.get(getIndex(x, y))).getFilename();
         }
         return "";
@@ -532,5 +548,20 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     @Override
     public ReadOnlyIntegerProperty dstTilesCountProperty() {
         return dstTilesCount.getReadOnlyProperty();
+    }
+
+    @Override
+    public ReadOnlyIntegerProperty usedCountProperty() {
+        return usedCount.getReadOnlyProperty();
+    }
+
+    @Override
+    public ReadOnlyIntegerProperty tilesCountProperty() {
+        return tilesCount.getReadOnlyProperty();
+    }
+
+    @Override
+    public ReadOnlyIntegerProperty tilesMinNeededProperty() {
+        return tilesMinNeeded.getReadOnlyProperty();
     }
 }

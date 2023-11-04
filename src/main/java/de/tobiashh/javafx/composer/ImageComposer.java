@@ -1,5 +1,7 @@
 package de.tobiashh.javafx.composer;
 
+import javafx.collections.ObservableList;
+
 import java.util.Arrays;
 import java.util.List;
 

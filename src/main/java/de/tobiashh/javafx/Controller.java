@@ -57,6 +57,12 @@ public class Controller {
     @FXML
     private Label filesCountLabel;
     @FXML
+    private Label tilesCountLabel;
+    @FXML
+    private Label tilesMinNeededLabel;
+    @FXML
+    private Label usedCountLabel;
+    @FXML
     private Label tileHoverLabel;
     @FXML
     private Label tileImageInformations;
@@ -111,6 +117,9 @@ public class Controller {
 
         pathLabel.textProperty().bind(Bindings.when(propertiesManager.tilesPathProperty().isNull()).then("Kein Pfad gewählt.").otherwise(propertiesManager.tilesPathProperty().asString()));
         filesCountLabel.textProperty().bind(model.dstTilesCountProperty().asString());
+        tilesCountLabel.textProperty().bind(model.tilesCountProperty().asString());
+        tilesMinNeededLabel.textProperty().bind(model.tilesMinNeededProperty().asString());
+        usedCountLabel.textProperty().bind(model.usedCountProperty().asString());
         modeChoiceBox.valueProperty().bindBidirectional(propertiesManager.modeProperty());
         scanSubfolderCheck.selectedProperty().bindBidirectional(propertiesManager.scanSubFolderProperty());
         drawDebugInfoCheck.selectedProperty().bindBidirectional(propertiesManager.drawDebugInfoProperty());
