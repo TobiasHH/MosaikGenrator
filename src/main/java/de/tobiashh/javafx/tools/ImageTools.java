@@ -105,7 +105,7 @@ public class ImageTools {
 
     public static BufferedImage colorAlignment(BufferedImage mosaic,
                                                BufferedImage original, int percent) {
-        LOGGER.info("colorAlignment {}%", percent);
+        LOGGER.debug("colorAlignment {}%", percent);
         if (percent == 0)
             return mosaic;
         if (mosaic.getWidth() != original.getWidth()

@@ -12,10 +12,7 @@ public class SimpleSquareComparableImage extends ComparableImage {
 	@Override
 	public int compare(ComparableImage ci, int colorAlignment) {
 		LOGGER.debug("compare");
-
-		BufferedImage allignCompareImage = ImageTools.colorAlignment(this.compareImage, ci.compareImage,colorAlignment);
-		
-		return compareColors(allignCompareImage, ci.compareImage);
+		return colorAlignment > 0 ? compareColors(ImageTools.colorAlignment(this.compareImage, ci.compareImage, colorAlignment), ci.compareImage) : compareColors(compareImage, ci.compareImage);
 	}
 
 	private int compareColors(BufferedImage image1, BufferedImage image2) {

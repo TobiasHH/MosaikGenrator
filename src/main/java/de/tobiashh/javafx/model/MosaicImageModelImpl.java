@@ -15,6 +15,7 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -44,6 +46,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     private final ObjectProperty<Path> cachePath = new SimpleObjectProperty<>();
     private final IntegerProperty tileSize = new SimpleIntegerProperty();
     private final IntegerProperty opacity = new SimpleIntegerProperty();
+    private final IntegerProperty preColorAlignment = new SimpleIntegerProperty();
     private final IntegerProperty postColorAlignment = new SimpleIntegerProperty();
     private final ObjectProperty<Mode> mode = new SimpleObjectProperty<>(Mode.LINEAR_NEW);
     private final IntegerProperty reuseDistance = new SimpleIntegerProperty();
@@ -76,13 +79,52 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         srcImagePathProperty().addListener((observable, oldValue, newValue) -> loadImage(newValue));
 
         modeProperty().addListener((observable, oldValue, newValue) -> generateMosaicImage());
-        reuseDistanceProperty().addListener((observable, oldValue, newValue) -> generateMosaicImage());
-        maxReusesProperty().addListener((observable, oldValue, newValue) -> generateMosaicImage());
+        reuseDistanceProperty().addListener((observable, oldValue, newValue) -> executeDelayed(this::generateMosaicImage));
+        maxReusesProperty().addListener((observable, oldValue, newValue) -> executeDelayed(this::generateMosaicImage));
 
-        opacityProperty().addListener((observable, oldValue, newValue) -> setOpacityInTiles(newValue.intValue()));
-        postColorAlignmentProperty().addListener((observable, oldValue, newValue) -> setPostColorAlignmentInTiles(newValue.intValue()));
+        opacityProperty().addListener((observable, oldValue, newValue) -> executeDelayed(newValue, this::setOpacityInTiles));
+        preColorAlignmentProperty().addListener((observable, oldValue, newValue) -> executeDelayed(this::generateMosaicImage));
 
-        tilesPerRowProperty().addListener((observable, oldValue, newValue) -> loadImage(srcImagePath.get()));
+        postColorAlignmentProperty().addListener((observable, oldValue, newValue) -> executeDelayed(newValue, this::setPostColorAlignmentInTiles));
+
+        tilesPerRowProperty().addListener((observable, oldValue, newValue) -> executeDelayed(() -> loadImage(srcImagePath.get())));
+    }
+
+    Task<Void> delayedTask = null;
+
+    private void executeDelayed(Number value, Consumer<Integer> numberConsumer) {
+        if(delayedTask != null) delayedTask.cancel();
+        delayedTask = getDelayedTask();
+        delayedTask.setOnSucceeded(event -> numberConsumer.accept(value.intValue()));
+        executeTask(delayedTask);
+    }
+
+    private void executeDelayed(Function func) {
+        if(delayedTask != null) delayedTask.cancel();
+        delayedTask = getDelayedTask();
+        delayedTask.setOnSucceeded(event -> func.apply());
+        executeTask(delayedTask);
+    }
+
+    private void executeTask(Task<Void> task) {
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private Task<Void> getDelayedTask() {
+        return new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                Thread.sleep(1000);
+                return null;
+            }
+        };
+    }
+
+    @FunctionalInterface
+    interface Function {
+        void apply();
     }
 
     private void setPostColorAlignmentInTiles(int postColorAlignment) {
@@ -177,7 +219,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             Map<Integer, Integer> scores = new HashMap<>();
 
             for (int index = 0; index < dstTilesList.size(); index++) {
-                scores.put(index, mosaicImage[mosaikImageIndex].compare(dstTilesList.get(index), postColorAlignment.get()));
+                scores.put(index, mosaicImage[mosaikImageIndex].compare(dstTilesList.get(index), preColorAlignment.get()));
             }
 
             scoredDstTileLists.get(mosaikImageIndex).clear();
@@ -350,6 +392,12 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     public IntegerProperty opacityProperty() {
         return opacity;
     }
+
+    @Override
+    public IntegerProperty preColorAlignmentProperty() {
+        return preColorAlignment;
+    }
+
 
     @Override
     public IntegerProperty postColorAlignmentProperty() {

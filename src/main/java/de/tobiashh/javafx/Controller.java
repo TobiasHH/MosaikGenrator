@@ -121,6 +121,7 @@ public class Controller {
         model.tilesPerRowProperty().bind(propertiesManager.tilesPerRowProperty());
         model.tileSizeProperty().bind(propertiesManager.tileSizeProperty());
         model.opacityProperty().bind(propertiesManager.opacityProperty());
+        model.preColorAlignmentProperty().bind(propertiesManager.preColorAlignmentProperty());
         model.postColorAlignmentProperty().bind(propertiesManager.postColorAlignmentProperty());
         model.modeProperty().bind(propertiesManager.modeProperty());
         model.reuseDistanceProperty().bind(propertiesManager.reuseDistanceProperty());
@@ -453,7 +454,8 @@ public class Controller {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Wähle Mosaik Tile Pfad");
         directoryChooser.setInitialDirectory(propertiesManager.tilesPathProperty().get().toFile());
-        propertiesManager.tilesPathProperty().set(directoryChooser.showDialog(menuBar.getScene().getWindow()).toPath());
+        File file = directoryChooser.showDialog(menuBar.getScene().getWindow());
+        if(file != null) propertiesManager.tilesPathProperty().set(file.toPath());
     }
 
     @FXML

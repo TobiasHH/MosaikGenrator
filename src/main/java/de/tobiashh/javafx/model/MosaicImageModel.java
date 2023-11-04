@@ -41,6 +41,8 @@ public interface MosaicImageModel {
 
     IntegerProperty opacityProperty();
 
+    IntegerProperty preColorAlignmentProperty();
+
     IntegerProperty postColorAlignmentProperty();
 
     ObjectProperty<Mode> modeProperty();
