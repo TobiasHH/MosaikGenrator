@@ -2,7 +2,7 @@ package de.tobiashh.javafx.model;
 
 import de.tobiashh.javafx.tools.ImageTools;
 import de.tobiashh.javafx.tools.Position;
-import de.tobiashh.javafx.tools.IndexConverter;
+import de.tobiashh.javafx.tools.Converter;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -14,7 +14,7 @@ public class ImageTiler {
     private final int tilesPerRow;
     private final int tilesPerColumn;
     private final BufferedImage srcImage;
-    private final IndexConverter indexConverter;
+    private final Converter converter;
 
     ImageTiler(BufferedImage srcImage, int tileSize, int tilesPerRow, int tilesPerColumn){
         if(tileSize <= 0) throw new IllegalArgumentException("tileSize ist kleiner oder gleich 0");
@@ -26,7 +26,7 @@ public class ImageTiler {
         this.tilesPerRow = tilesPerRow;
         this.tilesPerColumn = tilesPerColumn;
         this.srcImage = srcImage;
-        this.indexConverter = new IndexConverter(tilesPerRow);
+        this.converter = new Converter(tilesPerRow);
     }
 
     public List<BufferedImage> getTiles(){
@@ -41,7 +41,7 @@ public class ImageTiler {
     }
 
     private BufferedImage getTileImageForIndex(BufferedImage scaledSrcImage, int index) {
-        return getTileImageForPosition(scaledSrcImage, indexConverter.convertLinearTo2D(index));
+        return getTileImageForPosition(scaledSrcImage, converter.getPosition(index));
     }
 
     private BufferedImage getTileImageForPosition(BufferedImage scaledSrcImage, Position index2D) {

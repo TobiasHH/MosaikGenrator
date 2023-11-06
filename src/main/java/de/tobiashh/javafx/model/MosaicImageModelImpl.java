@@ -9,7 +9,7 @@ import de.tobiashh.javafx.tiles.DstTile;
 import de.tobiashh.javafx.tiles.OriginalTile;
 import de.tobiashh.javafx.tools.ImageTools;
 import de.tobiashh.javafx.tools.Position;
-import de.tobiashh.javafx.tools.IndexConverter;
+import de.tobiashh.javafx.tools.Converter;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -308,7 +308,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
     private int getIndex(int x, int y) {
         LOGGER.trace("mosaikImageIndex from {},{}", x, y);
-        return new IndexConverter(tilesPerRow.get()).convert2DToLinear(new Position(x, y));
+        return new Converter(tilesPerRow.get()).getIndex(new Position(x, y));
     }
 
     @Override

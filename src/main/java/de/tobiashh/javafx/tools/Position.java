@@ -4,7 +4,7 @@ public class Position {
     private final int x;
     private final int y;
 
-    public Position(int x, int y){
+    public Position(int x, int y) {
         this.x = x;
         this.y = y;
     }
@@ -26,8 +26,8 @@ public class Position {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Position index2D = (Position) o;
-        return x == index2D.x && y == index2D.y;
+        Position position = (Position) o;
+        return x == position.x && y == position.y;
     }
 }
 

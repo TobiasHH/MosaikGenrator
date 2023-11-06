@@ -2,7 +2,7 @@ package de.tobiashh.javafx.composer;
 
 import distanceCalculator.CircularTileDistanceCalculator;
 import de.tobiashh.javafx.tools.Position;
-import de.tobiashh.javafx.tools.IndexConverter;
+import de.tobiashh.javafx.tools.Converter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +19,7 @@ public class CircleImageComposer extends ImageComposer {
     public List<Integer> generate(int tilesPerRow, int tilesPerColumn, int maxReuses, int reuseDistance, List<Integer> areaOfInterest, List<List<Integer>> destinationTileIDs) {
         LOGGER.info("generateCircleImage");
 
-        int startIndex = new IndexConverter(tilesPerRow).convert2DToLinear(new Position(tilesPerRow / 2, tilesPerColumn / 2));
+        int startIndex = new Converter(tilesPerRow).getIndex(new Position(tilesPerRow / 2, tilesPerColumn / 2));
         CircularTileDistanceCalculator circularTileDistanceCalculator = new CircularTileDistanceCalculator(tilesPerRow);
 
         List<Integer> tileIndices = sort( IntStream.range(0, tilesPerColumn * tilesPerRow).boxed().collect(Collectors.toList()), circularTileDistanceCalculator, startIndex);
