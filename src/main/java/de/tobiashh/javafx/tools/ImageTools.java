@@ -21,74 +21,98 @@ import org.slf4j.LoggerFactory;
 public class ImageTools {
     private final static Logger LOGGER = LoggerFactory.getLogger(ImageTools.class.getName());
 
-    public static BufferedImage loadTileImage(Path imageFile, Path cachePath, int tileSize, boolean highQuality)
-            throws IOException {
-        Path cacheFile = getCacheFile(imageFile, cachePath, tileSize);
-        if (Files.exists(cacheFile) && Files.isRegularFile(cacheFile)) {
-            LOGGER.debug("loadCachedTileImage {} with tileSize {}", imageFile, tileSize);
-            return ImageIO.read(cacheFile.toFile());
-        }
+    public static BufferedImage loadTileImage(Path imageFile, Path cachePath, int tileSize, boolean highQuality) {
+        BufferedImage cachedImage = readCacheImage(imageFile, cachePath, tileSize);
+        if (cachedImage != null) return cachedImage;
 
-        LOGGER.debug("loadTileImage {} with tileSize {}", imageFile, tileSize);
-        BufferedImage returnValue;
+        BufferedImage image = readImage(imageFile, tileSize, highQuality);
+        writeCacheImage(image, imageFile, cachePath);
 
-        ImageInputStream iis = ImageIO.createImageInputStream(imageFile.toFile());
-        Iterator<ImageReader> iterator = ImageIO.getImageReaders(iis);
+        return image;
+    }
 
-        if (iterator.hasNext()) {
-            ImageReader reader = iterator.next();
-            reader.setInput(iis, true, true);
-            int imageWidth = reader.getWidth(0);
-            int imageHeight = reader.getHeight(0);
-
-            int factorWidth = imageWidth / tileSize;
-            int factorHeight = imageHeight / tileSize;
-
-            ImageReadParam param = new ImageReadParam();
-            int factor = Math.min(factorWidth, factorHeight);
-
-            if (factor < 1) {
-                factor = 1;
+    private static void writeCacheImage(BufferedImage image, Path imageFile, Path cachePath) {
+        try {
+            if (image != null) {
+                Path cacheFile = getCacheFile(imageFile, cachePath, image.getWidth());
+                LOGGER.info("writeCacheImage {} for {}", cacheFile.toString(), imageFile.toString());
+                ImageIO.write(image, "png", cacheFile.toFile());
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-            param.setSourceSubsampling(factor, factor, 0, 0);
-            Rectangle sourceRegion = new Rectangle();
-            boolean orientationLandscape = imageWidth > imageHeight;
+    private static BufferedImage readImage(Path imageFile, int tileSize, boolean highQuality) {
+        LOGGER.info("readImage {} with tileSize {}", imageFile, tileSize);
+        try {
+            ImageInputStream iis = ImageIO.createImageInputStream(imageFile.toFile());
+            Iterator<ImageReader> iterator = ImageIO.getImageReaders(iis);
 
-            if (orientationLandscape) {
-                //noinspection SuspiciousNameCombination
-                sourceRegion.setSize(imageHeight, imageHeight);
-                sourceRegion.setLocation((imageWidth - imageHeight) / 2, 0);
+            if (iterator.hasNext()) {
+                ImageReader reader = iterator.next();
+                reader.setInput(iis, true, true);
+                ImageReadParam param = getImageReadParam(reader.getWidth(0), reader.getHeight(0), tileSize);
+                return removeAlpha(ImageTools.calculateScaledImage(reader.read(0, param), tileSize, tileSize, highQuality));
             } else {
-                //noinspection SuspiciousNameCombination
-                sourceRegion.setSize(imageWidth, imageWidth);
-                sourceRegion.setLocation(0, (imageHeight - imageWidth) / 2);
+                LOGGER.warn("no compatible reader for {}", imageFile);
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-            param.setSourceRegion(sourceRegion);
+    private static ImageReadParam getImageReadParam(int imageWidth, int imageHeight, int tileSize) {
+        ImageReadParam param = new ImageReadParam();
 
-            returnValue = ImageTools.calculateScaledImage(reader.read(0, param), tileSize, tileSize, highQuality);
+        int factorWidth = imageWidth / tileSize;
+        int factorHeight = imageHeight / tileSize;
+        int factor = Math.min(factorWidth, factorHeight);
 
-            if (returnValue.getType() != BufferedImage.TYPE_INT_RGB) {
-                BufferedImage noAlphaImage = new BufferedImage(returnValue.getWidth(), returnValue.getHeight(), BufferedImage.TYPE_INT_RGB);
-                Graphics2D g2d = (Graphics2D) noAlphaImage.getGraphics();
-                g2d.addRenderingHints(getHighQualityRenderingHints());
-                g2d.drawImage(returnValue, 0, 0, returnValue.getWidth(), returnValue.getHeight(), null);
-                returnValue = noAlphaImage;
-            }
-        } else {
-            // TODO Kommen hier die gleichen Dateien raus wie bei ImageIO ?
-//            no compatible reader for: C:\Users\luech\Dropbox\Docs and Images\Interessante Bilder Dropbox\XXX\2D\f93d67d40c3de303deb1ccd3b1e0b98356303b34.jpg
-//            no compatible reader for: C:\Users\luech\Dropbox\Docs and Images\Interessante Bilder Dropbox\XXX\2D\playful-promises-corsets-waspies-playful-promises-anneliese-black-lace-curve-waspie-15779894624304_1024x1024_3eceabba-5bd7-4b83-beb8-3aea0672fcd0.jpg
-
-            LOGGER.warn("no compatible reader for {}", imageFile);
-            return null;
+        if (factor < 1) {
+            factor = 1;
         }
 
-        LOGGER.info("write cache {} for {}", cacheFile.toString(), imageFile.toString());
-        ImageIO.write(returnValue, "png", cacheFile.toFile());
+        param.setSourceSubsampling(factor, factor, 0, 0);
+        Rectangle sourceRegion = new Rectangle();
+        boolean orientationLandscape = imageWidth > imageHeight;
 
-        return returnValue;
+        if (orientationLandscape) {
+            //noinspection SuspiciousNameCombination
+            sourceRegion.setSize(imageHeight, imageHeight);
+            sourceRegion.setLocation((imageWidth - imageHeight) / 2, 0);
+        } else {
+            //noinspection SuspiciousNameCombination
+            sourceRegion.setSize(imageWidth, imageWidth);
+            sourceRegion.setLocation(0, (imageHeight - imageWidth) / 2);
+        }
+
+        param.setSourceRegion(sourceRegion);
+        return param;
+    }
+
+    private static BufferedImage removeAlpha(BufferedImage image) {
+        if (image.getType() == BufferedImage.TYPE_INT_RGB) return image;
+
+        BufferedImage noAlphaImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = (Graphics2D) noAlphaImage.getGraphics();
+        g2d.addRenderingHints(getHighQualityRenderingHints());
+        g2d.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
+        return noAlphaImage;
+    }
+
+    private static BufferedImage readCacheImage(Path imageFile, Path cachePath, int tileSize) {
+        try {
+            Path cacheFile = getCacheFile(imageFile, cachePath, tileSize);
+            if (Files.exists(cacheFile) && Files.isRegularFile(cacheFile)) {
+                LOGGER.info("readCacheImage {} with tileSize {}", imageFile, tileSize);
+                return ImageIO.read(cacheFile.toFile());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private static Path getCacheFile(Path imageFile, Path cachePath, int tileSize) {

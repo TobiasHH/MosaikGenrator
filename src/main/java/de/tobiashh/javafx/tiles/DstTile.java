@@ -15,7 +15,7 @@ public class DstTile extends SimpleSquareComparableImage {
     private final Path file;
     private final Path cachePath;
     private final int tileSize;
-    private SoftReference<BufferedImage> srcImage;
+    private SoftReference<BufferedImage> cachedSourceImage;
 
     public DstTile(BufferedImage image, Path file, Path cachePath, int tileSize, int compareSize) {
         LOGGER.debug("DstTile {} with tileSize {} and compareSize {}", file, tileSize, compareSize);
@@ -26,16 +26,12 @@ public class DstTile extends SimpleSquareComparableImage {
     }
 
     public BufferedImage getImage() {
-        BufferedImage retval = srcImage != null ? srcImage.get() : null;
-        if (retval == null) {
-            try {
-                BufferedImage image = ImageTools.loadTileImage(file, cachePath, tileSize, true);
-                srcImage = new SoftReference<>(image);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return srcImage.get();
+        BufferedImage srcImage = cachedSourceImage != null ? cachedSourceImage.get() : null;
+
+        if (srcImage != null) return srcImage;
+
+        cachedSourceImage = new SoftReference<>( ImageTools.loadTileImage(file, cachePath, tileSize, true));
+        return cachedSourceImage.get();
     }
 
     public String getFilename() {

@@ -15,40 +15,21 @@ public class TileComposer {
         this.postColorAlignment = postColorAlignment;
     }
 
+    public BufferedImage compose(BufferedImage originalImage, BufferedImage mosaikImage)
+    {
+        if( originalImage.getWidth() != mosaikImage.getWidth() || originalImage.getHeight() != mosaikImage.getHeight()) return deepCopy(mosaikImage);
+        if (opacity == 0) return deepCopy(originalImage);
+        return getComposedImage(originalImage, mosaikImage);
+    }
+
+    private BufferedImage getComposedImage(BufferedImage originalImage, BufferedImage mosaikImage) {
+        return ImageTools.opacityAdaption(ImageTools.colorAlignment(deepCopy(mosaikImage), originalImage, postColorAlignment), originalImage, opacity);
+    }
+
     private BufferedImage deepCopy(BufferedImage bi) {
         ColorModel cm = bi.getColorModel();
         boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
         WritableRaster raster = bi.copyData(bi.getRaster().createCompatibleWritableRaster());
         return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
-    }
-
-    public BufferedImage compose(BufferedImage originalImage, BufferedImage mosaikImage)
-    {
-        if( originalImage.getWidth() != mosaikImage.getWidth() || originalImage.getHeight() != mosaikImage.getHeight())
-        {
-            return deepCopy(mosaikImage);
-        }
-        else
-        {
-            if (opacity == 0)
-            {
-                return deepCopy(originalImage);
-            }
-
-            BufferedImage returnValue = deepCopy(mosaikImage);
-
-            if (postColorAlignment > 0)
-            {
-                returnValue = ImageTools.colorAlignment(returnValue, originalImage, postColorAlignment);
-            }
-
-
-            if (opacity < 100)
-            {
-                returnValue = ImageTools.opacityAdaption(returnValue, originalImage, opacity);
-            }
-
-            return returnValue;
-        }
     }
 }

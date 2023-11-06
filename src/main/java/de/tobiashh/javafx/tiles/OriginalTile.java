@@ -18,7 +18,7 @@ public class OriginalTile extends SimpleSquareComparableImage {
     private int opacity = 100;
     private int postColorAlignment = 100;
 
-    private SoftReference<BufferedImage> composedImage = new SoftReference<>(null);
+    private SoftReference<BufferedImage> cachedComposedImage = new SoftReference<>(null);
 
     public OriginalTile(BufferedImage srcImage, int compareSize)
     {
@@ -30,49 +30,37 @@ public class OriginalTile extends SimpleSquareComparableImage {
 
     private void initChangeListener() {
         LOGGER.debug("initChangeListener");
-        srcImageProperty().addListener((observable, oldValue, newValue) -> composedImage.clear());
-        dstImageProperty().addListener((observable, oldValue, newValue) -> composedImage.clear());
+        srcImageProperty().addListener((observable, oldValue, newValue) -> cachedComposedImage.clear());
+        dstImageProperty().addListener((observable, oldValue, newValue) -> cachedComposedImage.clear());
     }
 
     public BufferedImage getComposedImage()
     {
         LOGGER.debug("getComposedImage");
         BufferedImage srcImage = getSrcImage();
-        if(srcImage == null)
-        {
-            return null;
-        }
-        else
-        {
-            BufferedImage dstImage = getDstImage();
+        if(srcImage == null) return null;
 
-            if(dstImage == null)
-            {
-                return srcImage;
-            }
+        BufferedImage dstImage = getDstImage();
+        if(dstImage == null) return srcImage;
 
-            BufferedImage returnValue = composedImage.get();
+        BufferedImage composedImage = cachedComposedImage.get();
+        if(composedImage != null) return composedImage;
 
-            if(returnValue == null) {
-                returnValue = new TileComposer(opacity, postColorAlignment).compose(srcImage, dstImage);
-                composedImage = new SoftReference<>(returnValue);
-            }
-
-            return returnValue;
-        }
+        cachedComposedImage = new SoftReference<>(new TileComposer(opacity, postColorAlignment).compose(srcImage, dstImage));
+        return cachedComposedImage.get();
     }
 
     public void setOpacity(int opacity)
     {
         LOGGER.debug("setOpacity to {}%", opacity);
         this.opacity = opacity;
-        composedImage.clear();
+        cachedComposedImage.clear();
     }
 
     public void setPostColorAlignment(int postColorAlignment) {
         LOGGER.debug("setPostColorAlignment to {}%", postColorAlignment);
         this.postColorAlignment = postColorAlignment;
-        composedImage.clear();
+        cachedComposedImage.clear();
     }
 
     public ObjectProperty<BufferedImage> srcImageProperty() {
