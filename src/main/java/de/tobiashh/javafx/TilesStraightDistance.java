@@ -31,5 +31,4 @@ public class TilesStraightDistance {
         LOGGER.trace("getTilePositionX index {} -> posY {}", index, tilePositionY);
         return tilePositionY;
     }
-
 }

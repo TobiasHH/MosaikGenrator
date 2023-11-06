@@ -14,21 +14,20 @@ public class TileView extends ImageView {
     private static final int DEFAULT_TILE_SIZE = 1;
 
     private final IntegerProperty tileSizeProperty = new SimpleIntegerProperty(DEFAULT_TILE_SIZE);
+
     int tilePositionX;
     int tilePositionY;
 
     public TileView(int tilePositionX, int tilePositionY, int tileSize) {
         super();
-
         initPropertyListener();
-
         this.tilePositionX = tilePositionX;
         this.tilePositionY = tilePositionY;
         setTileSize(tileSize);
     }
 
-    public final void setTileSize(int value) {
-        tileSizeProperty.set(value);
+    public final void setTileSize(int size) {
+        tileSizeProperty.set(size);
     }
 
     public int getTilePositionX() {
@@ -40,11 +39,7 @@ public class TileView extends ImageView {
     }
 
     public void setTile(BufferedImage image) {
-        if (image != null) {
-            setVisible(false);
-            setImage(SwingFXUtils.toFXImage(image, null));
-            setVisible(true);
-        }
+        setImage(SwingFXUtils.toFXImage(image, null));
     }
 
     public void initPropertyListener() {
@@ -54,6 +49,5 @@ public class TileView extends ImageView {
             setFitWidth(newValue.intValue());
             setFitHeight(newValue.intValue());
         });
-
     }
 }

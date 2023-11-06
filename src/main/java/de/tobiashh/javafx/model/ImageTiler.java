@@ -1,7 +1,7 @@
 package de.tobiashh.javafx.model;
 
 import de.tobiashh.javafx.tools.ImageTools;
-import de.tobiashh.javafx.tools.Index2D;
+import de.tobiashh.javafx.tools.Position;
 import de.tobiashh.javafx.tools.IndexConverter;
 
 import java.awt.image.BufferedImage;
@@ -41,10 +41,10 @@ public class ImageTiler {
     }
 
     private BufferedImage getTileImageForIndex(BufferedImage scaledSrcImage, int index) {
-        return getTileImageForIndex2D(scaledSrcImage, indexConverter.convertLinearTo2D(index));
+        return getTileImageForPosition(scaledSrcImage, indexConverter.convertLinearTo2D(index));
     }
 
-    private BufferedImage getTileImageForIndex2D(BufferedImage scaledSrcImage, Index2D index2D) {
+    private BufferedImage getTileImageForPosition(BufferedImage scaledSrcImage, Position index2D) {
         return scaledSrcImage.getSubimage(index2D.getX() * tileSize, index2D.getY() * tileSize, tileSize, tileSize);
     }
 

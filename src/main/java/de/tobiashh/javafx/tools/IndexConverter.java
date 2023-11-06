@@ -8,11 +8,11 @@ public class IndexConverter {
         this.tilesPerRow = tilesPerRow;
     }
 
-    public Index2D convertLinearTo2D(int indexLinear){
-        return new Index2D(indexLinear % tilesPerRow, indexLinear / tilesPerRow);
+    public Position convertLinearTo2D(int indexLinear){
+        return new Position(indexLinear % tilesPerRow, indexLinear / tilesPerRow);
     }
 
-    public int convert2DToLinear(Index2D index2D){
+    public int convert2DToLinear(Position index2D){
         return tilesPerRow * index2D.getY() + index2D.getX();
     }
 }
