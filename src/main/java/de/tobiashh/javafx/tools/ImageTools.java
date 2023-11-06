@@ -53,7 +53,7 @@ public class ImageTools {
                 ImageReader reader = iterator.next();
                 reader.setInput(iis, true, true);
                 ImageReadParam param = getImageReadParam(reader.getWidth(0), reader.getHeight(0), tileSize);
-                return removeAlpha(ImageTools.calculateScaledImage(reader.read(0, param), tileSize, tileSize, highQuality));
+                return ImageTools.calculateScaledImage(reader.read(0, param), tileSize, tileSize, highQuality);
             } else {
                 LOGGER.warn("no compatible reader for {}", imageFile);
             }
@@ -92,15 +92,6 @@ public class ImageTools {
         return param;
     }
 
-    private static BufferedImage removeAlpha(BufferedImage image) {
-        if (image.getType() == BufferedImage.TYPE_INT_RGB) return image;
-
-        BufferedImage noAlphaImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2d = (Graphics2D) noAlphaImage.getGraphics();
-        g2d.addRenderingHints(getHighQualityRenderingHints());
-        g2d.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
-        return noAlphaImage;
-    }
 
     private static BufferedImage readCacheImage(Path imageFile, Path cachePath, int tileSize) {
         try {
