@@ -1,5 +1,6 @@
 package de.tobiashh.javafx.composer.impl;
 
+import de.tobiashh.javafx.composer.LinearImageComposer;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ class LinearImageComposerTest {
 
     @Test
     void generate() {
-        LinearImageComposerNew linearImageComposer = new LinearImageComposerNew();
+        LinearImageComposer linearImageComposer = new LinearImageComposer();
         int tilesPerRow = 1;
         int tilesPerColumn = 1;
         int reuseDistance = 1;
@@ -36,7 +37,7 @@ class LinearImageComposerTest {
 
     @Test
     void generate2() {
-        LinearImageComposerNew linearImageComposer = new LinearImageComposerNew();
+        LinearImageComposer linearImageComposer = new LinearImageComposer();
         int tilesPerRow = 3;
         int tilesPerColumn = 3;
         int reuseDistance = 1;
@@ -67,7 +68,7 @@ class LinearImageComposerTest {
 
     @Test
     void generate3() {
-        LinearImageComposerNew linearImageComposer = new LinearImageComposerNew();
+        LinearImageComposer linearImageComposer = new LinearImageComposer();
         int tilesPerRow = 3;
         int tilesPerColumn = 3;
         int reuseDistance = 1;

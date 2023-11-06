@@ -1,15 +1,16 @@
 package de.tobiashh.javafx;
 
+import distanceCalculator.StraightTileDistanceCalculator;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class TilesStraightDistanceTest {
+class StraightTileDistanceCalculatorTest {
 
     @Test
     void getTileDistance() {
-        TilesStraightDistance tileDistance = new TilesStraightDistance(5);
+        StraightTileDistanceCalculator tileDistance = new StraightTileDistanceCalculator(5);
         /*
          * X1XXX
          * X2XXX

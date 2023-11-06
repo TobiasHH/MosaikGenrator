@@ -1,14 +1,12 @@
 package de.tobiashh.javafx.composer;
 
-import javafx.collections.ObservableList;
-
 import java.util.Arrays;
 import java.util.List;
 
 public abstract class ImageComposer {
     public abstract List<Integer> generate(int tilesPerRow, int tilesPerColumn, int maxReuses, int reuseDistance, List<Integer> areaOfInterest, List<List<Integer>> destinationTileIDs);
 
-    protected int[] fillImage(int tilesPerRow, int tilesPerColumn, int reuseDistance, int maxReuses, List<List<Integer>> destinationTileIDs, List<Integer> indices) {
+    int[] fillImage(int tilesPerRow, int tilesPerColumn, int reuseDistance, int maxReuses, List<List<Integer>> destinationTileIDs, List<Integer> indices) {
         ReuseableChecker reuseableChecker = new ReuseableChecker(tilesPerRow, tilesPerColumn, reuseDistance);
         int[] returnValue = new int[tilesPerRow * tilesPerColumn];
         Arrays.fill(returnValue, -1);

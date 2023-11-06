@@ -1,5 +1,6 @@
 package de.tobiashh.javafx.composer.impl;
 
+import de.tobiashh.javafx.composer.CenterImageComposer;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ class CenterImageComposerTest {
 
     @Test
     void generate() {
-        CenterImageComposerNew centerImageComposer = new CenterImageComposerNew();
+        CenterImageComposer centerImageComposer = new CenterImageComposer();
         int tilesPerRow = 1;
         int tilesPerColumn = 1;
         int reuseDistance = 1;
@@ -35,7 +36,7 @@ class CenterImageComposerTest {
     }
     @Test
     void generate2() {
-        CenterImageComposerNew centerImageComposer = new CenterImageComposerNew();
+        CenterImageComposer centerImageComposer = new CenterImageComposer();
         int tilesPerRow = 3;
         int tilesPerColumn = 3;
         int reuseDistance = 1;
@@ -65,7 +66,7 @@ class CenterImageComposerTest {
 
     @Test
     void generate3() {
-        CenterImageComposerNew centerImageComposer = new CenterImageComposerNew();
+        CenterImageComposer centerImageComposer = new CenterImageComposer();
         int tilesPerRow = 3;
         int tilesPerColumn = 3;
         int reuseDistance = 1;

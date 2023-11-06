@@ -1,16 +1,17 @@
 package de.tobiashh.javafx;
 
+import distanceCalculator.CircularTileDistanceCalculator;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class TilesCircularDistanceTest {
+class CircularTileDistanceCalculatorTest {
 
     @Test
     void getTileDistance() {
 
-        TilesCircularDistance tileDistance = new TilesCircularDistance(5);
+        CircularTileDistanceCalculator tileDistance = new CircularTileDistanceCalculator(5);
         /*
          * X1XXX
          * X2XXX

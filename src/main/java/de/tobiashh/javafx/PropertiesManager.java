@@ -113,25 +113,27 @@ public class PropertiesManager {
 
     private void createDefaultTilesPathIfNotExist() {
         LOGGER.info("createDefaultTilesPathIfNotExist");
-        if(tilesPath.getValue().toString().equals(TILES_PATH_DEFAULT) && Files.notExists(Path.of(TILES_PATH_DEFAULT)))
-        {
-            try {
-                Files.createDirectory(Path.of(TILES_PATH_DEFAULT));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        createPathIfNotExist(tilesPath.getValue(), TILES_PATH_DEFAULT);
     }
 
     private void createDefaultCachePathIfNotExist() {
         LOGGER.info("createDefaultCachePathIfNotExist");
-        if(cachePath.getValue().toString().equals(CACHE_PATH_DEFAULT) && Files.notExists(Path.of(CACHE_PATH_DEFAULT)))
+        createPathIfNotExist(cachePath.getValue(), CACHE_PATH_DEFAULT);
+    }
+
+    private void createPathIfNotExist(Path actualPath, String path) {
+        LOGGER.info("createPathIfNotExist");
+        if(actualPath.toString().equals(path) && Files.notExists(Path.of(path)))
         {
-            try {
-                Files.createDirectory(Path.of(CACHE_PATH_DEFAULT));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            CreatePath(path);
+        }
+    }
+
+    private void CreatePath(String path) {
+        try {
+            Files.createDirectory(Path.of(path));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -149,14 +151,18 @@ public class PropertiesManager {
                     LocalDate today = LocalDate.now();
                     if(!today.equals(fileDate))
                     {
-                        try {
-                            Files.delete(file);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        deleteFile(file);
                     }
                 }
             });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void deleteFile(Path file) {
+        try {
+            Files.delete(file);
         } catch (IOException e) {
             e.printStackTrace();
         }

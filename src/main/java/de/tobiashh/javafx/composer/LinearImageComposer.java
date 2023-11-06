@@ -1,6 +1,5 @@
-package de.tobiashh.javafx.composer.impl;
+package de.tobiashh.javafx.composer;
 
-import de.tobiashh.javafx.composer.ImageComposer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,8 +9,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class LinearImageComposerNew extends ImageComposer {
-    private final static Logger LOGGER = LoggerFactory.getLogger(LinearImageComposerNew.class.getName());
+public class LinearImageComposer extends ImageComposer {
+    private final static Logger LOGGER = LoggerFactory.getLogger(LinearImageComposer.class.getName());
 
     @Override
     public List<Integer> generate(int tilesPerRow, int tilesPerColumn, int maxReuses, int reuseDistance, List<Integer> areaOfInterest, List<List<Integer>> destinationTileIDs) {

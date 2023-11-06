@@ -1,5 +1,6 @@
 package de.tobiashh.javafx.composer.impl;
 
+import de.tobiashh.javafx.composer.CircleImageComposer;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ class CircleImageComposerTest {
 
     @Test
     void generate() {
-        CircleImageComposerNew circleImageComposer = new CircleImageComposerNew();
+        CircleImageComposer circleImageComposer = new CircleImageComposer();
         int tilesPerRow = 1;
         int tilesPerColumn = 1;
         int reuseDistance = 1;
@@ -35,7 +36,7 @@ class CircleImageComposerTest {
     }
     @Test
     void generate2() {
-        CircleImageComposerNew circleImageComposer = new CircleImageComposerNew();
+        CircleImageComposer circleImageComposer = new CircleImageComposer();
         int tilesPerRow = 3;
         int tilesPerColumn = 3;
         int reuseDistance = 1;
@@ -65,7 +66,7 @@ class CircleImageComposerTest {
 
     @Test
     void generate3() {
-        CircleImageComposerNew circleImageComposer = new CircleImageComposerNew();
+        CircleImageComposer circleImageComposer = new CircleImageComposer();
         int tilesPerRow = 3;
         int tilesPerColumn = 3;
         int reuseDistance = 1;

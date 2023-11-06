@@ -2,7 +2,7 @@ package de.tobiashh.javafx.model;
 
 import de.tobiashh.javafx.DstTilesLoaderTask;
 import de.tobiashh.javafx.Mode;
-import de.tobiashh.javafx.TilesStraightDistance;
+import distanceCalculator.StraightTileDistanceCalculator;
 import de.tobiashh.javafx.composer.*;
 import de.tobiashh.javafx.save.ImageSaver;
 import de.tobiashh.javafx.tiles.DstTile;
@@ -485,7 +485,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             int[] sameTiles = IntStream.range(0, destinationTileIndexes.size())
                     .filter(i -> Objects.equals(destinationTileIndexes.get(i), dstTileIndex)).toArray();
 
-            boolean hasTileInDistsance = Arrays.stream(sameTiles).anyMatch(position -> new TilesStraightDistance(tilesPerRow.get()).calculate(positionOfTile, position) < reuseDistance);
+            boolean hasTileInDistsance = Arrays.stream(sameTiles).anyMatch(position -> new StraightTileDistanceCalculator(tilesPerRow.get()).calculate(positionOfTile, position) < reuseDistance);
 
             LOGGER.info("test tile " + dstTileIndex);
             LOGGER.info("hasTileInDistsance: " + hasTileInDistsance + " index:" + positionOfTile + " sameTiles: " + Arrays.toString(sameTiles) + " reuseDistance: " + reuseDistance);

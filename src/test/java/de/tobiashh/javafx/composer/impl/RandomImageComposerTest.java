@@ -1,5 +1,6 @@
 package de.tobiashh.javafx.composer.impl;
 
+import de.tobiashh.javafx.composer.RandomImageComposer;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +16,7 @@ class RandomImageComposerTest {
 
     @Test
     void generate() {
-        RandomImageComposerNew randomImageComposer = new RandomImageComposerNew();
+        RandomImageComposer randomImageComposer = new RandomImageComposer();
         int tilesPerRow = 1;
         int tilesPerColumn = 1;
         int reuseDistance = 1;
@@ -37,7 +38,7 @@ class RandomImageComposerTest {
 
     @Test
     void generate2() {
-        RandomImageComposerNew randomImageComposer = new RandomImageComposerNew();
+        RandomImageComposer randomImageComposer = new RandomImageComposer();
         int tilesPerRow = 3;
         int tilesPerColumn = 3;
         int reuseDistance = 1;
@@ -70,7 +71,7 @@ class RandomImageComposerTest {
 
     @RepeatedTest(value = 100, name = "Wiederholungs Lauf {currentRepetition} von {totalRepetitions}")
     void generate3() {
-        RandomImageComposerNew randomImageComposer = new RandomImageComposerNew();
+        RandomImageComposer randomImageComposer = new RandomImageComposer();
         int tilesPerRow = 3;
         int tilesPerColumn = 3;
         int reuseDistance = 1;
