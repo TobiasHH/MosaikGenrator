@@ -13,12 +13,7 @@ public abstract class ComparableImage {
 
     protected void setDataImage(BufferedImage dataImage, int compareSize) {
         LOGGER.trace("setDataImage");
-        this.compareImage = getCompareImage(dataImage, compareSize);
-    }
-
-    private BufferedImage getCompareImage(BufferedImage compareImage, int compareSize) {
-        if (compareImage.getWidth() == compareSize && compareImage.getHeight() == compareSize) return compareImage;
-        return ImageTools.calculateScaledImage(compareImage, compareSize, true);
+        this.compareImage = ImageTools.calculateScaledImage(dataImage, compareSize, true);
     }
 
     public abstract int compare(ComparableImage ci, int colorAlignment);

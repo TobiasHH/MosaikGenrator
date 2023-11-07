@@ -232,14 +232,10 @@ public class ImageTools {
     public static BufferedImage calculateScaledImage(BufferedImage bImage, int width, int height, boolean highQuality) {
         LOGGER.info("calculateScaledImage with {},{}", width, height);
         if (bImage.getWidth() == width && bImage.getHeight() == height) return bImage;
-        System.out.println();
         BufferedImage returnValue = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = (Graphics2D) returnValue.getGraphics();
-        System.out.println(g2d.getRenderingHints());
         g2d.addRenderingHints((highQuality) ? getHighQualityRenderingHints() : getLowQualityRenderingHints());
         g2d.drawImage(bImage, 0, 0, width, height, null);
-
-        System.out.println(g2d.getRenderingHints());
         return returnValue;
     }
 
