@@ -1,5 +1,8 @@
 package de.tobiashh.javafx.tools;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
@@ -14,9 +17,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ImageTools {
     private final static Logger LOGGER = LoggerFactory.getLogger(ImageTools.class.getName());
@@ -35,7 +35,7 @@ public class ImageTools {
         try {
             if (image != null) {
                 Path cacheFile = getCacheFile(imageFile, cachePath, image.getWidth());
-                LOGGER.info("writeCacheImage {} for {}", cacheFile.toString(), imageFile.toString());
+                LOGGER.debug("writeCacheImage {} for {}", cacheFile.toString(), imageFile.toString());
                 ImageIO.write(image, "png", cacheFile.toFile());
             }
         } catch (IOException e) {
@@ -44,7 +44,7 @@ public class ImageTools {
     }
 
     private static BufferedImage readImage(Path imageFile, int tileSize, boolean highQuality) {
-        LOGGER.info("readImage {} with tileSize {}", imageFile, tileSize);
+        LOGGER.debug("readImage {} with tileSize {}", imageFile, tileSize);
         try {
             ImageInputStream iis = ImageIO.createImageInputStream(imageFile.toFile());
             Iterator<ImageReader> iterator = ImageIO.getImageReaders(iis);
@@ -97,7 +97,7 @@ public class ImageTools {
         try {
             Path cacheFile = getCacheFile(imageFile, cachePath, tileSize);
             if (Files.exists(cacheFile) && Files.isRegularFile(cacheFile)) {
-                LOGGER.info("readCacheImage {} with tileSize {}", imageFile, tileSize);
+                LOGGER.debug("readCacheImage {} with tileSize {}", imageFile, tileSize);
                 return ImageIO.read(cacheFile.toFile());
             }
         } catch (IOException e) {
@@ -225,15 +225,21 @@ public class ImageTools {
         return returnValue;
     }
 
-    public static BufferedImage calculateScaledImage(BufferedImage bImage, int width, int height, boolean highQuality) {
-        LOGGER.debug("calculateScaledImage with {},{}", width, height);
-        if (bImage.getWidth() == width && bImage.getHeight() == height) return bImage;
+    public static BufferedImage calculateScaledImage(BufferedImage bImage, int size, boolean highQuality) {
+        return calculateScaledImage(bImage, size, size, highQuality);
+    }
 
+    public static BufferedImage calculateScaledImage(BufferedImage bImage, int width, int height, boolean highQuality) {
+        LOGGER.info("calculateScaledImage with {},{}", width, height);
+        if (bImage.getWidth() == width && bImage.getHeight() == height) return bImage;
+        System.out.println();
         BufferedImage returnValue = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = (Graphics2D) returnValue.getGraphics();
+        System.out.println(g2d.getRenderingHints());
         g2d.addRenderingHints((highQuality) ? getHighQualityRenderingHints() : getLowQualityRenderingHints());
         g2d.drawImage(bImage, 0, 0, width, height, null);
 
+        System.out.println(g2d.getRenderingHints());
         return returnValue;
     }
 

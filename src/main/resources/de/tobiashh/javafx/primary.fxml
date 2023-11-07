@@ -50,15 +50,22 @@
    </center>
    <bottom>
       <HBox alignment="CENTER_LEFT" prefHeight="18.0" prefWidth="350.0" BorderPane.alignment="CENTER">
-         <Label fx:id="imageTilesCount" style="-fx-background-color: WHITE;" text="imageTilesSize" />
          <Label fx:id="cursorPositionLabel" style="-fx-background-color: RED;" text="cursorPositionLabel" />
          <Label fx:id="tileHoverLabel" style="-fx-background-color: PURPLE;" text="tileHoverLabel" />
          <Label fx:id="tileImageInformations" style="-fx-background-color: BROWN;" text="tileImageInformations" />
          <Label fx:id="pathLabel" style="-fx-background-color: BLUE;" text="pathLabel" />
-         <Label fx:id="filesCountLabel" style="-fx-background-color: #B7410E;" text="filesCountLabel" />
-         <Label fx:id="tilesCountLabel" style="-fx-background-color: #FF7518;" text="tilesCountLabel" />
-         <Label fx:id="tilesMinNeededLabel" style="-fx-background-color: #FFBF00;" text="tilesMinNeededLabel" />
-         <Label fx:id="usedCountLabel" style="-fx-background-color: #FFE5B4;" text="usedCountLabel" />
+         <Label fx:id="filesCountLabel" style="-fx-background-color: #B7410E;" text="filesCountLabel" >
+            <tooltip><Tooltip text="Gelandene Bilder" /></tooltip>
+         </Label>
+         <Label fx:id="imageTilesCount" style="-fx-background-color: #FF7518;" text="imageTilesSize">
+            <tooltip><Tooltip text="Tiles des Bild" /></tooltip>
+         </Label>
+         <Label fx:id="tilesMinNeededLabel" style="-fx-background-color: #FFBF00;" text="tilesMinNeededLabel">
+            <tooltip><Tooltip text="Ungefähr benötigte Bilder" /></tooltip>
+         </Label>
+         <Label fx:id="usedCountLabel" style="-fx-background-color: #FFE5B4;" text="usedCountLabel">
+            <tooltip><Tooltip text="Benutzte Bilder" /></tooltip>
+         </Label>
          <Label fx:id="statusLabel" style="-fx-background-color: YELLOW;" text="statusLabel" />
       </HBox>
    </bottom>

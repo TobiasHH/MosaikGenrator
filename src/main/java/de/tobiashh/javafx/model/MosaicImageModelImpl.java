@@ -35,7 +35,6 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     private final static Logger LOGGER = LoggerFactory.getLogger(MosaicImageModelImpl.class.getName());
     private final ReadOnlyIntegerWrapper dstTilesCount = new ReadOnlyIntegerWrapper();
     private final ReadOnlyIntegerWrapper usedCount = new ReadOnlyIntegerWrapper();
-    private final ReadOnlyIntegerWrapper tilesCount = new ReadOnlyIntegerWrapper();
     private final ReadOnlyIntegerWrapper tilesMinNeeded = new ReadOnlyIntegerWrapper();
     private final ReadOnlyIntegerWrapper tilesPerColumn = new ReadOnlyIntegerWrapper();
     private final ReadOnlyIntegerWrapper dstTilesLoadProgress = new ReadOnlyIntegerWrapper();
@@ -59,9 +58,9 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     private final BooleanProperty drawDebugInfo = new SimpleBooleanProperty();
 
     private final MosaikImage image = new MosaikImage();
+    Task<Void> delayedTask = null;
     private List<List<Integer>> scoredDstTileLists;
     private ObservableList<Integer> destinationTileIndexes;
-
     private DstTilesLoaderTask task;
 
     public MosaicImageModelImpl() {
@@ -72,12 +71,11 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     private void initChangeListener() {
         LOGGER.info("initChangeListener");
 
-        dstTilesLoadProgressProperty().addListener((observable, oldValue, newValue) -> dstTilesCount.set(newValue.intValue()));
-        imageCalculatedProperty().addListener((observable, oldValue, newValue) -> tilesCount.set(tilesPerRowProperty().get() * tilesPerColumnProperty().get()));
-        imageCalculatedProperty().addListener((observable, oldValue, newValue) -> tilesMinNeeded.set(tilesPerRowProperty().get() * tilesPerColumnProperty().get() / getDivident()));
-        dstTilesLoadProgressProperty().addListener((observable, oldValue, newValue) -> usedCount.set(0));
+        dstTilesLoadProgressProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(() -> dstTilesCount.set(newValue.intValue())));
+        imageCalculatedProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(() -> tilesMinNeeded.set(tilesPerRowProperty().get() * tilesPerColumnProperty().get() / getDivident())));
+        dstTilesLoadProgressProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(() -> usedCount.set(0)));
 
-        dstTilesList.addListener((ListChangeListener<DstTile>) change -> dstTilesCount.set(change.getList().size()));
+        dstTilesList.addListener((ListChangeListener<DstTile>) change -> Platform.runLater(() -> dstTilesCount.set(change.getList().size())));
 
         tilesPathProperty().addListener((observable, oldValue, newValue) -> loadDstTiles(newValue, cachePath.get()));
         cachePathProperty().addListener((observable, oldValue, newValue) -> loadDstTiles(tilesPath.get(), newValue));
@@ -104,17 +102,15 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         return Math.max((int) (maxReuses * factor), 1);
     }
 
-    Task<Void> delayedTask = null;
-
     private void executeDelayed(Number value, Consumer<Integer> numberConsumer) {
-        if(delayedTask != null) delayedTask.cancel();
+        if (delayedTask != null) delayedTask.cancel();
         delayedTask = getDelayedTask();
         delayedTask.setOnSucceeded(event -> numberConsumer.accept(value.intValue()));
         executeTask(delayedTask);
     }
 
     private void executeDelayed(Function func) {
-        if(delayedTask != null) delayedTask.cancel();
+        if (delayedTask != null) delayedTask.cancel();
         delayedTask = getDelayedTask();
         delayedTask.setOnSucceeded(event -> func.apply());
         executeTask(delayedTask);
@@ -134,11 +130,6 @@ public class MosaicImageModelImpl implements MosaicImageModel {
                 return null;
             }
         };
-    }
-
-    @FunctionalInterface
-    interface Function {
-        void apply();
     }
 
     private void setPostColorAlignmentInTiles(int postColorAlignment) {
@@ -305,7 +296,6 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         return bufferedImage;
     }
 
-
     private int getIndex(int x, int y) {
         LOGGER.trace("mosaikImageIndex from {},{}", x, y);
         return new Converter(tilesPerRow.get()).getIndex(new Position(x, y));
@@ -313,13 +303,20 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
     @Override
     public void generateMosaicImage() {
-
-        if (image.getLength() == 0 || dstTilesList.size() == 0) return;
         LOGGER.info("generateMosaicImage");
+        if (image.getLength() == 0) {
+            LOGGER.info("MosaikImage noch nicht geladen");
+            return;
+        }
 
-        Platform.runLater(() -> {
+        if (dstTilesList.size() == 0) {
+            LOGGER.info("Destination Tile Liste noch nicht geladen");
+            return;
+        }
+
+        Thread thread = new Thread(() -> {
             imageCalculated.set(false);
-            // TODO muss das huer passieren auch wenn nur von linear zu random gewechselt wurde aber src und dswt gleich bleiben
+
             compareTiles(image.getTiles(), dstTilesList);
 
             image.unsetDstImages();
@@ -328,7 +325,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
             LOGGER.info("generate image start");
             destinationTileIndexes = FXCollections.observableList(new ArrayList<>());
-            destinationTileIndexes.addListener((ListChangeListener<Integer>) c -> usedCount.set(destinationTileIndexes != null ? (int) destinationTileIndexes.stream().distinct().count() : 0));
+            destinationTileIndexes.addListener((ListChangeListener<Integer>) c -> Platform.runLater(() -> usedCount.set(destinationTileIndexes != null ? (int) destinationTileIndexes.stream().distinct().count() : 0)));
             destinationTileIndexes.addAll(ImageComposerFactory
                     .getComposer(mode.get())
                     .generate(tilesPerRow.get()
@@ -350,8 +347,11 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             });
 
             imageCalculated.set(true);
-
         });
+
+        // don't let thread prevent JVM shutdown
+        thread.setDaemon(true);
+        thread.start();
     }
 
     private void checkIntegrity(ObservableList<DstTile> dstTilesList, List<List<Integer>> scoredDstTileLists) {
@@ -366,7 +366,8 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     @Override
     public String getDstTileInformation(int x, int y) {
         LOGGER.debug("getDstTileInformation {},{}", x, y);
-        if (!dstTilesList.isEmpty() && destinationTileIndexes != null && destinationTileIndexes.get(getIndex(x, y)) >= 0) {
+        int index = getIndex(x, y);
+        if (!dstTilesList.isEmpty() && destinationTileIndexes != null && index < destinationTileIndexes.size() && destinationTileIndexes.get(index) >= 0) {
             return dstTilesList.get(destinationTileIndexes.get(getIndex(x, y))).getFilename();
         }
         return "";
@@ -413,7 +414,6 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     public IntegerProperty preColorAlignmentProperty() {
         return preColorAlignment;
     }
-
 
     @Override
     public IntegerProperty postColorAlignmentProperty() {
@@ -556,12 +556,12 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     }
 
     @Override
-    public ReadOnlyIntegerProperty tilesCountProperty() {
-        return tilesCount.getReadOnlyProperty();
-    }
-
-    @Override
     public ReadOnlyIntegerProperty tilesMinNeededProperty() {
         return tilesMinNeeded.getReadOnlyProperty();
+    }
+
+    @FunctionalInterface
+    interface Function {
+        void apply();
     }
 }

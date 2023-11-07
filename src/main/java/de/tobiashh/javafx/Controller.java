@@ -57,8 +57,6 @@ public class Controller {
     @FXML
     private Label filesCountLabel;
     @FXML
-    private Label tilesCountLabel;
-    @FXML
     private Label tilesMinNeededLabel;
     @FXML
     private Label usedCountLabel;
@@ -114,10 +112,8 @@ public class Controller {
     private void initBindings() {
         LOGGER.info("initBindings");
         model.tilesPerColumnProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(() -> imageTilesCount.setText(String.valueOf(newValue.intValue() * model.tilesPerRowProperty().get()))));
-
         pathLabel.textProperty().bind(Bindings.when(propertiesManager.tilesPathProperty().isNull()).then("Kein Pfad gewählt.").otherwise(propertiesManager.tilesPathProperty().asString()));
         filesCountLabel.textProperty().bind(model.dstTilesCountProperty().asString());
-        tilesCountLabel.textProperty().bind(model.tilesCountProperty().asString());
         tilesMinNeededLabel.textProperty().bind(model.tilesMinNeededProperty().asString());
         usedCountLabel.textProperty().bind(model.usedCountProperty().asString());
         modeChoiceBox.valueProperty().bindBidirectional(propertiesManager.modeProperty());

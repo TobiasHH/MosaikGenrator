@@ -11,8 +11,6 @@ public interface MosaicImageModel {
 
     ReadOnlyIntegerProperty dstTilesCountProperty();
 
-    ReadOnlyIntegerProperty tilesCountProperty();
-
     ReadOnlyIntegerProperty tilesMinNeededProperty();
 
     ReadOnlyIntegerProperty usedCountProperty();
