@@ -5,6 +5,7 @@ import de.tobiashh.javafx.model.MosaicImageModelImpl;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -21,11 +22,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Controller {
     private final static Logger LOGGER = LoggerFactory.getLogger(Controller.class.getName());
@@ -223,9 +229,7 @@ public class Controller {
             int x = tileView.getTilePositionX();
             int y = tileView.getTilePositionY();
             tileView.setTile(model.getTile(x, y, isDisplayOriginalImage()));
-      //      tileView.setTile(model.getTile(x, y, isDisplayOriginalImage(), HIDDEN_TILE_SIZE));
         });
-        // manageVisibility();
     }
 
     private void initTileViews() {
@@ -591,5 +595,25 @@ public class Controller {
     @FXML
     public void gc() {
         System.gc();
+    }
+
+    @FXML
+    public void randomImage() {
+        try {
+            Path tilePath = model.tilesPathProperty().get();
+            boolean scanSubFolder = model.scanSubFolderProperty().get();
+            List<Path> paths = (scanSubFolder ? Files.walk(tilePath) : Files.list(tilePath)).filter(this::extensionFilter).collect(Collectors.toList());
+            Path randomPath = paths.get(new Random().nextInt(paths.size()));
+            setImagePath(randomPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private boolean extensionFilter(Path path) {
+        return Arrays
+                .stream(MosaicImageModelImpl.FILE_EXTENSION)
+                .anyMatch(e -> path.toString().toLowerCase().endsWith(".".concat(e.toLowerCase())));
     }
 }

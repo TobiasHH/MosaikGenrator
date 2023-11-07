@@ -314,7 +314,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             return;
         }
 
-        Thread thread = new Thread(() -> {
+//        Thread thread = new Thread(() -> {
             imageCalculated.set(false);
 
             compareTiles(image.getTiles(), dstTilesList);
@@ -347,11 +347,11 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             });
 
             imageCalculated.set(true);
-        });
-
-        // don't let thread prevent JVM shutdown
-        thread.setDaemon(true);
-        thread.start();
+//        });
+//
+//        // don't let thread prevent JVM shutdown
+//        thread.setDaemon(true);
+//        thread.start();
     }
 
     private void checkIntegrity(ObservableList<DstTile> dstTilesList, List<List<Integer>> scoredDstTileLists) {

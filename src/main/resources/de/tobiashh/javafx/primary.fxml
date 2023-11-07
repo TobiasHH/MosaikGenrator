@@ -23,6 +23,7 @@
          <HBox alignment="CENTER" spacing="5.0">
            <Button onAction="#gc" text="GC" />
             <Button layoutX="37.0" layoutY="10.0" mnemonicParsing="false" onAction="#recalculateImage" text="Neu berechnen" />
+            <Button layoutX="37.0" layoutY="10.0" mnemonicParsing="false" onAction="#randomImage" text="Zufälliges Neues Bild" />
             <CheckBox fx:id="originalCheck" mnemonicParsing="false" onAction="#originalCheckAction" text="Original" />
             <ChoiceBox fx:id="modeChoiceBox" prefWidth="150.0" value="LINEAR" />
             <CheckBox fx:id="scanSubfolderCheck" text="Unterordner einbeziehen" />
