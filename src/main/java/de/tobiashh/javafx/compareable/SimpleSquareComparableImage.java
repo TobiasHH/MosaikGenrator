@@ -31,6 +31,7 @@ public class SimpleSquareComparableImage extends ComparableImage {
 				result += diffRed * diffRed + diffGreen * diffGreen + diffBlue * diffBlue;
 			}
 		}
+
 		return result;
 	}
 }

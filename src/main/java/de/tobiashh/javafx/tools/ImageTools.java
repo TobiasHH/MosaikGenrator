@@ -230,7 +230,7 @@ public class ImageTools {
     }
 
     public static BufferedImage calculateScaledImage(BufferedImage bImage, int width, int height, boolean highQuality) {
-        LOGGER.info("calculateScaledImage with {},{}", width, height);
+        LOGGER.debug("calculateScaledImage with {},{}", width, height);
         if (bImage.getWidth() == width && bImage.getHeight() == height) return bImage;
         BufferedImage returnValue = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = (Graphics2D) returnValue.getGraphics();

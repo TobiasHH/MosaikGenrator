@@ -17,11 +17,13 @@ public class ReuseableChecker {
         this.straightTileDistanceCalculator = new StraightTileDistanceCalculator(tilesPerRow);
     }
 
-    public boolean isReuseableAtPosition(Integer destinationTileID, int[] destinationTileIDs, int index) {
-        return IntStream.range(0, tilesPerRow * tilesPerColumn).parallel().allMatch(i -> {
-            if( i == index ) return true;
-            if (destinationTileIDs[i] != destinationTileID) return true;
-            return straightTileDistanceCalculator.calculate(i, index) >= reuseDistance;
-        });
+    public boolean isReuseableAtPosition(Integer destinationTileID, Integer[] destinationTileIDs, int tileIndex) {
+        return IntStream.range(0, tilesPerRow * tilesPerColumn).allMatch(index -> check(destinationTileID, destinationTileIDs[index], tileIndex, index));
+    }
+
+    private boolean check(Integer destinationTileID1, Integer destinationTileID2, int index1, int index2) {
+        if( index1 == index2) return true;
+        if (!destinationTileID1.equals(destinationTileID2)) return true;
+        return straightTileDistanceCalculator.calculate(index1, index2) >= reuseDistance;
     }
 }

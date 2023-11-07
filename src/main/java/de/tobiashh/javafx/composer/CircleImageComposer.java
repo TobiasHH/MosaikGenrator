@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class CircleImageComposer extends ImageComposer {
     private final static Logger LOGGER = LoggerFactory.getLogger(CircleImageComposer.class.getName());
@@ -22,12 +21,13 @@ public class CircleImageComposer extends ImageComposer {
         int startIndex = new Converter(tilesPerRow).getIndex(new Position(tilesPerRow / 2, tilesPerColumn / 2));
         CircularTileDistanceCalculator circularTileDistanceCalculator = new CircularTileDistanceCalculator(tilesPerRow);
 
-        List<Integer> tileIndices = sort( IntStream.range(0, tilesPerColumn * tilesPerRow).boxed().collect(Collectors.toList()), circularTileDistanceCalculator, startIndex);
+        List<Integer> tileIndices = sort( getIntegerList(tilesPerRow, tilesPerColumn), circularTileDistanceCalculator, startIndex);
         List<Integer> indices = sort(areaOfInterest, circularTileDistanceCalculator, startIndex);
+
         tileIndices.removeAll(indices);
         indices.addAll(tileIndices);
 
-        return Arrays.stream(fillImage(tilesPerRow, tilesPerColumn, reuseDistance, maxReuses, destinationTileIDs, indices)).boxed().collect(Collectors.toList());
+        return Arrays.asList(fillImage(tilesPerRow, tilesPerColumn, reuseDistance, maxReuses, destinationTileIDs, indices));
     }
 
     private List<Integer> sort(List<Integer> list, CircularTileDistanceCalculator circularTileDistanceCalculator, int startIndex) {
