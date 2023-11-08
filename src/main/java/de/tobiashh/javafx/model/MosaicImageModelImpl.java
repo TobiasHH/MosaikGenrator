@@ -23,9 +23,12 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.lang.reflect.GenericArrayType;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -217,21 +220,6 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         }
     }
 
-    private void compareTiles(OriginalTile[] mosaicImage, ObservableList<DstTile> dstTilesList) {
-        LOGGER.info("compareTiles");
-
-        IntStream.range(0, mosaicImage.length).parallel().forEach(mosaikImageIndex -> {
-            Map<Integer, Integer> scores = new HashMap<>();
-
-            for (int index = 0; index < dstTilesList.size(); index++) {
-                scores.put(index, mosaicImage[mosaikImageIndex].compare(dstTilesList.get(index), preColorAlignment.get()));
-            }
-
-            scoredDstTileLists.get(mosaikImageIndex).clear();
-            scoredDstTileLists.get(mosaikImageIndex).addAll(getIndexSortedByScore(scores));
-        });
-    }
-
     protected List<Integer> getIndexSortedByScore(Map<Integer, Integer> scores) {
         List<Map.Entry<Integer, Integer>> list = new ArrayList<>(scores.entrySet());
         list.sort(Map.Entry.comparingByValue());
@@ -314,53 +302,48 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             return;
         }
 
-//        Thread thread = new Thread(() -> {
-            imageCalculated.set(false);
+        CompareTask compareTask = new CompareTask(
+                image,
+                dstTilesList,
+             preColorAlignment.get()
+        );
 
-            compareTiles(image.getTiles(), dstTilesList);
+        compareTask.setOnSucceeded(event -> {
+            scoredDstTileLists = compareTask.getValue();
+            MosaikImageGenerateTask mosaikImageGenerateTask = new MosaikImageGenerateTask(
+                    this,
+                    scoredDstTileLists,
+                    areaOfInterest
+            );
 
-            image.unsetDstImages();
+            mosaikImageGenerateTask.setOnSucceeded(event2 -> {
+                destinationTileIndexes = FXCollections.observableList(new ArrayList<>());
+                destinationTileIndexes.addListener((ListChangeListener<Integer>) c -> Platform.runLater(() -> usedCount.set(destinationTileIndexes != null ? (int) destinationTileIndexes.stream().distinct().count() : 0)));
+                destinationTileIndexes.addAll(mosaikImageGenerateTask.getValue());
 
-            checkIntegrity(dstTilesList, scoredDstTileLists);
-
-            LOGGER.info("generate image start");
-            destinationTileIndexes = FXCollections.observableList(new ArrayList<>());
-            destinationTileIndexes.addListener((ListChangeListener<Integer>) c -> Platform.runLater(() -> usedCount.set(destinationTileIndexes != null ? (int) destinationTileIndexes.stream().distinct().count() : 0)));
-            destinationTileIndexes.addAll(ImageComposerFactory
-                    .getComposer(mode.get())
-                    .generate(tilesPerRow.get()
-                            , tilesPerColumn.get()
-                            , maxReuses.get()
-                            , reuseDistance.get()
-                            , areaOfInterest
-                            , scoredDstTileLists));
-            LOGGER.info("generate image finished");
-
-            image.setOpacity(opacity.get());
-            image.setPostColorAlignment(postColorAlignment.get());
-
-            IntStream.range(0, destinationTileIndexes.size()).parallel().forEach(index -> {
-                int dstTileID = destinationTileIndexes.get(index);
-                if (dstTileID >= 0) {
-                    image.getTile(index).setDstImage(dstTilesList.get(dstTileID).getImage());
-                }
+                Platform.runLater(() ->{
+                    imageCalculated.set(false);
+                    image.unsetDstImages();
+                    image.setOpacity(opacity.get());
+                    image.setPostColorAlignment(postColorAlignment.get());
+                    IntStream.range(0, destinationTileIndexes.size()).parallel().forEach(index -> {
+                        int dstTileID = destinationTileIndexes.get(index);
+                        if (dstTileID >= 0) {
+                            image.getTile(index).setDstImage(dstTilesList.get(dstTileID).getImage());
+                        }
+                    });
+                    imageCalculated.set(true);
+                });
             });
 
-            imageCalculated.set(true);
-//        });
-//
-//        // don't let thread prevent JVM shutdown
-//        thread.setDaemon(true);
-//        thread.start();
-    }
+            ExecutorService es = Executors.newSingleThreadExecutor();
+            es.execute(mosaikImageGenerateTask);
+            es.shutdown();
+        });
 
-    private void checkIntegrity(ObservableList<DstTile> dstTilesList, List<List<Integer>> scoredDstTileLists) {
-        for (List<Integer> scoredDstTileList : scoredDstTileLists) {
-            if (dstTilesList.size() != scoredDstTileList.size()) {
-                LOGGER.warn("scored list not correct size");
-                System.exit(-1);
-            }
-        }
+        ExecutorService es = Executors.newSingleThreadExecutor();
+        es.execute(compareTask);
+        es.shutdown();
     }
 
     @Override
@@ -457,17 +440,22 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
     @Override
     public void replaceTile(int x, int y) {
+        LOGGER.info("replaceTile {},{}", x, y);
         if (!dstTilesList.isEmpty() && destinationTileIndexes.get(getIndex(x, y)) >= 0) {
             int actualDestinationTileIndex = destinationTileIndexes.get(getIndex(x, y));
             List<Integer> scoredDstTileList = scoredDstTileLists.get(getIndex(x, y));
             int actualScoredListIndex = scoredDstTileList.indexOf(actualDestinationTileIndex);
 
+            System.out.println("scoredDstTileList = " + scoredDstTileList);
+            System.out.println("actualScoredListIndex = " + actualScoredListIndex);
             int nextScoredListIndex = getNextScoredListIndex(scoredDstTileList, actualScoredListIndex, getIndex(x, y), maxReuses.get(), reuseDistance.get());
 
             if (nextScoredListIndex >= 0) {
+                LOGGER.info("replace");
                 destinationTileIndexes.set(getIndex(x, y), scoredDstTileList.get(nextScoredListIndex));
                 image.getTile(getIndex(x, y)).setDstImage(dstTilesList.get(scoredDstTileList.get(nextScoredListIndex)).getImage());
             } else {
+                LOGGER.info("unset");
                 destinationTileIndexes.set(getIndex(x, y), -1);
                 image.getTile(getIndex(x, y)).setDstImage(null);
             }

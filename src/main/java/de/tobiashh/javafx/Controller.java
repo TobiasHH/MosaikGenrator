@@ -2,6 +2,8 @@ package de.tobiashh.javafx;
 
 import de.tobiashh.javafx.model.MosaicImageModel;
 import de.tobiashh.javafx.model.MosaicImageModelImpl;
+import de.tobiashh.javafx.tools.Converter;
+import de.tobiashh.javafx.tools.Position;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
@@ -30,6 +32,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -224,12 +229,16 @@ public class Controller {
         return (int) (propertiesManager.tileSizeProperty().get() * getScale());
     }
 
-    private void setTiles() {
-        tiles.forEach(tileView -> {
+    private void setTiles(List<TileView> tileViews) {
+        ExecutorService executorService = Executors.newFixedThreadPool(4);
+        tileViews.forEach(tileView -> {
             int x = tileView.getTilePositionX();
             int y = tileView.getTilePositionY();
-            tileView.setTile(model.getTile(x, y, isDisplayOriginalImage()));
+            GetTileTask getTileTask = new GetTileTask(model, x,y,isDisplayOriginalImage());
+            getTileTask.setOnSucceeded(event -> Platform.runLater(() -> tileView.setTile(getTileTask.getValue())));
+            executorService.execute(getTileTask);
         });
+        executorService.shutdown();
     }
 
     private void initTileViews() {
@@ -284,9 +293,13 @@ public class Controller {
                 if (areaOfInterestCheck.isSelected()) {
                     if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
                         model.addAreaOfIntrest(x, y);
+                        int index = new Converter(model.tilesPerRowProperty().get()).getIndex(new Position(x,y));
+                        setTiles(tiles.subList(index, index + 1));
                     }
                     if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
                         model.removeAreaOfIntrest(x, y);
+                        int index = new Converter(model.tilesPerRowProperty().get()).getIndex(new Position(x,y));
+                        setTiles(tiles.subList(index, index + 1));
                     }
                 }
 
@@ -294,14 +307,15 @@ public class Controller {
                     if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
                         LOGGER.info("replace function");
                         model.replaceTile(x, y);
+                        setTiles(tiles);
                     }
                     if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
                         LOGGER.info("ignore function");
                         model.ignoreTile(x, y);
+                        setTiles(tiles);
                     }
                 }
 
-                setTiles();
                 mouseEvent.consume();
             }
         };
@@ -346,7 +360,7 @@ public class Controller {
     private void initModelChangeListener() {
         model.tilesPerColumnProperty().addListener((observable, oldValue, newValue) -> initTileViews());
         model.imageCalculatedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) setTiles();
+            if (newValue) setTiles(tiles);
         });
     }
 
@@ -363,8 +377,8 @@ public class Controller {
 
     private void initControllerPropertyChangeListener() {
         scaleProperty().addListener((observable, oldValue, newValue) -> scaleTiles());
-        displayOriginalImageProperty().addListener((observable, oldValue, newValue) -> setTiles());
-        drawDebugInfoProperty().addListener((observable, oldValue, newValue) -> setTiles());
+        displayOriginalImageProperty().addListener((observable, oldValue, newValue) -> setTiles(tiles));
+        drawDebugInfoProperty().addListener((observable, oldValue, newValue) -> setTiles(tiles));
     }
 
     private void initTextFieldBindings() {
