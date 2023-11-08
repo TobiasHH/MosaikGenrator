@@ -14,6 +14,7 @@ import java.net.URL;
 
 // TODO heapSize fehler wenn tile size 512 und viele Bilder
 // TODO cache mini image files on load
+// TODO Scene Graph und Node ändernde Sachen nur auf Application Thread im Notfall mit Platform run later (prüfen ob so ist) andere Sachen auslagern
 
 /**
  * JavaFX App
