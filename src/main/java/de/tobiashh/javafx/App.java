@@ -35,6 +35,7 @@ import java.net.URL;
  */
 // TODO Info unten besser befüllen mit Stati
 // TODO DEbug Infos im Tile speichern sodass man beim REplace ignore nur die geänderten TileViews neu laden muss mit setTiles
+// TODO statt der tilesPerRow kann auch Gesamt Tiles eingegeben werden. Höhe und Breite werden daraufhin annährend berechnet
 
 /**
  * JavaFX App

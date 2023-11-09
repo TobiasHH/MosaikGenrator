@@ -312,12 +312,8 @@ public class MosaicImageModelImpl implements MosaicImageModel {
                 preColorAlignment.get()
         );
 
-        compareTask.setOnRunning(event -> {
-            System.out.println("running");
-            controller.randomImageButton.setDisable(true);
-        });
+        compareTask.setOnRunning(event -> controller.randomImageButton.setDisable(true));
         compareTask.setOnSucceeded(event -> {
-            System.out.println("finished");
             controller.randomImageButton.setDisable(false);
             scoredDstTileLists = compareTask.getValue();
             MosaikImageGenerateTask mosaikImageGenerateTask = new MosaikImageGenerateTask(
@@ -455,9 +451,6 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             int actualDestinationTileIndex = destinationTileIndexes.get(getIndex(x, y));
             List<Integer> scoredDstTileList = scoredDstTileLists.get(getIndex(x, y));
             int actualScoredListIndex = scoredDstTileList.indexOf(actualDestinationTileIndex);
-
-            System.out.println("scoredDstTileList = " + scoredDstTileList);
-            System.out.println("actualScoredListIndex = " + actualScoredListIndex);
             int nextScoredListIndex = getNextScoredListIndex(scoredDstTileList, actualScoredListIndex, getIndex(x, y), maxReuses.get(), reuseDistance.get());
 
             if (nextScoredListIndex >= 0) {
