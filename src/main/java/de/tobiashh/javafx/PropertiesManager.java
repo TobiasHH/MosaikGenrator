@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 
 public class PropertiesManager {
     public static final String TILES_PER_ROW_PROPERTY_KEY = "tilesPerRow";
+    public static final String TILES_PER_IMAGE_PROPERTY_KEY = "tilesPerImage";
     public static final String TILE_SIZE_PROPERTY_KEY = "tileSize";
     public static final String TILES_PATH_PROPERTY_KEY = "tilesPath";
     public static final String CACHE_PATH_PROPERTY_KEY = "cachePath";
@@ -28,8 +29,10 @@ public class PropertiesManager {
     public static final String REUSE_DISTANCE_PROPERTY_KEY = "reuseDistance";
     public static final String SCAN_SUB_FOLDER_PROPERTY_KEY = "scanSubFolder";
     public static final String DRAW_DEBUG_INFO_PROPERTY_KEY = "drawDebugInfo";
+    public static final String IS_TILES_PER_PROPERTY_KEY = "isTilesPerImage";
     private final static Logger LOGGER = LoggerFactory.getLogger(PropertiesManager.class.getName());
     private static final int TILES_PER_ROW_DEFAULT = 20;
+    private static final int TILES_PER_IMAGE_DEFAULT = 1000;
     private static final int TILE_SIZE_DEFAULT = 128;
     private static final String TILES_PATH_DEFAULT = "tiles";
     private static final String CACHE_PATH_DEFAULT = "cache";
@@ -41,6 +44,7 @@ public class PropertiesManager {
     private static final int REUSE_DISTANCE_DEFAULT = 10;
     private static final boolean SCAN_SUB_FOLDER_DEFAULT = true;
     private static final boolean DRAW_DEBUG_INFO_DEFAULT = true;
+    private static final boolean IS_TILES_PER_ROW_DEFAULT = true;
 
     private static final int TILE_SIZE_MIN = 2;
     private static final int TILE_SIZE_MAX = 512;
@@ -52,6 +56,7 @@ public class PropertiesManager {
     private final ObjectProperty<Path> cachePath = new SimpleObjectProperty<>();
     private final IntegerProperty tileSize = new SimpleIntegerProperty();
     private final IntegerProperty tilesPerRow = new SimpleIntegerProperty();
+    private final IntegerProperty tilesPerImage = new SimpleIntegerProperty();
     private final ObjectProperty<Mode> mode = new SimpleObjectProperty<>();
     private final IntegerProperty compareSize = new SimpleIntegerProperty();
     private final IntegerProperty opacity = new SimpleIntegerProperty();
@@ -61,6 +66,7 @@ public class PropertiesManager {
     private final IntegerProperty reuseDistance = new SimpleIntegerProperty();
     private final BooleanProperty scanSubFolder = new SimpleBooleanProperty();
     private final BooleanProperty drawDebugInfo = new SimpleBooleanProperty();
+    private final BooleanProperty isTilesPerImage = new SimpleBooleanProperty();
     private final Properties properties = new Properties();
 
     public PropertiesManager() {
@@ -74,6 +80,7 @@ public class PropertiesManager {
         cachePathProperty().addListener((observable, oldValue, newValue) -> changePropertyAndSave(CACHE_PATH_PROPERTY_KEY, newValue.toString()));
         tileSizeProperty().addListener((observable, oldValue, newValue) -> changePropertyAndSave(TILE_SIZE_PROPERTY_KEY, String.valueOf(newValue.intValue())));
         tilesPerRowProperty().addListener((observable, oldValue, newValue) -> changePropertyAndSave(TILES_PER_ROW_PROPERTY_KEY, String.valueOf(newValue.intValue())));
+        tilesPerImageProperty().addListener((observable, oldValue, newValue) -> changePropertyAndSave(TILES_PER_IMAGE_PROPERTY_KEY, String.valueOf(newValue.intValue())));
         modeProperty().addListener((observable, oldValue, newValue) -> changePropertyAndSave(MODE_PROPERTY_KEY, String.valueOf(newValue)));
         compareSizeProperty().addListener((observable, oldValue, newValue) -> changePropertyAndSave(COMPARE_SIZE_PROPERTY_KEY, String.valueOf(newValue)));
         opacityProperty().addListener((observable, oldValue, newValue) -> changePropertyAndSave(OPACITY_PROPERTY_KEY, String.valueOf(newValue)));
@@ -83,11 +90,13 @@ public class PropertiesManager {
         reuseDistanceProperty().addListener((observable, oldValue, newValue) -> changePropertyAndSave(REUSE_DISTANCE_PROPERTY_KEY, String.valueOf(newValue)));
         scanSubFolderProperty().addListener((observable, oldValue, newValue) -> changePropertyAndSave(SCAN_SUB_FOLDER_PROPERTY_KEY, String.valueOf(newValue)));
         drawDebugInfoProperty().addListener((observable, oldValue, newValue) -> changePropertyAndSave(DRAW_DEBUG_INFO_PROPERTY_KEY, String.valueOf(newValue)));
+        isTilesPerImageProperty().addListener((observable, oldValue, newValue) -> changePropertyAndSave(IS_TILES_PER_PROPERTY_KEY, String.valueOf(newValue)));
 
         loadProperties();
 
         tileSize.set(Math.min(TILE_SIZE_MAX, Math.max(TILE_SIZE_MIN, Integer.parseInt(properties.getProperty(TILE_SIZE_PROPERTY_KEY, String.valueOf(TILE_SIZE_DEFAULT))))));
         tilesPerRow.set(Integer.parseInt(properties.getProperty(TILES_PER_ROW_PROPERTY_KEY, String.valueOf(TILES_PER_ROW_DEFAULT))));
+        tilesPerImage.set(Integer.parseInt(properties.getProperty(TILES_PER_IMAGE_PROPERTY_KEY, String.valueOf(TILES_PER_IMAGE_DEFAULT))));
         tilesPath.set(Path.of(properties.getProperty(TILES_PATH_PROPERTY_KEY, TILES_PATH_DEFAULT)));
         cachePath.set(Path.of(properties.getProperty(CACHE_PATH_PROPERTY_KEY, CACHE_PATH_DEFAULT)));
         mode.set(Mode.valueOf(properties.getProperty(MODE_PROPERTY_KEY, MODE_DEFAULT.toString())));
@@ -99,6 +108,7 @@ public class PropertiesManager {
         reuseDistance.set(Integer.parseInt(properties.getProperty(REUSE_DISTANCE_PROPERTY_KEY, String.valueOf(REUSE_DISTANCE_DEFAULT))));
         scanSubFolder.set(Boolean.parseBoolean(properties.getProperty(SCAN_SUB_FOLDER_PROPERTY_KEY, String.valueOf(SCAN_SUB_FOLDER_DEFAULT))));
         drawDebugInfo.set(Boolean.parseBoolean(properties.getProperty(DRAW_DEBUG_INFO_PROPERTY_KEY, String.valueOf(DRAW_DEBUG_INFO_DEFAULT))));
+        isTilesPerImage.set(Boolean.parseBoolean(properties.getProperty(IS_TILES_PER_PROPERTY_KEY, String.valueOf(IS_TILES_PER_ROW_DEFAULT))));
 
         createDefaultTilesPathIfNotExist();
         createDefaultCachePathIfNotExist();
@@ -203,6 +213,10 @@ public class PropertiesManager {
         return tilesPerRow;
     }
 
+    public IntegerProperty tilesPerImageProperty() {
+        return tilesPerImage;
+    }
+
     public ObjectProperty<Mode> modeProperty() {
         return mode;
     }
@@ -237,5 +251,9 @@ public class PropertiesManager {
 
     public BooleanProperty drawDebugInfoProperty() {
         return drawDebugInfo;
+    }
+
+    public BooleanProperty isTilesPerImageProperty() {
+        return isTilesPerImage;
     }
 }

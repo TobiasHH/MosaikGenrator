@@ -7,6 +7,7 @@ import de.tobiashh.javafx.tools.Position;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -47,6 +48,10 @@ public class Controller {
     private final BooleanProperty drawDebugInfo = new SimpleBooleanProperty();
     private final ObjectProperty<Path> imagePath = new SimpleObjectProperty<>();
     private final ObjectProperty<Path> saveImagePath = new SimpleObjectProperty<>(Path.of(System.getProperty("user.home")));
+
+    PropertiesManager propertiesManager = new PropertiesManager();
+    List<TileView> tiles = new ArrayList<>();
+
     @FXML
     public ChoiceBox<Mode> modeChoiceBox;
     @FXML
@@ -55,8 +60,6 @@ public class Controller {
     public Button recalculateImageButton;
     @FXML
     public Button randomImageButton;
-    PropertiesManager propertiesManager = new PropertiesManager();
-    List<TileView> tiles = new ArrayList<>();
     @FXML
     private MenuBar menuBar;
     @FXML
@@ -93,6 +96,10 @@ public class Controller {
     private TextField opacity;
     @FXML
     private TextField tilesPerRow;
+    @FXML
+    public CheckBox isTilesPerImageCheck;
+    @FXML
+    public TextField tilesPerImage;
     @FXML
     private TextField maxReuses;
     @FXML
@@ -131,10 +138,15 @@ public class Controller {
         modeChoiceBox.valueProperty().bindBidirectional(propertiesManager.modeProperty());
         scanSubfolderCheck.selectedProperty().bindBidirectional(propertiesManager.scanSubFolderProperty());
         drawDebugInfoCheck.selectedProperty().bindBidirectional(propertiesManager.drawDebugInfoProperty());
+        isTilesPerImageCheck.selectedProperty().bindBidirectional(propertiesManager.isTilesPerImageProperty());
         statusLabel.textProperty().bind(model.statusProperty());
+        tilesPerRow.disableProperty().bind(isTilesPerImageCheck.selectedProperty());
+        tilesPerImage.disableProperty().bind(isTilesPerImageCheck.selectedProperty().not());
 
         initTextFieldBindings();
 
+        model.tilesPerRowProperty().bind(propertiesManager.tilesPerRowProperty());
+        model.tilesPerImageProperty().bind(propertiesManager.tilesPerImageProperty());
         model.tilesPerRowProperty().bind(propertiesManager.tilesPerRowProperty());
         model.tileSizeProperty().bind(propertiesManager.tileSizeProperty());
         model.opacityProperty().bind(propertiesManager.opacityProperty());
@@ -146,6 +158,7 @@ public class Controller {
         model.compareSizeProperty().bind(propertiesManager.compareSizeProperty());
         model.scanSubFolderProperty().bind(propertiesManager.scanSubFolderProperty());
         model.drawDebugInfoProperty().bind(propertiesManager.drawDebugInfoProperty());
+        model.isTilesPerImageProperty().bind(propertiesManager.isTilesPerImageProperty());
 
         model.tilesPathProperty().bind(propertiesManager.tilesPathProperty());
         model.cachePathProperty().bind(propertiesManager.cachePathProperty());
@@ -387,6 +400,7 @@ public class Controller {
         initIntegerTextFieldBinding(postColorAlignment, propertiesManager.postColorAlignmentProperty(), 0, 100);
         initIntegerTextFieldBinding(opacity, propertiesManager.opacityProperty(), 0, 100);
         initIntegerTextFieldBinding(tilesPerRow, propertiesManager.tilesPerRowProperty(), 1, 50);
+        initIntegerTextFieldBinding(tilesPerImage, propertiesManager.tilesPerImageProperty(), 1, 2000);
         initIntegerTextFieldBinding(maxReuses, propertiesManager.maxReusesProperty(), 0, 5000);
         initIntegerTextFieldBinding(reuseDistance, propertiesManager.reuseDistanceProperty(), 1, 50);
     }

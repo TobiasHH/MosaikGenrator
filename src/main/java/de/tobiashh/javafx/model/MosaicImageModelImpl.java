@@ -12,6 +12,8 @@ import de.tobiashh.javafx.tools.Position;
 import distanceCalculator.StraightTileDistanceCalculator;
 import javafx.application.Platform;
 import javafx.beans.property.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -46,6 +48,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     private final ObservableList<DstTile> dstTilesList = FXCollections.observableList(new ArrayList<>());
     private final ObjectProperty<Path> srcImagePath = new SimpleObjectProperty<>();
     private final IntegerProperty tilesPerRow = new SimpleIntegerProperty();
+    private final IntegerProperty tilesPerImage = new SimpleIntegerProperty();
     private final ObjectProperty<Path> tilesPath = new SimpleObjectProperty<>();
     private final ObjectProperty<Path> cachePath = new SimpleObjectProperty<>();
     private final IntegerProperty tileSize = new SimpleIntegerProperty();
@@ -58,6 +61,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     private final IntegerProperty compareSize = new SimpleIntegerProperty();
     private final BooleanProperty scanSubFolder = new SimpleBooleanProperty();
     private final BooleanProperty drawDebugInfo = new SimpleBooleanProperty();
+    private final BooleanProperty isTilesPerImage = new SimpleBooleanProperty();
 
     private final MosaikImage image = new MosaikImage();
     Task<Void> delayedTask = null;
@@ -88,7 +92,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         cachePathProperty().addListener((observable, oldValue, newValue) -> loadDstTiles(tilesPath.get(), newValue));
         scanSubFolderProperty().addListener(((observable, oldValue, newValue) -> loadDstTiles(tilesPath.get(), cachePath.get())));
 
-        srcImagePathProperty().addListener((observable, oldValue, newValue) -> loadImage(newValue));
+        srcImagePathProperty().addListener((observable, oldValue, newValue) -> loadImage(newValue, isTilesPerImage.get()));
 
         modeProperty().addListener((observable, oldValue, newValue) -> generateMosaicImage());
         reuseDistanceProperty().addListener((observable, oldValue, newValue) -> executeDelayed(this::generateMosaicImage));
@@ -99,7 +103,9 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
         postColorAlignmentProperty().addListener((observable, oldValue, newValue) -> executeDelayed(newValue, this::setPostColorAlignmentInTiles));
 
-        tilesPerRowProperty().addListener((observable, oldValue, newValue) -> executeDelayed(() -> loadImage(srcImagePath.get())));
+        tilesPerRowProperty().addListener((observable, oldValue, newValue) -> executeDelayed(() -> loadImage(srcImagePath.get(), isTilesPerImage.get())));
+        tilesPerImageProperty().addListener((observable, oldValue, newValue) -> executeDelayed(() -> loadImage(srcImagePath.get(), isTilesPerImage.get())));
+        isTilesPerImageProperty().addListener((observable, oldValue, newValue) -> executeDelayed(() -> loadImage(srcImagePath.get(), isTilesPerImage.get())));
     }
 
     private int getDivident() {
@@ -179,8 +185,8 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         thread.start();
     }
 
-    private void loadImage(Path path) {
-        if (tileSize.get() <= 0 || tilesPerRow.get() <= 0 || path == null) return;
+    private void loadImage(Path path, boolean isTilesPerImage) {
+        if (tileSize.get() <= 0 || (!isTilesPerImage && tilesPerRow.get() <= 0) || (isTilesPerImage && tilesPerImage.get() <= 0) || path == null) return;
         LOGGER.info("loadImage {}", path);
 
         Thread thread = new Thread(() -> {
@@ -189,13 +195,29 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             try {
                 BufferedImage bufferedImage = ImageIO.read(path.toFile());
 
-                int tilesPerColumn = Math.max(1, tilesPerRow.get() * bufferedImage.getHeight() / bufferedImage.getWidth());
+                if(isTilesPerImage)
+                {
+                    int width = bufferedImage.getWidth();
+                    int height = bufferedImage.getHeight();
 
-                this.tilesPerColumn.set(tilesPerColumn);
+                    int tilesPerRow = 1, tilesPerColumn;
+                    do {
+                        tilesPerColumn = tilesPerRow * height / width;
+                        tilesPerRow++;
+                    } while (tilesPerRow * tilesPerColumn < tilesPerImage.get());
+
+                    // tilesPerRow neu setzen
+
+                    this.tilesPerColumn.set(Math.max(1, tilesPerColumn));
+                }
+                else
+                {
+                    this.tilesPerColumn.set(Math.max(1, tilesPerRow.get() * bufferedImage.getHeight() / bufferedImage.getWidth()));
+                }
 
                 BufferedImage image = ImageTools.calculateScaledImage(bufferedImage,
                         tilesPerRow.get() * tileSize.get(),
-                        tilesPerColumn * tileSize.get(),
+                        this.tilesPerColumn.get() * tileSize.get(),
                         true);
 
                 calculateTiles(image);
@@ -442,6 +464,16 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     @Override
     public IntegerProperty tilesPerRowProperty() {
         return tilesPerRow;
+    }
+
+    @Override
+    public IntegerProperty tilesPerImageProperty() {
+        return tilesPerImage;
+    }
+
+    @Override
+    public BooleanProperty isTilesPerImageProperty() {
+        return isTilesPerImage;
     }
 
     @Override

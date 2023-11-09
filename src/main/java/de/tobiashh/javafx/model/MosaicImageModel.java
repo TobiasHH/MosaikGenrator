@@ -64,6 +64,10 @@ public interface MosaicImageModel {
 
     IntegerProperty tilesPerRowProperty();
 
+    IntegerProperty tilesPerImageProperty();
+
+    BooleanProperty isTilesPerImageProperty();
+
     void replaceTile(int x, int y);
 
     void ignoreTile(int x, int y);

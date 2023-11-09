@@ -42,6 +42,9 @@
                 <TextField fx:id="opacity" prefWidth="50.0"/>
                 <Label layoutX="660.0" layoutY="14.0" text="Tiles in Zeile:"/>
                 <TextField fx:id="tilesPerRow" layoutX="695.0" layoutY="10.0" prefWidth="50.0"/>
+                <CheckBox fx:id="isTilesPerImageCheck"/>
+                <Label layoutX="660.0" layoutY="14.0" text="Tiles in Bild:"/>
+                <TextField disable="true" fx:id="tilesPerImage" layoutX="695.0" layoutY="10.0" prefWidth="50.0"/>
                 <Label layoutX="660.0" layoutY="14.0" text="Max Reuses:"/>
                 <TextField fx:id="maxReuses" layoutX="695.0" layoutY="10.0" prefWidth="50.0"/>
                 <Label layoutX="660.0" layoutY="14.0" text="ReuseDistance:"/>
