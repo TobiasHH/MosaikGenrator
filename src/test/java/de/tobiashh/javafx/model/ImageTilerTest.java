@@ -6,9 +6,10 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ImageTilerTest {
 
@@ -19,12 +20,12 @@ class ImageTilerTest {
         List<BufferedImage> tiles = imageTiler.getTiles();
         assertThat(tiles.size(), is(6));
         assertAll(
-            () -> assertTrue(compareImagesPixelwise(tiles.get(0), createTestImage(15,15))),
-            () -> assertTrue(compareImagesPixelwise(tiles.get(1), createTestImage(15,15))),
-            () -> assertTrue(compareImagesPixelwise(tiles.get(2), createTestImage(15,15))),
-            () -> assertTrue(compareImagesPixelwise(tiles.get(3), createTestImage(15,15))),
-            () -> assertTrue(compareImagesPixelwise(tiles.get(4), createTestImage(15,15))),
-            () -> assertTrue(compareImagesPixelwise(tiles.get(5), createTestImage(15,15)))
+                () -> assertTrue(compareImagesPixelwise(tiles.get(0), createTestImage(15, 15))),
+                () -> assertTrue(compareImagesPixelwise(tiles.get(1), createTestImage(15, 15))),
+                () -> assertTrue(compareImagesPixelwise(tiles.get(2), createTestImage(15, 15))),
+                () -> assertTrue(compareImagesPixelwise(tiles.get(3), createTestImage(15, 15))),
+                () -> assertTrue(compareImagesPixelwise(tiles.get(4), createTestImage(15, 15))),
+                () -> assertTrue(compareImagesPixelwise(tiles.get(5), createTestImage(15, 15)))
         );
     }
 
@@ -41,7 +42,7 @@ class ImageTilerTest {
             return false;
         }
 
-        int width  = imgA.getWidth();
+        int width = imgA.getWidth();
         int height = imgA.getHeight();
 
         for (int y = 0; y < height; y++) {

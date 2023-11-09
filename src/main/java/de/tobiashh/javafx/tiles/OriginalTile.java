@@ -20,8 +20,7 @@ public class OriginalTile extends SimpleSquareComparableImage {
 
     private SoftReference<BufferedImage> cachedComposedImage = new SoftReference<>(null);
 
-    public OriginalTile(BufferedImage srcImage, int compareSize)
-    {
+    public OriginalTile(BufferedImage srcImage, int compareSize) {
         LOGGER.debug("OriginalTile with compareSize {}", compareSize);
         setDataImage(srcImage, compareSize);
         setSrcImage(srcImage);
@@ -34,24 +33,22 @@ public class OriginalTile extends SimpleSquareComparableImage {
         dstImageProperty().addListener((observable, oldValue, newValue) -> cachedComposedImage.clear());
     }
 
-    public BufferedImage getComposedImage()
-    {
+    public BufferedImage getComposedImage() {
         LOGGER.debug("getComposedImage");
         BufferedImage srcImage = getSrcImage();
-        if(srcImage == null) return null;
+        if (srcImage == null) return null;
 
         BufferedImage dstImage = getDstImage();
-        if(dstImage == null) return srcImage;
+        if (dstImage == null) return srcImage;
 
         BufferedImage composedImage = cachedComposedImage.get();
-        if(composedImage != null) return composedImage;
+        if (composedImage != null) return composedImage;
 
         cachedComposedImage = new SoftReference<>(new TileComposer(opacity, postColorAlignment).compose(srcImage, dstImage));
         return cachedComposedImage.get();
     }
 
-    public void setOpacity(int opacity)
-    {
+    public void setOpacity(int opacity) {
         LOGGER.debug("setOpacity to {}%", opacity);
         this.opacity = opacity;
         cachedComposedImage.clear();
@@ -67,9 +64,13 @@ public class OriginalTile extends SimpleSquareComparableImage {
         return srcImage;
     }
 
-    public BufferedImage getSrcImage() { return srcImage.get(); }
+    public BufferedImage getSrcImage() {
+        return srcImage.get();
+    }
 
-    public void setSrcImage(BufferedImage image) { srcImage.set(image); }
+    public void setSrcImage(BufferedImage image) {
+        srcImage.set(image);
+    }
 
     public ObjectProperty<BufferedImage> dstImageProperty() {
         return dstImage;
@@ -79,5 +80,7 @@ public class OriginalTile extends SimpleSquareComparableImage {
         return dstImage.get();
     }
 
-    public void setDstImage(BufferedImage image) { dstImage.set(image); }
+    public void setDstImage(BufferedImage image) {
+        dstImage.set(image);
+    }
 }

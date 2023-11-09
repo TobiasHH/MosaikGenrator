@@ -34,6 +34,7 @@ class CenterImageComposerTest {
 
         assertThat(result, is(Collections.singletonList(2)));
     }
+
     @Test
     void generate2() {
         CenterImageComposer centerImageComposer = new CenterImageComposer();
@@ -44,15 +45,15 @@ class CenterImageComposerTest {
         List<Integer> areaOfInterest = new ArrayList<>();
 
         List<List<Integer>> destinationTileIDs = new ArrayList<>();
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 2, 0, 1)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(2, 0, 1)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
 
         List<Integer> result = centerImageComposer.generate(tilesPerRow,
                 tilesPerColumn,
@@ -74,15 +75,15 @@ class CenterImageComposerTest {
         List<Integer> areaOfInterest = new ArrayList<>(Collections.singletonList(6));
 
         List<List<Integer>> destinationTileIDs = new ArrayList<>();
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 2, 0, 1)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(2, 0, 1)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
 
         List<Integer> result = centerImageComposer.generate(tilesPerRow,
                 tilesPerColumn,

@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class DstTilesLoaderTask extends Task<List<DstTile>> {
     private final static Logger LOGGER = LoggerFactory.getLogger(DstTilesLoaderTask.class.getName());
 
-    private static final int MAX_THREADS = Math.max(1,Runtime.getRuntime().availableProcessors() - 1);
+    private static final int MAX_THREADS = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
 
     private final ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS, runnable -> {
         Thread t = new Thread(runnable);

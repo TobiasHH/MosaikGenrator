@@ -12,53 +12,49 @@ import java.nio.file.Path;
 import java.util.Iterator;
 
 public class ImageSaver implements Runnable {
-	private final static Logger LOGGER = LoggerFactory.getLogger(ImageSaver.class.getName());
-	
-	private final Path file;
-	private final OriginalTile[] tiles;
-	private final int tileSize;
-	private final int tilesPerRow;
-	private final int tilesPerColumn;
+    private final static Logger LOGGER = LoggerFactory.getLogger(ImageSaver.class.getName());
 
-	public ImageSaver(Path file, OriginalTile[] tiles, int tilesPerRow, int tilesPerColumn, int tileSize) {
-		LOGGER.info("ImageSaver");
-		this.tiles = tiles;
-		this.tileSize = tileSize;
-		this.tilesPerRow = tilesPerRow;
-		this.tilesPerColumn = tilesPerColumn;
-		this.file = file;
-	}
-	
-	@Override
-	public void run() {
-		LOGGER.info("Save image {}", file.getFileName());
-		Runtime.getRuntime().gc();
-		
-		try
-		{
-			
-			Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("png");
-			if (writers.hasNext())
-			{
-				
-				ImageWriter writer = writers.next();
-				
-				ImageOutputStream ios = ImageIO.createImageOutputStream(file.toFile());
-				writer.setOutput(ios);
-				
-				TileRenderImage tm = new TileRenderImage(tilesPerRow, tilesPerColumn, tileSize,tiles);
-				writer.write(tm);
-				writer.dispose();
-				ios.close();
-			}
-			
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+    private final Path file;
+    private final OriginalTile[] tiles;
+    private final int tileSize;
+    private final int tilesPerRow;
+    private final int tilesPerColumn;
 
-		LOGGER.info("Image saved");
-	}
-	
+    public ImageSaver(Path file, OriginalTile[] tiles, int tilesPerRow, int tilesPerColumn, int tileSize) {
+        LOGGER.info("ImageSaver");
+        this.tiles = tiles;
+        this.tileSize = tileSize;
+        this.tilesPerRow = tilesPerRow;
+        this.tilesPerColumn = tilesPerColumn;
+        this.file = file;
+    }
+
+    @Override
+    public void run() {
+        LOGGER.info("Save image {}", file.getFileName());
+        Runtime.getRuntime().gc();
+
+        try {
+
+            Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("png");
+            if (writers.hasNext()) {
+
+                ImageWriter writer = writers.next();
+
+                ImageOutputStream ios = ImageIO.createImageOutputStream(file.toFile());
+                writer.setOutput(ios);
+
+                TileRenderImage tm = new TileRenderImage(tilesPerRow, tilesPerColumn, tileSize, tiles);
+                writer.write(tm);
+                writer.dispose();
+                ios.close();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        LOGGER.info("Image saved");
+    }
+
 }

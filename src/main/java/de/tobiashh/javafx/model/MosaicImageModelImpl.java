@@ -1,15 +1,15 @@
 package de.tobiashh.javafx.model;
 
+import de.tobiashh.javafx.Controller;
 import de.tobiashh.javafx.DstTilesLoaderTask;
 import de.tobiashh.javafx.Mode;
-import distanceCalculator.StraightTileDistanceCalculator;
-import de.tobiashh.javafx.composer.*;
 import de.tobiashh.javafx.save.ImageSaver;
 import de.tobiashh.javafx.tiles.DstTile;
 import de.tobiashh.javafx.tiles.OriginalTile;
+import de.tobiashh.javafx.tools.Converter;
 import de.tobiashh.javafx.tools.ImageTools;
 import de.tobiashh.javafx.tools.Position;
-import de.tobiashh.javafx.tools.Converter;
+import distanceCalculator.StraightTileDistanceCalculator;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -23,10 +23,9 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.lang.reflect.GenericArrayType;
 import java.nio.file.Path;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -62,6 +61,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
     private final MosaikImage image = new MosaikImage();
     Task<Void> delayedTask = null;
+    private Controller controller;
     private List<List<Integer>> scoredDstTileLists;
     private ObservableList<Integer> destinationTileIndexes;
     private DstTilesLoaderTask task;
@@ -69,6 +69,10 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     public MosaicImageModelImpl() {
         LOGGER.info("MosaicImageModelImpl");
         initChangeListener();
+    }
+
+    public void setController(Controller controller) {
+        this.controller = controller;
     }
 
     private void initChangeListener() {
@@ -305,10 +309,16 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         CompareTask compareTask = new CompareTask(
                 image,
                 dstTilesList,
-             preColorAlignment.get()
+                preColorAlignment.get()
         );
 
+        compareTask.setOnRunning(event -> {
+            System.out.println("running");
+            controller.randomImageButton.setDisable(true);
+        });
         compareTask.setOnSucceeded(event -> {
+            System.out.println("finished");
+            controller.randomImageButton.setDisable(false);
             scoredDstTileLists = compareTask.getValue();
             MosaikImageGenerateTask mosaikImageGenerateTask = new MosaikImageGenerateTask(
                     this,
@@ -321,7 +331,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
                 destinationTileIndexes.addListener((ListChangeListener<Integer>) c -> Platform.runLater(() -> usedCount.set(destinationTileIndexes != null ? (int) destinationTileIndexes.stream().distinct().count() : 0)));
                 destinationTileIndexes.addAll(mosaikImageGenerateTask.getValue());
 
-                Platform.runLater(() ->{
+                Platform.runLater(() -> {
                     imageCalculated.set(false);
                     image.unsetDstImages();
                     image.setOpacity(opacity.get());

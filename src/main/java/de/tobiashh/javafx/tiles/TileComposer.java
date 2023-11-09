@@ -15,9 +15,9 @@ public class TileComposer {
         this.postColorAlignment = postColorAlignment;
     }
 
-    public BufferedImage compose(BufferedImage originalImage, BufferedImage mosaikImage)
-    {
-        if( originalImage.getWidth() != mosaikImage.getWidth() || originalImage.getHeight() != mosaikImage.getHeight()) return deepCopy(mosaikImage);
+    public BufferedImage compose(BufferedImage originalImage, BufferedImage mosaikImage) {
+        if (originalImage.getWidth() != mosaikImage.getWidth() || originalImage.getHeight() != mosaikImage.getHeight())
+            return deepCopy(mosaikImage);
         if (opacity == 0) return deepCopy(originalImage);
         return getComposedImage(originalImage, mosaikImage);
     }

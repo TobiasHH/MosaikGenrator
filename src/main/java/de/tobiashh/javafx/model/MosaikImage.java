@@ -11,7 +11,7 @@ public class MosaikImage {
         }
     }
 
-    public int getLength(){
+    public int getLength() {
         return imageTiles.length;
     }
 
@@ -31,11 +31,11 @@ public class MosaikImage {
         }
     }
 
-    public void setTiles(OriginalTile[] tiles) {
-        imageTiles = tiles;
-    }
-
     public OriginalTile[] getTiles() {
         return imageTiles;
+    }
+
+    public void setTiles(OriginalTile[] tiles) {
+        imageTiles = tiles;
     }
 }

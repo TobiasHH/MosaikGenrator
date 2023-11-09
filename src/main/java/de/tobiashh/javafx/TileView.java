@@ -1,6 +1,7 @@
 package de.tobiashh.javafx;
 
-import javafx.beans.property.*;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.ImageView;
 

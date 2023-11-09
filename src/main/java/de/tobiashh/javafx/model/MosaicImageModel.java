@@ -1,5 +1,6 @@
 package de.tobiashh.javafx.model;
 
+import de.tobiashh.javafx.Controller;
 import de.tobiashh.javafx.Mode;
 import javafx.beans.property.*;
 
@@ -66,4 +67,6 @@ public interface MosaicImageModel {
     void replaceTile(int x, int y);
 
     void ignoreTile(int x, int y);
+
+    void setController(Controller controller);
 }

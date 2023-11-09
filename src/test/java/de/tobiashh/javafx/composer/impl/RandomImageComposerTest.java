@@ -46,15 +46,15 @@ class RandomImageComposerTest {
         List<Integer> areaOfInterest = new ArrayList<>();
 
         List<List<Integer>> destinationTileIDs = new ArrayList<>();
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 2, 0, 1)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(2, 0, 1)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
 
         List<Integer> result = randomImageComposer.generate(tilesPerRow,
                 tilesPerColumn,
@@ -79,15 +79,15 @@ class RandomImageComposerTest {
         List<Integer> areaOfInterest = new ArrayList<>(Collections.singletonList(6));
 
         List<List<Integer>> destinationTileIDs = new ArrayList<>();
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 2, 0, 1)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(2, 0, 1)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
 
         List<Integer> result = randomImageComposer.generate(tilesPerRow,
                 tilesPerColumn,

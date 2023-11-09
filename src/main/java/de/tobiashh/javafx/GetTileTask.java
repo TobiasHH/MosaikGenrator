@@ -1,21 +1,11 @@
 package de.tobiashh.javafx;
 
-import de.tobiashh.javafx.Mode;
-import de.tobiashh.javafx.composer.ImageComposerFactory;
 import de.tobiashh.javafx.model.MosaicImageModel;
-import de.tobiashh.javafx.model.MosaicImageModelImpl;
-import de.tobiashh.javafx.tiles.DstTile;
-import de.tobiashh.javafx.tiles.OriginalTile;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class GetTileTask extends Task<BufferedImage> {
     private final static Logger LOGGER = LoggerFactory.getLogger(GetTileTask.class.getName());

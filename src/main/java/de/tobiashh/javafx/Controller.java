@@ -7,7 +7,6 @@ import de.tobiashh.javafx.tools.Position;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -32,11 +31,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Controller {
     private final static Logger LOGGER = LoggerFactory.getLogger(Controller.class.getName());
@@ -50,11 +47,14 @@ public class Controller {
     private final BooleanProperty drawDebugInfo = new SimpleBooleanProperty();
     private final ObjectProperty<Path> imagePath = new SimpleObjectProperty<>();
     private final ObjectProperty<Path> saveImagePath = new SimpleObjectProperty<>(Path.of(System.getProperty("user.home")));
-
     @FXML
     public ChoiceBox<Mode> modeChoiceBox;
     @FXML
     public Label imageTilesCount;
+    @FXML
+    public Button recalculateImageButton;
+    @FXML
+    public Button randomImageButton;
     PropertiesManager propertiesManager = new PropertiesManager();
     List<TileView> tiles = new ArrayList<>();
     @FXML
@@ -103,6 +103,7 @@ public class Controller {
     public Controller(MosaicImageModel model) {
         LOGGER.info("Controller");
         this.model = model;
+        model.setController(this);
     }
 
     @FXML
@@ -189,12 +190,12 @@ public class Controller {
 
                     if (nextPowerOfTwoImage != nextPowerOfTwoImageView) {
                         LOGGER.debug("get new visible image for " + tile.getTilePositionX() + ", " + tile.getTilePositionY());
-               //         tile.setTile(model.getTile(tile.getTilePositionX(), tile.getTilePositionY(), isDisplayOriginalImage(), nextPowerOfTwoImageView));
+                        //         tile.setTile(model.getTile(tile.getTilePositionX(), tile.getTilePositionY(), isDisplayOriginalImage(), nextPowerOfTwoImageView));
                     }
                 } else {
                     if (tile.getImage().getWidth() != HIDDEN_TILE_SIZE) {
                         LOGGER.debug("get new hidden image for " + tile.getTilePositionX() + ", " + tile.getTilePositionY());
-                //        tile.setTile(model.getTile(tile.getTilePositionX(), tile.getTilePositionY(), isDisplayOriginalImage(), HIDDEN_TILE_SIZE));
+                        //        tile.setTile(model.getTile(tile.getTilePositionX(), tile.getTilePositionY(), isDisplayOriginalImage(), HIDDEN_TILE_SIZE));
                     }
                 }
             }
@@ -202,7 +203,7 @@ public class Controller {
 
         LOGGER.debug("visibleTiles = " + tiles.stream().filter(tile -> isVisibleTile(x, y, tilesOnScreenW, tilesOnScreenH, tile)).count());
         LOGGER.debug("tilesWithHiddenWidth = " + tiles.stream().filter(tile -> tile.getImage() != null && tile.getImage().getWidth() == HIDDEN_TILE_SIZE).count());
-        tiles.stream().map(tile -> tile.getImage() != null ? tile.getImage().getWidth(): 0).sorted().distinct().forEach(size -> LOGGER.debug(size + ": " + tiles.stream().filter(tile -> size == (tile.getImage() != null ? tile.getImage().getWidth(): 0)).count()));
+        tiles.stream().map(tile -> tile.getImage() != null ? tile.getImage().getWidth() : 0).sorted().distinct().forEach(size -> LOGGER.debug(size + ": " + tiles.stream().filter(tile -> size == (tile.getImage() != null ? tile.getImage().getWidth() : 0)).count()));
 
     }
 
@@ -234,7 +235,7 @@ public class Controller {
         tileViews.forEach(tileView -> {
             int x = tileView.getTilePositionX();
             int y = tileView.getTilePositionY();
-            GetTileTask getTileTask = new GetTileTask(model, x,y,isDisplayOriginalImage());
+            GetTileTask getTileTask = new GetTileTask(model, x, y, isDisplayOriginalImage());
             getTileTask.setOnSucceeded(event -> Platform.runLater(() -> tileView.setTile(getTileTask.getValue())));
             executorService.execute(getTileTask);
         });
@@ -293,12 +294,12 @@ public class Controller {
                 if (areaOfInterestCheck.isSelected()) {
                     if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
                         model.addAreaOfIntrest(x, y);
-                        int index = new Converter(model.tilesPerRowProperty().get()).getIndex(new Position(x,y));
+                        int index = new Converter(model.tilesPerRowProperty().get()).getIndex(new Position(x, y));
                         setTiles(tiles.subList(index, index + 1));
                     }
                     if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
                         model.removeAreaOfIntrest(x, y);
-                        int index = new Converter(model.tilesPerRowProperty().get()).getIndex(new Position(x,y));
+                        int index = new Converter(model.tilesPerRowProperty().get()).getIndex(new Position(x, y));
                         setTiles(tiles.subList(index, index + 1));
                     }
                 }
@@ -478,7 +479,7 @@ public class Controller {
         directoryChooser.setTitle("Wähle Mosaik Tile Pfad");
         directoryChooser.setInitialDirectory(propertiesManager.tilesPathProperty().get().toFile());
         File file = directoryChooser.showDialog(menuBar.getScene().getWindow());
-        if(file != null) propertiesManager.tilesPathProperty().set(file.toPath());
+        if (file != null) propertiesManager.tilesPathProperty().set(file.toPath());
     }
 
     @FXML

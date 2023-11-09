@@ -2,7 +2,7 @@ package de.tobiashh.javafx.tools;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ImageToolsTest {
 
@@ -23,7 +23,7 @@ class ImageToolsTest {
 
     @Test
     void rgbTest() {
-        for (int color : new int[] {0x00FFFFFF, 0x00FF0000, 0x0000FF00, 0x000000FF, 0x00998877, 0x00000000}) {
+        for (int color : new int[]{0x00FFFFFF, 0x00FF0000, 0x0000FF00, 0x000000FF, 0x00998877, 0x00000000}) {
             int color2 = ImageTools.rgb(ImageTools.red(color), ImageTools.green(color), ImageTools.blue(color));
             assertEquals(color, color2);
         }

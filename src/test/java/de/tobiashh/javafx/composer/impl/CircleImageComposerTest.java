@@ -34,6 +34,7 @@ class CircleImageComposerTest {
 
         assertThat(result, is(Collections.singletonList(2)));
     }
+
     @Test
     void generate2() {
         CircleImageComposer circleImageComposer = new CircleImageComposer();
@@ -44,15 +45,15 @@ class CircleImageComposerTest {
         List<Integer> areaOfInterest = new ArrayList<>();
 
         List<List<Integer>> destinationTileIDs = new ArrayList<>();
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 2, 0, 1)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(2, 0, 1)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
 
         List<Integer> result = circleImageComposer.generate(tilesPerRow,
                 tilesPerColumn,
@@ -61,7 +62,7 @@ class CircleImageComposerTest {
                 areaOfInterest,
                 destinationTileIDs);
 
-        assertThat(result, is(Arrays.asList( 0, 2, -1, -1, 1, -1, -1, -1, -1)));
+        assertThat(result, is(Arrays.asList(0, 2, -1, -1, 1, -1, -1, -1, -1)));
     }
 
     @Test
@@ -74,15 +75,15 @@ class CircleImageComposerTest {
         List<Integer> areaOfInterest = new ArrayList<>(Collections.singletonList(6));
 
         List<List<Integer>> destinationTileIDs = new ArrayList<>();
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 2, 0, 1)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(2, 0, 1)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
 
         List<Integer> result = circleImageComposer.generate(tilesPerRow,
                 tilesPerColumn,

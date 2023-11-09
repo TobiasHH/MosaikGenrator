@@ -1,8 +1,8 @@
 package de.tobiashh.javafx.composer;
 
-import distanceCalculator.StraightTileDistanceCalculator;
-import de.tobiashh.javafx.tools.Position;
 import de.tobiashh.javafx.tools.Converter;
+import de.tobiashh.javafx.tools.Position;
+import distanceCalculator.StraightTileDistanceCalculator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

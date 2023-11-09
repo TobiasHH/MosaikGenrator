@@ -22,7 +22,7 @@ public class ReuseableChecker {
     }
 
     private boolean check(Integer destinationTileID1, Integer destinationTileID2, int index1, int index2) {
-        if( index1 == index2) return true;
+        if (index1 == index2) return true;
         if (!destinationTileID1.equals(destinationTileID2)) return true;
         return straightTileDistanceCalculator.calculate(index1, index2) >= reuseDistance;
     }

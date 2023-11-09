@@ -15,8 +15,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class PropertiesManager {
-    private final static Logger LOGGER = LoggerFactory.getLogger(PropertiesManager.class.getName());
-
     public static final String TILES_PER_ROW_PROPERTY_KEY = "tilesPerRow";
     public static final String TILE_SIZE_PROPERTY_KEY = "tileSize";
     public static final String TILES_PATH_PROPERTY_KEY = "tilesPath";
@@ -30,7 +28,7 @@ public class PropertiesManager {
     public static final String REUSE_DISTANCE_PROPERTY_KEY = "reuseDistance";
     public static final String SCAN_SUB_FOLDER_PROPERTY_KEY = "scanSubFolder";
     public static final String DRAW_DEBUG_INFO_PROPERTY_KEY = "drawDebugInfo";
-
+    private final static Logger LOGGER = LoggerFactory.getLogger(PropertiesManager.class.getName());
     private static final int TILES_PER_ROW_DEFAULT = 20;
     private static final int TILE_SIZE_DEFAULT = 128;
     private static final String TILES_PATH_DEFAULT = "tiles";
@@ -49,7 +47,7 @@ public class PropertiesManager {
 
     private static final int COMPARE_SIZE_MIN = 2;
     private static final int COMPARE_SIZE_MAX = 512;
-
+    private static final Path PROPERTY_FILE = Path.of("mosaic.properties");
     private final ObjectProperty<Path> tilesPath = new SimpleObjectProperty<>();
     private final ObjectProperty<Path> cachePath = new SimpleObjectProperty<>();
     private final IntegerProperty tileSize = new SimpleIntegerProperty();
@@ -63,10 +61,7 @@ public class PropertiesManager {
     private final IntegerProperty reuseDistance = new SimpleIntegerProperty();
     private final BooleanProperty scanSubFolder = new SimpleBooleanProperty();
     private final BooleanProperty drawDebugInfo = new SimpleBooleanProperty();
-
     private final Properties properties = new Properties();
-
-    private static final Path PROPERTY_FILE = Path.of("mosaic.properties");
 
     public PropertiesManager() {
         LOGGER.info("PropertiesManager");
@@ -123,8 +118,7 @@ public class PropertiesManager {
 
     private void createPathIfNotExist(Path actualPath, String path) {
         LOGGER.info("createPathIfNotExist");
-        if(actualPath.toString().equals(path) && Files.notExists(Path.of(path)))
-        {
+        if (actualPath.toString().equals(path) && Files.notExists(Path.of(path))) {
             CreatePath(path);
         }
     }
@@ -145,12 +139,11 @@ public class PropertiesManager {
         try (Stream<Path> paths = Files.list(path)) {
             paths.filter(Files::isRegularFile).forEach(file -> {
                 Matcher matcher = pattern.matcher(file.toString());
-                if(matcher.matches()) {
+                if (matcher.matches()) {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
                     LocalDate fileDate = LocalDate.parse(matcher.group(1), formatter);
                     LocalDate today = LocalDate.now();
-                    if(!today.equals(fileDate))
-                    {
+                    if (!today.equals(fileDate)) {
                         deleteFile(file);
                     }
                 }
@@ -176,7 +169,7 @@ public class PropertiesManager {
 
     private void saveProperties() {
         LOGGER.debug("saveProperties");
-         try (BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(PROPERTY_FILE.toFile()))) {
+        try (BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(PROPERTY_FILE.toFile()))) {
             properties.store(stream, null);
         } catch (IOException e) {
             e.printStackTrace();
@@ -185,7 +178,7 @@ public class PropertiesManager {
 
     private void loadProperties() {
         LOGGER.debug("loadProperties");
-    if (Files.exists(PROPERTY_FILE)) {
+        if (Files.exists(PROPERTY_FILE)) {
             try (BufferedInputStream stream = new BufferedInputStream(new FileInputStream(PROPERTY_FILE.toFile()))) {
                 properties.load(stream);
             } catch (IOException e) {
@@ -210,7 +203,9 @@ public class PropertiesManager {
         return tilesPerRow;
     }
 
-    public ObjectProperty<Mode> modeProperty() { return mode; }
+    public ObjectProperty<Mode> modeProperty() {
+        return mode;
+    }
 
     public IntegerProperty compareSizeProperty() {
         return compareSize;
@@ -236,7 +231,11 @@ public class PropertiesManager {
         return reuseDistance;
     }
 
-    public BooleanProperty scanSubFolderProperty() { return scanSubFolder; }
+    public BooleanProperty scanSubFolderProperty() {
+        return scanSubFolder;
+    }
 
-    public BooleanProperty drawDebugInfoProperty() { return drawDebugInfo; }
+    public BooleanProperty drawDebugInfoProperty() {
+        return drawDebugInfo;
+    }
 }

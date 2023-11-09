@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class LinearImageComposer extends ImageComposer {
     private final static Logger LOGGER = LoggerFactory.getLogger(LinearImageComposer.class.getName());

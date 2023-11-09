@@ -6,7 +6,7 @@ import javafx.concurrent.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.List;
 
 public class MosaikImageGenerateTask extends Task<List<Integer>> {
     private final static Logger LOGGER = LoggerFactory.getLogger(MosaikImageGenerateTask.class.getName());

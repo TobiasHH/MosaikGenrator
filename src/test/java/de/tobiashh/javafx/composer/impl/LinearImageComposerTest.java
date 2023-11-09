@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 class LinearImageComposerTest {
@@ -45,15 +45,15 @@ class LinearImageComposerTest {
         List<Integer> areaOfInterest = new ArrayList<>();
 
         List<List<Integer>> destinationTileIDs = new ArrayList<>();
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 2, 0, 1)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(2, 0, 1)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
 
         List<Integer> result = linearImageComposer.generate(tilesPerRow,
                 tilesPerColumn,
@@ -62,7 +62,7 @@ class LinearImageComposerTest {
                 areaOfInterest,
                 destinationTileIDs);
 
-        assertThat(result, is(Arrays.asList( 1, 2,  0,-1,-1,-1,-1,-1,-1)));
+        assertThat(result, is(Arrays.asList(1, 2, 0, -1, -1, -1, -1, -1, -1)));
     }
 
 
@@ -76,15 +76,15 @@ class LinearImageComposerTest {
         List<Integer> areaOfInterest = new ArrayList<>(Collections.singletonList(6));
 
         List<List<Integer>> destinationTileIDs = new ArrayList<>();
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 2, 0, 1)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
-        destinationTileIDs.add(new ArrayList<>(Arrays.asList( 1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(2, 0, 1)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
+        destinationTileIDs.add(new ArrayList<>(Arrays.asList(1, 0, 2)));
 
         List<Integer> result = linearImageComposer.generate(tilesPerRow,
                 tilesPerColumn,
@@ -93,6 +93,6 @@ class LinearImageComposerTest {
                 areaOfInterest,
                 destinationTileIDs);
 
-        assertThat(result, is(Arrays.asList( 0, 2,  -1,-1,-1,-1,1,-1,-1)));
+        assertThat(result, is(Arrays.asList(0, 2, -1, -1, -1, -1, 1, -1, -1)));
     }
 }

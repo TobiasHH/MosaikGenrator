@@ -1,8 +1,8 @@
 package de.tobiashh.javafx.composer;
 
-import distanceCalculator.CircularTileDistanceCalculator;
-import de.tobiashh.javafx.tools.Position;
 import de.tobiashh.javafx.tools.Converter;
+import de.tobiashh.javafx.tools.Position;
+import distanceCalculator.CircularTileDistanceCalculator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +21,7 @@ public class CircleImageComposer extends ImageComposer {
         int startIndex = new Converter(tilesPerRow).getIndex(new Position(tilesPerRow / 2, tilesPerColumn / 2));
         CircularTileDistanceCalculator circularTileDistanceCalculator = new CircularTileDistanceCalculator(tilesPerRow);
 
-        List<Integer> tileIndices = sort( getIntegerList(tilesPerRow, tilesPerColumn), circularTileDistanceCalculator, startIndex);
+        List<Integer> tileIndices = sort(getIntegerList(tilesPerRow, tilesPerColumn), circularTileDistanceCalculator, startIndex);
         List<Integer> indices = sort(areaOfInterest, circularTileDistanceCalculator, startIndex);
 
         tileIndices.removeAll(indices);

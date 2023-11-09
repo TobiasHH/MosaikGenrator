@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.nio.file.Path;
 
@@ -30,7 +29,7 @@ public class DstTile extends SimpleSquareComparableImage {
 
         if (srcImage != null) return srcImage;
 
-        cachedSourceImage = new SoftReference<>( ImageTools.loadTileImage(file, cachePath, tileSize, true));
+        cachedSourceImage = new SoftReference<>(ImageTools.loadTileImage(file, cachePath, tileSize, true));
         return cachedSourceImage.get();
     }
 

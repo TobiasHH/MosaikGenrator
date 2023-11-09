@@ -8,30 +8,40 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.stream.Stream;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 class TileComposerTest {
 
     private static Stream<Arguments> testData() {
         return Stream.of(
-            Arguments.of(Color.RED, Color.BLUE, 0, 0, new Color(255, 0, 0)),
-            Arguments.of(Color.RED, Color.BLUE, 100, 0, new Color(0, 0, 255)),
-            Arguments.of(Color.RED, Color.BLUE, 75, 0, new Color(64, 0, 191)),
-            Arguments.of(Color.RED, Color.BLUE, 50, 0, new Color(128, 0, 127)),
-            Arguments.of(Color.RED, Color.BLUE, 25, 0, new Color(192, 0, 63)),
+                Arguments.of(Color.RED, Color.BLUE, 0, 0, new Color(255, 0, 0)),
+                Arguments.of(Color.RED, Color.BLUE, 100, 0, new Color(0, 0, 255)),
+                Arguments.of(Color.RED, Color.BLUE, 75, 0, new Color(64, 0, 191)),
+                Arguments.of(Color.RED, Color.BLUE, 50, 0, new Color(128, 0, 127)),
+                Arguments.of(Color.RED, Color.BLUE, 25, 0, new Color(192, 0, 63)),
 
-            Arguments.of(Color.RED, Color.GREEN, 0, 0, new Color(255, 0, 0)),
-            Arguments.of(Color.RED, Color.GREEN, 100, 0, new Color(0, 255, 0)),
-            Arguments.of(Color.RED, Color.GREEN, 75, 0, new Color(64, 191, 0)),
-            Arguments.of(Color.RED, Color.GREEN, 50, 0, new Color(128, 127, 0)),
-            Arguments.of(Color.RED, Color.GREEN, 25, 0, new Color(192, 63, 0)),
+                Arguments.of(Color.RED, Color.GREEN, 0, 0, new Color(255, 0, 0)),
+                Arguments.of(Color.RED, Color.GREEN, 100, 0, new Color(0, 255, 0)),
+                Arguments.of(Color.RED, Color.GREEN, 75, 0, new Color(64, 191, 0)),
+                Arguments.of(Color.RED, Color.GREEN, 50, 0, new Color(128, 127, 0)),
+                Arguments.of(Color.RED, Color.GREEN, 25, 0, new Color(192, 63, 0)),
 
-            Arguments.of(Color.RED, Color.BLUE, 100, 100, new Color(255, 0, 0)),
-            Arguments.of(Color.RED, Color.BLUE, 100, 50, new Color(127, 0, 128)),
+                Arguments.of(Color.RED, Color.BLUE, 100, 100, new Color(255, 0, 0)),
+                Arguments.of(Color.RED, Color.BLUE, 100, 50, new Color(127, 0, 128)),
 
-            Arguments.of(Color.RED, Color.GREEN, 100, 100, new Color(255, 0, 0)),
-            Arguments.of(Color.RED, Color.GREEN, 100, 50, new Color(127, 128, 0))
+                Arguments.of(Color.RED, Color.GREEN, 100, 100, new Color(255, 0, 0)),
+                Arguments.of(Color.RED, Color.GREEN, 100, 50, new Color(127, 128, 0))
+        );
+    }
+
+    private static Stream<Arguments> testData2() {
+        return Stream.of(
+                Arguments.of(0, 0),
+                Arguments.of(100, 0),
+                Arguments.of(0, 100),
+                Arguments.of(100, 100)
         );
     }
 
@@ -45,15 +55,6 @@ class TileComposerTest {
         BufferedImage composedImage = new TileComposer(opacity, postColorAlignment).compose(original, mosaik);
 
         assertThat(composedImage.getRGB(0, 0), is(result.getRGB(0, 0)));
-    }
-
-    private static Stream<Arguments> testData2() {
-        return Stream.of(
-                Arguments.of(0,0),
-                Arguments.of(100,0),
-                Arguments.of(0,100),
-                Arguments.of(100,100)
-        );
     }
 
     @ParameterizedTest

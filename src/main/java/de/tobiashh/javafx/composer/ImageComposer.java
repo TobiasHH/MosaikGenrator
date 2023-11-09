@@ -16,8 +16,7 @@ public abstract class ImageComposer {
         while (indices.size() > 0) {
             Integer index = indices.remove(0);
             for (Integer id : destinationTileIDs.get(index)) {
-                if(isUsedLessThenMaxReuses(id, returnValue, maxReuses) && reuseableChecker.isReuseableAtPosition(id, returnValue, index))
-                {
+                if (isUsedLessThenMaxReuses(id, returnValue, maxReuses) && reuseableChecker.isReuseableAtPosition(id, returnValue, index)) {
                     returnValue[index] = id;
                     break;
                 }
@@ -27,12 +26,11 @@ public abstract class ImageComposer {
         return returnValue;
     }
 
-    private boolean isUsedLessThenMaxReuses(int id, Integer[] imageIds, int maxReuses)
-    {
+    private boolean isUsedLessThenMaxReuses(int id, Integer[] imageIds, int maxReuses) {
         return Arrays.stream(imageIds).filter(imageID -> imageID == id).count() <= maxReuses;
     }
 
-    List<Integer> getIntegerList(int tilesPerRow, int tilesPerColumn){
+    List<Integer> getIntegerList(int tilesPerRow, int tilesPerColumn) {
         return IntStream.range(0, tilesPerColumn * tilesPerRow).boxed().collect(Collectors.toList());
     }
 }

@@ -1,11 +1,7 @@
 package de.tobiashh.javafx.model;
 
-import de.tobiashh.javafx.Mode;
-import de.tobiashh.javafx.composer.ImageComposerFactory;
 import de.tobiashh.javafx.tiles.DstTile;
 import de.tobiashh.javafx.tiles.OriginalTile;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +17,7 @@ public class CompareTask extends Task<List<List<Integer>>> {
     private final int preColorAlignment;
 
     public CompareTask(
-             MosaikImage mosaikImage,
+            MosaikImage mosaikImage,
             List<DstTile> dstTilesList,
             int preColorAlignment
     ) {
@@ -39,7 +35,7 @@ public class CompareTask extends Task<List<List<Integer>>> {
         return retval;
     }
 
-    private  List<List<Integer>>  compareTiles(List<OriginalTile> mosaicImage, List<DstTile> dstTilesList) {
+    private List<List<Integer>> compareTiles(List<OriginalTile> mosaicImage, List<DstTile> dstTilesList) {
         List<List<Integer>> scoredDstTileLists = new ArrayList<>();
         for (int x = 0; x < mosaicImage.size(); x++) {
             scoredDstTileLists.add(new ArrayList<>());
