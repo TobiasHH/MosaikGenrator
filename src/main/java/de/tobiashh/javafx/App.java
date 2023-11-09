@@ -34,6 +34,7 @@ import java.net.URL;
                https://stackoverflow.com/questions/38024933/javafx-executorservice-awaittermination-does-not-update-ui-through-bound-proper
  */
 // TODO Info unten besser befüllen mit Stati
+// TODO DEbug Infos im Tile speichern sodass man beim REplace ignore nur die geänderten TileViews neu laden muss mit setTiles
 
 /**
  * JavaFX App
