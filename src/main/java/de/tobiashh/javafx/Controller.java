@@ -2,12 +2,12 @@ package de.tobiashh.javafx;
 
 import de.tobiashh.javafx.model.MosaicImageModel;
 import de.tobiashh.javafx.model.MosaicImageModelImpl;
+import de.tobiashh.javafx.properties.PropertiesManager;
 import de.tobiashh.javafx.tools.Converter;
 import de.tobiashh.javafx.tools.Position;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -35,6 +35,7 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Controller {
     private final static Logger LOGGER = LoggerFactory.getLogger(Controller.class.getName());
@@ -244,15 +245,16 @@ public class Controller {
     }
 
     private void setTiles(List<TileView> tileViews) {
-        ExecutorService executorService = Executors.newFixedThreadPool(4);
-        tileViews.forEach(tileView -> {
-            int x = tileView.getTilePositionX();
-            int y = tileView.getTilePositionY();
-            GetTileTask getTileTask = new GetTileTask(model, x, y, isDisplayOriginalImage());
-            getTileTask.setOnSucceeded(event -> Platform.runLater(() -> tileView.setTile(getTileTask.getValue())));
-            executorService.execute(getTileTask);
-        });
-        executorService.shutdown();
+        try (ExecutorService executorService = Executors.newFixedThreadPool(4)) {
+            tileViews.forEach(tileView -> {
+                int x = tileView.getTilePositionX();
+                int y = tileView.getTilePositionY();
+                GetTileTask getTileTask = new GetTileTask(model, x, y, isDisplayOriginalImage());
+                getTileTask.setOnSucceeded(event -> Platform.runLater(() -> tileView.setTile(getTileTask.getValue())));
+                executorService.execute(getTileTask);
+            });
+            executorService.shutdown();
+        }
     }
 
     private void initTileViews() {
@@ -375,7 +377,10 @@ public class Controller {
     }
 
     private void initModelChangeListener() {
-        model.tilesPerColumnProperty().addListener((observable, oldValue, newValue) -> initTileViews());
+        model.tilesPerColumnProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("Controller.initModelChangeListener");
+            initTileViews();
+        });
         model.imageCalculatedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) setTiles(tiles);
         });
@@ -408,7 +413,7 @@ public class Controller {
         initIntegerTextFieldBinding(reuseDistance, propertiesManager.reuseDistanceProperty(), 1, 50);
     }
 
-    private void initIntegerTextFieldBinding(TextField textField, IntegerProperty property, int minValue, int maxValue) {
+    private void initIntegerTextFieldBinding(TextField textField, ObjectProperty<Integer> property, int minValue, int maxValue) {
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
             int percent = getIntFromString(newValue, minValue, maxValue);
             textField.setText(String.valueOf(percent));
@@ -647,5 +652,13 @@ public class Controller {
         return Arrays
                 .stream(MosaicImageModelImpl.FILE_EXTENSION)
                 .anyMatch(e -> path.toString().toLowerCase().endsWith(".".concat(e.toLowerCase())));
+    }
+
+    public void setTilesPerRow(int tilesPerRow) {
+        propertiesManager.tilesPerRowProperty().set(tilesPerRow);
+    }
+
+    public void setTilesPerImage(int tilesPerImage) {
+        propertiesManager.tilesPerImageProperty().set(tilesPerImage);
     }
 }
