@@ -19,6 +19,7 @@ import java.net.URL;
 // TODO Werden unten alle Infos mit Platform gesetzt?
 // TODO Schaltflächen Sperren solange berechnet wird (Neuklick verhindern)
 // TODO DEbug Infos im Tile speichern sodass man beim REplace ignore nur die geänderten TileViews neu laden muss mit setTiles
+// TODO Bildpfad vom SRC IMage in UI ausgeben
 
 /**
  * JavaFX App
