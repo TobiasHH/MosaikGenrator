@@ -14,7 +14,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <hamcrest-core.version>2.2</hamcrest-core.version>
         <junit-jupiter.version>RELEASE</junit-jupiter.version>
-        <javafx-fxml.version>15.0.1</javafx-fxml.version>
+        <javafx-fxml.version>20.0.2</javafx-fxml.version>
         <slf4j-simple.version>1.7.30</slf4j-simple.version>
     </properties>
 

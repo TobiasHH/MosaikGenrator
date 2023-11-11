@@ -337,10 +337,8 @@ public class MosaicImageModelImpl implements MosaicImageModel {
                 preColorAlignment.get()
         );
 
-        compareTask.setOnRunning(event -> {
-            controller.randomImageButton.setDisable(true);
-            Platform.runLater(() -> status.set("Erzeuge Mosaikbild"));
-        });
+        compareTask.setOnScheduled(event -> controller.randomImageButton.setDisable(true));
+        compareTask.setOnRunning(event -> Platform.runLater(() -> status.set("Erzeuge Mosaikbild")));
         compareTask.setOnSucceeded(event -> {
             controller.randomImageButton.setDisable(false);
             Platform.runLater(() -> status.set("Mosaik erzeugt"));
