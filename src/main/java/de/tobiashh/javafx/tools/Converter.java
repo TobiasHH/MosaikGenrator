@@ -12,6 +12,6 @@ public class Converter {
     }
 
     public int getIndex(Position position) {
-        return tilesPerRow * position.getY() + position.getX();
+        return tilesPerRow * position.y() + position.x();
     }
 }

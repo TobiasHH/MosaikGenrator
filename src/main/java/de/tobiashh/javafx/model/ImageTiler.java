@@ -45,7 +45,7 @@ public class ImageTiler {
     }
 
     private BufferedImage getTileImageForPosition(BufferedImage scaledSrcImage, Position index2D) {
-        return scaledSrcImage.getSubimage(index2D.getX() * tileSize, index2D.getY() * tileSize, tileSize, tileSize);
+        return scaledSrcImage.getSubimage(index2D.x() * tileSize, index2D.y() * tileSize, tileSize, tileSize);
     }
 
     private BufferedImage calculateScaledImage(BufferedImage srcImage) {
