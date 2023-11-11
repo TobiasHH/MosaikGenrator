@@ -12,8 +12,6 @@ import de.tobiashh.javafx.tools.Position;
 import distanceCalculator.StraightTileDistanceCalculator;
 import javafx.application.Platform;
 import javafx.beans.property.*;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -103,8 +101,12 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
         postColorAlignmentProperty().addListener((observable, oldValue, newValue) -> executeDelayed(newValue, this::setPostColorAlignmentInTiles));
 
-        tilesPerRowProperty().addListener((observable, oldValue, newValue) -> executeDelayed(() -> loadImage(srcImagePath.get(), isTilesPerImage.get())));
-        tilesPerImageProperty().addListener((observable, oldValue, newValue) -> executeDelayed(() -> loadImage(srcImagePath.get(), isTilesPerImage.get())));
+        tilesPerRowProperty().addListener((observable, oldValue, newValue) -> {
+            if(!isTilesPerImage.get()) executeDelayed(() -> loadImage(srcImagePath.get(), isTilesPerImage.get()));
+        });
+        tilesPerImageProperty().addListener((observable, oldValue, newValue) -> executeDelayed(() -> {
+            if(isTilesPerImage.get()) loadImage(srcImagePath.get(), isTilesPerImage.get());
+        }));
         isTilesPerImageProperty().addListener((observable, oldValue, newValue) -> executeDelayed(() -> loadImage(srcImagePath.get(), isTilesPerImage.get())));
     }
 
@@ -206,12 +208,13 @@ public class MosaicImageModelImpl implements MosaicImageModel {
                         tilesPerRow++;
                     } while (tilesPerRow * tilesPerColumn < tilesPerImage.get());
 
-                    // tilesPerRow neu setzen
+                    controller.setTilesPerRow(tilesPerRow);
 
                     this.tilesPerColumn.set(Math.max(1, tilesPerColumn));
                 }
                 else
                 {
+                    controller.setTilesPerImage(tilesPerRow.get() * tilesPerColumn.get());
                     this.tilesPerColumn.set(Math.max(1, tilesPerRow.get() * bufferedImage.getHeight() / bufferedImage.getWidth()));
                 }
 
@@ -323,7 +326,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             return;
         }
 
-        if (dstTilesList.size() == 0) {
+        if (dstTilesList.isEmpty()) {
             LOGGER.info("Destination Tile Liste noch nicht geladen");
             return;
         }
@@ -334,9 +337,13 @@ public class MosaicImageModelImpl implements MosaicImageModel {
                 preColorAlignment.get()
         );
 
-        compareTask.setOnRunning(event -> controller.randomImageButton.setDisable(true));
+        compareTask.setOnRunning(event -> {
+            controller.randomImageButton.setDisable(true);
+            Platform.runLater(() -> status.set("Erzeuge Mosaikbild"));
+        });
         compareTask.setOnSucceeded(event -> {
             controller.randomImageButton.setDisable(false);
+            Platform.runLater(() -> status.set("Mosaik erzeugt"));
             scoredDstTileLists = compareTask.getValue();
             MosaikImageGenerateTask mosaikImageGenerateTask = new MosaikImageGenerateTask(
                     this,
@@ -351,6 +358,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
                 Platform.runLater(() -> {
                     imageCalculated.set(false);
+                    Platform.runLater(() -> status.set("Berechne Tiles"));
                     image.unsetDstImages();
                     image.setOpacity(opacity.get());
                     image.setPostColorAlignment(postColorAlignment.get());
@@ -361,17 +369,20 @@ public class MosaicImageModelImpl implements MosaicImageModel {
                         }
                     });
                     imageCalculated.set(true);
+                    Platform.runLater(() -> status.set("Tiles berechnet"));
                 });
             });
 
-            ExecutorService es = Executors.newSingleThreadExecutor();
-            es.execute(mosaikImageGenerateTask);
-            es.shutdown();
+            try (ExecutorService es = Executors.newSingleThreadExecutor()) {
+                es.execute(mosaikImageGenerateTask);
+                es.shutdown();
+            }
         });
 
-        ExecutorService es = Executors.newSingleThreadExecutor();
-        es.execute(compareTask);
-        es.shutdown();
+        try (ExecutorService es = Executors.newSingleThreadExecutor()) {
+            es.execute(compareTask);
+            es.shutdown();
+        }
     }
 
     @Override
