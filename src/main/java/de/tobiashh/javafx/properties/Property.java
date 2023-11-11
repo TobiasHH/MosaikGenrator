@@ -67,8 +67,4 @@ public class Property<T> {
             throw new RuntimeException(e);
         }
     }
-
-    public T get() {
-        return property.get();
-    }
 }

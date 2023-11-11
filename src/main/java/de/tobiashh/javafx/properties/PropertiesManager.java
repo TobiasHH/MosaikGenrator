@@ -64,12 +64,12 @@ public class PropertiesManager {
 
     private void createDefaultTilesPathIfNotExist() {
         LOGGER.info("createDefaultTilesPathIfNotExist");
-        createPathIfNotExist(tilesPath.get(), "tiles");
+        createPathIfNotExist(tilesPath.property().get(), "tiles");
     }
 
     private void createDefaultCachePathIfNotExist() {
         LOGGER.info("createDefaultCachePathIfNotExist");
-        createPathIfNotExist(cachePath.get(), "cache");
+        createPathIfNotExist(cachePath.property().get(), "cache");
     }
 
     private void createPathIfNotExist(Path actualPath, String path) {
@@ -89,7 +89,7 @@ public class PropertiesManager {
 
     private void cleanUpCache() {
         LOGGER.info("cleanUpCache");
-        Path path = cachePath.get();
+        Path path = cachePath.property().get();
         Pattern pattern = Pattern.compile(".*_date(\\d\\d\\d\\d\\d\\d\\d\\d).*");
 
         try (Stream<Path> paths = Files.list(path)) {
