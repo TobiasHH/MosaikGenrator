@@ -51,7 +51,10 @@ public class Controller {
 
     PropertiesManager propertiesManager = new PropertiesManager();
     List<TileView> tiles = new ArrayList<>();
-
+    @FXML
+    public Label imageLabel;
+    @FXML
+    public Label compareSize;
     @FXML
     public ChoiceBox<Mode> modeChoiceBox;
     @FXML
@@ -134,6 +137,8 @@ public class Controller {
         pathLabel.textProperty().bind(Bindings.when(propertiesManager.tilesPathProperty().isNull()).then("Kein Pfad gewählt.").otherwise(propertiesManager.tilesPathProperty().asString()));
         filesCountLabel.textProperty().bind(model.dstTilesCountProperty().asString());
         tilesMinNeededLabel.textProperty().bind(model.tilesMinNeededProperty().asString());
+        compareSize.textProperty().bind(model.compareSizeProperty().asString());
+        imageLabel.textProperty().bind(imagePath.asString());
         usedCountLabel.textProperty().bind(model.usedCountProperty().asString());
         modeChoiceBox.valueProperty().bindBidirectional(propertiesManager.modeProperty());
         scanSubfolderCheck.selectedProperty().bindBidirectional(propertiesManager.scanSubFolderProperty());
@@ -431,7 +436,6 @@ public class Controller {
     private EventHandler<ScrollEvent> getScrollEventHandler() {
         LOGGER.info("getScrollEventHandler");
         return scrollEvent -> {
-
             if (scrollEvent.isControlDown()) {
                 setScale(getScale() * (1 + scrollEvent.getDeltaY() / 100));
                 scrollEvent.consume();

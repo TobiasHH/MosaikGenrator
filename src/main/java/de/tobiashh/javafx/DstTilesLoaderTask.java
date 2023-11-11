@@ -57,14 +57,10 @@ public class DstTilesLoaderTask extends Task<List<DstTile>> {
                     .toList();
 
             for (Future<Optional<DstTile>> future : futures) {
-                try {
                     future.get().ifPresent(tiles::add);
                     updateProgress(tiles.size(), futures.size());
-                } catch (ExecutionException | InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
             }
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
 
