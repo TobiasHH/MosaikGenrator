@@ -35,11 +35,11 @@ public class ImageTools {
         try {
             if (image != null) {
                 Path cacheFile = getCacheFile(imageFile, cachePath, image.getWidth());
-                LOGGER.debug("writeCacheImage {} for {}", cacheFile.toString(), imageFile.toString());
+                LOGGER.debug("writeCacheImage {} for {}", cacheFile.toString(), imageFile);
                 ImageIO.write(image, "png", cacheFile.toFile());
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -57,8 +57,8 @@ public class ImageTools {
             } else {
                 LOGGER.warn("no compatible reader for {}", imageFile);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        }  catch (IOException e) {
+            throw new RuntimeException(e);
         }
         return null;
     }
@@ -75,6 +75,13 @@ public class ImageTools {
         }
 
         param.setSourceSubsampling(factor, factor, 0, 0);
+        Rectangle sourceRegion = getSourceRegion(imageWidth, imageHeight);
+
+        param.setSourceRegion(sourceRegion);
+        return param;
+    }
+
+    private static Rectangle getSourceRegion(int imageWidth, int imageHeight) {
         Rectangle sourceRegion = new Rectangle();
         boolean orientationLandscape = imageWidth > imageHeight;
 
@@ -87,9 +94,7 @@ public class ImageTools {
             sourceRegion.setSize(imageWidth, imageWidth);
             sourceRegion.setLocation(0, (imageHeight - imageWidth) / 2);
         }
-
-        param.setSourceRegion(sourceRegion);
-        return param;
+        return sourceRegion;
     }
 
 
@@ -100,8 +105,8 @@ public class ImageTools {
                 LOGGER.debug("readCacheImage {} with tileSize {}", imageFile, tileSize);
                 return ImageIO.read(cacheFile.toFile());
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        }  catch (IOException e) {
+            throw new RuntimeException(e);
         }
         return null;
     }

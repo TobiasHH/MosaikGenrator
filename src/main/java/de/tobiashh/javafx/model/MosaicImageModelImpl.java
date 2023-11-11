@@ -226,7 +226,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
                 calculateTiles(image);
                 generateMosaicImage();
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
 
             Platform.runLater(() -> status.set("Bild geladen"));

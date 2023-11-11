@@ -83,9 +83,8 @@ public class PropertiesManager {
         try {
             Files.createDirectory(Path.of(path));
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-
     }
 
     private void cleanUpCache() {
@@ -105,8 +104,8 @@ public class PropertiesManager {
                     }
                 }
             });
-        } catch (IOException e) {
-            e.printStackTrace();
+        }  catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -114,7 +113,7 @@ public class PropertiesManager {
         try {
             Files.delete(file);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -123,8 +122,8 @@ public class PropertiesManager {
         if (Files.exists(PROPERTY_FILE)) {
             try (BufferedInputStream stream = new BufferedInputStream(new FileInputStream(PROPERTY_FILE.toFile()))) {
                 properties.load(stream);
-            } catch (IOException e) {
-                e.printStackTrace();
+            }  catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
     }

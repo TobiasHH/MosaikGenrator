@@ -51,7 +51,7 @@ public class ImageSaver implements Runnable {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
         LOGGER.info("Image saved");
