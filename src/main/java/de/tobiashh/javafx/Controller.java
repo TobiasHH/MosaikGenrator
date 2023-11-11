@@ -275,12 +275,15 @@ public class Controller {
         }
 
         if (Platform.isFxApplicationThread()) {
+            System.out.println("test1");
             canvasPane.getChildren().clear();
             canvasPane.getChildren().addAll(tiles);
             canvasPane.setPrefWidth(tileSize * propertiesManager.tilesPerRowProperty().get());
             canvasPane.setPrefHeight(tileSize * model.getTilesPerColumn());
         } else {
             Platform.runLater(() -> {
+                System.out.println("test2");
+                System.out.println(Arrays.toString(Thread.currentThread().getStackTrace()));
                 canvasPane.getChildren().clear();
                 canvasPane.getChildren().addAll(tiles);
                 canvasPane.setPrefWidth(tileSize * propertiesManager.tilesPerRowProperty().get());
