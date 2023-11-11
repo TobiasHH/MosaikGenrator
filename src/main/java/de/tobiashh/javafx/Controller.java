@@ -636,10 +636,10 @@ public class Controller {
 
     @FXML
     public void randomImage() {
-        try {
-            Path tilePath = model.tilesPathProperty().get();
-            boolean scanSubFolder = model.scanSubFolderProperty().get();
-            List<Path> paths = (scanSubFolder ? Files.walk(tilePath) : Files.list(tilePath)).filter(this::extensionFilter).collect(Collectors.toList());
+        Path tilePath = model.tilesPathProperty().get();
+        boolean scanSubFolder = model.scanSubFolderProperty().get();
+        try (Stream<Path> pathStream = scanSubFolder ? Files.walk(tilePath) : Files.list(tilePath)) {
+            List<Path> paths = pathStream.filter(this::extensionFilter).toList();
             Path randomPath = paths.get(new Random().nextInt(paths.size()));
             setImagePath(randomPath);
         } catch (IOException e) {

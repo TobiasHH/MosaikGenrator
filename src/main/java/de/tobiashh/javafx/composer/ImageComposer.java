@@ -13,7 +13,7 @@ public abstract class ImageComposer {
         Integer[] returnValue = new Integer[tilesPerRow * tilesPerColumn];
         Arrays.fill(returnValue, -1);
 
-        while (indices.size() > 0) {
+        while (!indices.isEmpty()) {
             Integer index = indices.remove(0);
             for (Integer id : destinationTileIDs.get(index)) {
                 if (isUsedLessThenMaxReuses(id, returnValue, maxReuses) && reuseableChecker.isReuseableAtPosition(id, returnValue, index)) {

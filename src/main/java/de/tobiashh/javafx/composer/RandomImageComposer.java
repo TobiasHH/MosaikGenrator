@@ -28,7 +28,7 @@ public class RandomImageComposer extends ImageComposer {
         List<Integer> retval = new ArrayList<>();
         Random rand = new Random();
 
-        while (indices.size() > 0) {
+        while (!indices.isEmpty()) {
             retval.add(indices.remove(rand.nextInt(indices.size())));
         }
 

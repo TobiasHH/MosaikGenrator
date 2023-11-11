@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DstTilesLoaderTask extends Task<List<DstTile>> {
     private final static Logger LOGGER = LoggerFactory.getLogger(DstTilesLoaderTask.class.getName());
@@ -51,11 +51,10 @@ public class DstTilesLoaderTask extends Task<List<DstTile>> {
 
         List<DstTile> tiles = new ArrayList<>();
 
-        try {
-            List<Future<Optional<DstTile>>> futures = ((scanSubFolder) ? Files.walk(tilesPath) : Files.list(tilesPath))
-                    .filter(this::extensionFilter)
+        try (Stream<Path> pathStream = scanSubFolder ? Files.walk(tilesPath) : Files.list(tilesPath)) {
+            List<Future<Optional<DstTile>>> futures = pathStream.filter(this::extensionFilter)
                     .map(file -> executor.submit(new DstTileLoadTask(file, cachePath, tileSize, compareSize)))
-                    .collect(Collectors.toList());
+                    .toList();
 
             for (Future<Optional<DstTile>> future : futures) {
                 try {
@@ -66,7 +65,7 @@ public class DstTilesLoaderTask extends Task<List<DstTile>> {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
         LOGGER.info("Tiles loaded");
