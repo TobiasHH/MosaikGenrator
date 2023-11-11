@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
@@ -24,11 +23,6 @@ public class DstTileLoadTask implements Callable<Optional<DstTile>> {
         this.cachePath = cachePath;
         this.tileSize = tileSize;
         this.compareSize = compareSize;
-    }
-
-    public static int hash(BufferedImage i) {
-        return Arrays.hashCode(i.getRGB(0, 0, i.getWidth(), i.getHeight(),
-                null, 0, i.getWidth()));
     }
 
     @Override

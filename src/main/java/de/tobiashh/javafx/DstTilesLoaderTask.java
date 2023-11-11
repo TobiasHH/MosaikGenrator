@@ -60,8 +60,8 @@ public class DstTilesLoaderTask extends Task<List<DstTile>> {
                 try {
                     future.get().ifPresent(tiles::add);
                     updateProgress(tiles.size(), futures.size());
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
+                } catch (ExecutionException | InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
             }
         } catch (IOException e) {

@@ -423,7 +423,7 @@ public class Controller {
     }
 
     private int getIntFromString(String value, int min, int max) {
-        String digitString = value.replaceAll("[^\\d]", "");
+        String digitString = value.replaceAll("\\D", "");
         digitString = digitString.substring(0, Math.min(5, digitString.length()));
         return Math.min(Math.max(min, Integer.parseInt("0" + digitString)), max);
     }
@@ -445,7 +445,7 @@ public class Controller {
             String filename = "test.png";
             imagePath.set(Path.of(getClass().getResource(filename).toURI()));
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -642,7 +642,7 @@ public class Controller {
             Path randomPath = paths.get(new Random().nextInt(paths.size()));
             setImagePath(randomPath);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
