@@ -12,10 +12,11 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URL;
 
-// TODO heapSize fehler wenn tile size 512 und viele Bilder
-// TODO cache mini image files on load
 // TODO Scene Graph und Node ändernde Sachen nur auf Application Thread im Notfall mit Platform run later (prüfen ob so ist) andere Sachen auslagern
 // TODO Bei neuberechnung kann man über leere Fenster hovern und sieht unten Infos
+// Todo Exceptions nachgehen
+// TODO Workflow geradeziehen
+
 // TODO Werden unten alle Infos mit Platform gesetzt?
 // TODO Elemente Sperren solange berechnet wird (Neuklick verhindern)
 /*
@@ -33,9 +34,7 @@ import java.net.URL;
 
                https://stackoverflow.com/questions/38024933/javafx-executorservice-awaittermination-does-not-update-ui-through-bound-proper
  */
-// TODO Info unten besser befüllen mit Stati
 // TODO DEbug Infos im Tile speichern sodass man beim REplace ignore nur die geänderten TileViews neu laden muss mit setTiles
-// TODO statt der tilesPerRow kann auch Gesamt Tiles eingegeben werden. Höhe und Breite werden daraufhin annährend berechnet
 
 /**
  * JavaFX App
@@ -60,7 +59,6 @@ public class App extends Application {
         LOGGER.info("start");
         Scene scene = new Scene(loadFXML(), 1280, 960);
         stage.setScene(scene);
-        //     stage.setMaximized(true);
         stage.show();
     }
 
