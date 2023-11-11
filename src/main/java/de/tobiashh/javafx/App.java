@@ -15,25 +15,9 @@ import java.net.URL;
 // TODO Scene Graph und Node ändernde Sachen nur auf Application Thread im Notfall mit Platform run later (prüfen ob so ist) andere Sachen auslagern
 // TODO Bei neuberechnung kann man über leere Fenster hovern und sieht unten Infos
 // Todo Exceptions nachgehen
-// TODO Workflow geradeziehen
-
+// TODO Workflow geradeziehen z.B. stoßen Listener gerade den Recalulate mehrfach an (tilesinRow ändern)
 // TODO Werden unten alle Infos mit Platform gesetzt?
-// TODO Elemente Sperren solange berechnet wird (Neuklick verhindern)
-/*
-        task.setOnRunning((succeesesEvent) -> {
-                  btnStart.setDisable(true);
-                  lbl2.setText("");
-               });
-
-               task.setOnSucceeded((succeededEvent) -> {
-                  lbl2.setText(task.getValue().toString());
-                  btnStart.setDisable(false);
-               });
-
-               anf
-
-               https://stackoverflow.com/questions/38024933/javafx-executorservice-awaittermination-does-not-update-ui-through-bound-proper
- */
+// TODO Schaltflächen Sperren solange berechnet wird (Neuklick verhindern)
 // TODO DEbug Infos im Tile speichern sodass man beim REplace ignore nur die geänderten TileViews neu laden muss mit setTiles
 
 /**
