@@ -58,12 +58,10 @@
     </center>
     <bottom>
         <VBox>
-         <HBox alignment="CENTER_LEFT" prefHeight="18.0">
-            <children>
-               <ProgressIndicator fx:id="progressIndicator" progress="0.0" />
-               <ProgressBar fx:id="progressBar" progress="0.0" />
-            </children>
-         </HBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="18.0">
+                <ProgressIndicator fx:id="progressIndicator" progress="0.0"/>
+                <ProgressBar fx:id="progressBar" progress="0.0"/>
+            </HBox>
             <HBox alignment="CENTER_LEFT" prefHeight="18.0" prefWidth="350.0" BorderPane.alignment="CENTER">
                 <Label fx:id="filesCountLabel" style="-fx-background-color: #B7410E;" text="filesCountLabel">
                     <tooltip>
@@ -86,6 +84,11 @@
                     </tooltip>
                 </Label>
                 <Label fx:id="statusLabel" style="-fx-background-color: YELLOW;" text="statusLabel" />
+                <Label fx:id="tileSize" style="-fx-background-color: PINK;" text="tileSize">
+                    <tooltip>
+                        <Tooltip text="Tile Size Größe" />
+                    </tooltip>
+                </Label>
                 <Label fx:id="compareSize" style="-fx-background-color: PINK;" text="compareSize">
                     <tooltip>
                         <Tooltip text="Compare Size Größe" />

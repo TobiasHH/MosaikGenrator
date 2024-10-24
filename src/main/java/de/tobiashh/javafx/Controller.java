@@ -54,6 +54,8 @@ public class Controller {
     @FXML
     public Label compareSize;
     @FXML
+    public Label tileSize;
+    @FXML
     public ChoiceBox<Mode> modeChoiceBox;
     @FXML
     public Label imageTilesCount;
@@ -140,6 +142,7 @@ public class Controller {
         filesCountLabel.textProperty().bind(model.dstTilesCountProperty().asString());
         tilesMinNeededLabel.textProperty().bind(model.tilesMinNeededProperty().asString());
         compareSize.textProperty().bind(model.compareSizeProperty().asString());
+        tileSize.textProperty().bind(model.tileSizeProperty().asString());
         imageLabel.textProperty().bind(imagePath.asString());
         usedCountLabel.textProperty().bind(model.usedCountProperty().asString());
         modeChoiceBox.valueProperty().bindBidirectional(propertiesManager.modeProperty());
@@ -153,6 +156,7 @@ public class Controller {
         initTextFieldBindings();
 
         progressBar.progressProperty().bind(model.dstTilesLoadProgressProperty().divide(100.0));
+        progressIndicator.progressProperty().bind(model.dstTilesLoadProgressProperty().divide(100.0));
 
         model.tilesPerRowProperty().bind(propertiesManager.tilesPerRowProperty());
         model.tilesPerImageProperty().bind(propertiesManager.tilesPerImageProperty());

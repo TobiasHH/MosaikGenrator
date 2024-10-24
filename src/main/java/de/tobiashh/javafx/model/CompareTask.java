@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -21,8 +22,8 @@ public class CompareTask extends Task<List<List<Integer>>> {
             List<DstTile> dstTilesList,
             int preColorAlignment
     ) {
-        this.mosaikImage = mosaikImage;
-        this.dstTilesList = dstTilesList;
+        this.mosaikImage = new MosaikImage(mosaikImage);
+        this.dstTilesList = new ArrayList<>(dstTilesList);
         this.preColorAlignment = preColorAlignment;
     }
 
@@ -41,18 +42,24 @@ public class CompareTask extends Task<List<List<Integer>>> {
             scoredDstTileLists.add(new ArrayList<>());
         }
 
+        AtomicInteger count = new AtomicInteger();
+
         IntStream.range(0, mosaicImage.size()).parallel().forEach(mosaikImageIndex -> {
-            Map<Integer, Integer> scores = new HashMap<>();
+            if(!isCancelled()) {
+                count.getAndIncrement();
+                Map<Integer, Integer> scores = new HashMap<>();
 
-            for (int index = 0; index < dstTilesList.size(); index++) {
-                scores.put(index, mosaicImage.get(mosaikImageIndex).compare(dstTilesList.get(index), preColorAlignment));
+                for (int index = 0; index < dstTilesList.size(); index++) {
+                    scores.put(index, mosaicImage.get(mosaikImageIndex).compare(dstTilesList.get(index), preColorAlignment));
+                }
+
+                scoredDstTileLists.get(mosaikImageIndex).clear();
+                scoredDstTileLists.get(mosaikImageIndex).addAll(getIndexSortedByScore(scores));
+                updateProgress(count.get(), mosaicImage.size());
             }
-
-            scoredDstTileLists.get(mosaikImageIndex).clear();
-            scoredDstTileLists.get(mosaikImageIndex).addAll(getIndexSortedByScore(scores));
         });
 
-        checkIntegrity(dstTilesList, scoredDstTileLists);
+        if(!isCancelled()) checkIntegrity(dstTilesList, scoredDstTileLists);
         return scoredDstTileLists;
     }
 
