@@ -5,6 +5,12 @@ import de.tobiashh.javafx.tiles.OriginalTile;
 public class MosaikImage {
     OriginalTile[] imageTiles = {};
 
+    public MosaikImage() {}
+
+    public MosaikImage(MosaikImage mosaikImage) {
+        this.imageTiles = mosaikImage.imageTiles.clone();
+    }
+
     public void setPostColorAlignment(int postColorAlignment) {
         for (OriginalTile originalTile : imageTiles) {
             originalTile.setPostColorAlignment(postColorAlignment);
