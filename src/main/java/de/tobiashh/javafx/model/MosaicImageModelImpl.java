@@ -67,6 +67,9 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     private ObservableList<Integer> destinationTileIndexes;
     private DstTilesLoaderTask task;
 
+    Thread compareThread;
+    CompareTask compareTask;
+
     public MosaicImageModelImpl() {
         LOGGER.info("MosaicImageModelImpl");
         initChangeListener();
@@ -330,6 +333,19 @@ public class MosaicImageModelImpl implements MosaicImageModel {
             return;
         }
 
+        if(compareThread != null) {
+            compareThread.interrupt();
+            if(compareTask != null) compareTask.cancel();
+        }
+
+        compareTask = getCompareTask();
+
+        compareThread = new Thread(compareTask);
+        compareThread.setDaemon(true);
+        compareThread.start();
+    }
+
+    private CompareTask getCompareTask() {
         CompareTask compareTask = new CompareTask(
                 image,
                 dstTilesList,
@@ -338,7 +354,10 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
         compareTask.setOnScheduled(event -> controller.randomImageButton.setDisable(true));
         compareTask.setOnRunning(event -> controller.setStatus("Erzeuge Mosaikbild"));
+        compareTask.setOnCancelled(workerStateEvent -> System.out.println("C"));
+        compareTask.progressProperty().addListener((observable, oldValue, newValue) -> dstTilesLoadProgress.set((int) (newValue.doubleValue() * 100)));
         compareTask.setOnSucceeded(event -> {
+            System.out.println("S");
             controller.randomImageButton.setDisable(false);
             controller.setStatus("Mosaik erzeugt");
             scoredDstTileLists = compareTask.getValue();
@@ -370,16 +389,11 @@ public class MosaicImageModelImpl implements MosaicImageModel {
                 });
             });
 
-            try (ExecutorService es = Executors.newSingleThreadExecutor()) {
-                es.execute(mosaikImageGenerateTask);
-                es.shutdown();
-            }
+            Thread thread = new Thread(mosaikImageGenerateTask);
+            thread.setDaemon(true);
+            thread.start();
         });
-
-        try (ExecutorService es = Executors.newSingleThreadExecutor()) {
-            es.execute(compareTask);
-            es.shutdown();
-        }
+        return compareTask;
     }
 
     @Override
@@ -400,7 +414,8 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         thread.start();
     }
 
-    private ReadOnlyIntegerProperty dstTilesLoadProgressProperty() {
+    @Override
+    public ReadOnlyIntegerProperty dstTilesLoadProgressProperty() {
         return dstTilesLoadProgress.getReadOnlyProperty();
     }
 

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URL;
 
+// TODO Mosaik Bilder schon beim berechnen anzeigen
 // TODO Alle Logs mit {} Notation
 // TODO Interface Javadoc ergänzen
 // TODO Tooltips
@@ -27,7 +28,6 @@ import java.net.URL;
 // TODO Schaltflächen Sperren solange berechnet wird (Neuklick verhindern)
 // TODO DEbug Infos im Tile speichern sodass man beim REplace ignore nur die geänderten TileViews neu laden muss mit setTiles
 // TODO Bildpfad vom SRC IMage in UI ausgeben
-// TODO Progress rs für die einzelnen Schritte wie https://stackoverflow.com/questions/37087848/task-progress-bar-javafx-application
 
 /**
  * JavaFX App
