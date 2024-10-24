@@ -40,7 +40,6 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     private final ReadOnlyIntegerWrapper tilesMinNeeded = new ReadOnlyIntegerWrapper();
     private final ReadOnlyIntegerWrapper tilesPerColumn = new ReadOnlyIntegerWrapper();
     private final ReadOnlyIntegerWrapper dstTilesLoadProgress = new ReadOnlyIntegerWrapper();
-    private final ReadOnlyStringWrapper status = new ReadOnlyStringWrapper();
     private final ReadOnlyBooleanWrapper imageCalculated = new ReadOnlyBooleanWrapper();
     private final List<Integer> areaOfInterest = new ArrayList<>();
     private final ObservableList<DstTile> dstTilesList = FXCollections.observableList(new ArrayList<>());
@@ -192,7 +191,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         LOGGER.info("loadImage {}", path);
 
         Thread thread = new Thread(() -> {
-            Platform.runLater(() -> status.set("Lade Bild"));
+            controller.setStatus("Lade Bild");
 
             try {
                 BufferedImage bufferedImage = ImageIO.read(path.toFile());
@@ -229,7 +228,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
                 throw new RuntimeException(e);
             }
 
-            Platform.runLater(() -> status.set("Bild geladen"));
+            controller.setStatus("Bild geladen");
         });
 
         // don't let thread prevent JVM shutdown
@@ -338,10 +337,10 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         );
 
         compareTask.setOnScheduled(event -> controller.randomImageButton.setDisable(true));
-        compareTask.setOnRunning(event -> Platform.runLater(() -> status.set("Erzeuge Mosaikbild")));
+        compareTask.setOnRunning(event -> controller.setStatus("Erzeuge Mosaikbild"));
         compareTask.setOnSucceeded(event -> {
             controller.randomImageButton.setDisable(false);
-            Platform.runLater(() -> status.set("Mosaik erzeugt"));
+            controller.setStatus("Mosaik erzeugt");
             scoredDstTileLists = compareTask.getValue();
             MosaikImageGenerateTask mosaikImageGenerateTask = new MosaikImageGenerateTask(
                     this,
@@ -356,7 +355,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
                 Platform.runLater(() -> {
                     imageCalculated.set(false);
-                    Platform.runLater(() -> status.set("Berechne Tiles"));
+                    controller.setStatus("Berechne Tiles");
                     image.unsetDstImages();
                     image.setOpacity(opacity.get());
                     image.setPostColorAlignment(postColorAlignment.get());
@@ -367,7 +366,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
                         }
                     });
                     imageCalculated.set(true);
-                    Platform.runLater(() -> status.set("Tiles berechnet"));
+                    controller.setStatus("Tiles berechnet");
                 });
             });
 
@@ -396,7 +395,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     @Override
     public void saveMosaicImage(Path path) {
         LOGGER.info("saveMosaicImage {}", path);
-        Thread thread = new Thread(new ImageSaver(path, image.getTiles(), tilesPerRow.get(), getTilesPerColumn(), tileSize.get()));
+        Thread thread = new Thread(new ImageSaver(path, image.getTiles(), tilesPerRow.get(), getTilesPerColumn(), tileSize.get(), controller));
         thread.setDaemon(true);
         thread.start();
     }
@@ -488,7 +487,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     @Override
     public void replaceTile(int x, int y) {
         LOGGER.info("replaceTile {},{}", x, y);
-        if (!dstTilesList.isEmpty() && destinationTileIndexes.get(getIndex(x, y)) >= 0) {
+        if (!dstTilesList.isEmpty() && destinationTileIndexes != null && destinationTileIndexes.get(getIndex(x, y)) >= 0) {
             int actualDestinationTileIndex = destinationTileIndexes.get(getIndex(x, y));
             List<Integer> scoredDstTileList = scoredDstTileLists.get(getIndex(x, y));
             int actualScoredListIndex = scoredDstTileList.indexOf(actualDestinationTileIndex);
@@ -531,6 +530,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
     @Override
     public void ignoreTile(int x, int y) {
+        LOGGER.info("ignoreTile {},{}", x, y);
         if (!dstTilesList.isEmpty() && destinationTileIndexes.get(getIndex(x, y)) >= 0) {
             int actualDestinationTileIndex = destinationTileIndexes.get(getIndex(x, y));
             LOGGER.info("replace image " + actualDestinationTileIndex);
@@ -540,7 +540,7 @@ public class MosaicImageModelImpl implements MosaicImageModel {
                 for (int imageY = 0; imageY < tilesPerColumn.get(); imageY++) {
                     int index = getIndex(imageX, imageY);
                     if (destinationTileIndexes.get(index) == actualDestinationTileIndex) {
-                        LOGGER.info("Bild " + actualDestinationTileIndex + " an Position " + index + " gefunden.");
+                        LOGGER.info("Bild {} an Position {} gefunden", actualDestinationTileIndex, index);
                         replaceTile(imageX, imageY);
                         count++;
                     }
@@ -570,11 +570,6 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     @Override
     public int getTilesPerColumn() {
         return tilesPerColumn.get();
-    }
-
-    @Override
-    public ReadOnlyStringWrapper statusProperty() {
-        return status;
     }
 
     @Override

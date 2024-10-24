@@ -8,7 +8,6 @@ import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 
 public interface MosaicImageModel {
-    ReadOnlyStringWrapper statusProperty();
 
     ReadOnlyIntegerProperty dstTilesCountProperty();
 
@@ -68,8 +67,20 @@ public interface MosaicImageModel {
 
     BooleanProperty isTilesPerImageProperty();
 
+    /**
+     * Ersätzt das Bild an der Position.
+     *
+     * @param x Spalte des Tiles
+     * @param y Zeile des Tiles
+     */
     void replaceTile(int x, int y);
 
+    /**
+     * Ignoriert das Bild im gesamten Mosaik
+     *
+     * @param x Spalte des Tiles
+     * @param y Zeile des Tiles
+     */
     void ignoreTile(int x, int y);
 
     void setController(Controller controller);

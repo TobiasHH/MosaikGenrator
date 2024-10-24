@@ -34,7 +34,11 @@
                 <CheckBox fx:id="drawDebugInfoCheck" onAction="#debugInfoCheckAction" text="Debug Info"/>
             </HBox>
             <HBox alignment="CENTER" spacing="5.0">
-                <Label text="Pre Farbanpassung:"/>
+                <Label text="Pre Farbanpassung:">
+                    <tooltip>
+                        <Tooltip text="Beschreibung was passiert und Hinweis auf Geschw,"/>
+                    </tooltip>
+                </Label>
                 <TextField fx:id="preColorAlignment" prefWidth="50.0"/>
                 <Label text="Post Farbanpassung:"/>
                 <TextField fx:id="postColorAlignment" prefWidth="50.0"/>

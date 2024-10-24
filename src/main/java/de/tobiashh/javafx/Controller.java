@@ -3,12 +3,9 @@ package de.tobiashh.javafx;
 import de.tobiashh.javafx.model.MosaicImageModel;
 import de.tobiashh.javafx.model.MosaicImageModelImpl;
 import de.tobiashh.javafx.properties.PropertiesManager;
-import de.tobiashh.javafx.tools.Converter;
-import de.tobiashh.javafx.tools.Position;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -42,12 +39,13 @@ public class Controller {
     private static final double SCALE_MIN = 0.1;
     private static final double SCALE_MAX = 2.0;
     private static final int HIDDEN_TILE_SIZE = 16;
-    private final MosaicImageModel model;
+    public final MosaicImageModel model;
     private final DoubleProperty scale = new SimpleDoubleProperty(SCALE_DEFAULT);
     private final BooleanProperty displayOriginalImage = new SimpleBooleanProperty();
     private final BooleanProperty drawDebugInfo = new SimpleBooleanProperty();
     private final ObjectProperty<Path> imagePath = new SimpleObjectProperty<>();
     private final ObjectProperty<Path> saveImagePath = new SimpleObjectProperty<>(Path.of(System.getProperty("user.home")));
+    private final StringProperty status = new SimpleStringProperty();
 
     PropertiesManager propertiesManager = new PropertiesManager();
     List<TileView> tiles = new ArrayList<>();
@@ -68,7 +66,7 @@ public class Controller {
     @FXML
     private ScrollPane scrollPane;
     @FXML
-    private Label cursorPositionLabel;
+    Label cursorPositionLabel;
     @FXML
     private Label pathLabel;
     @FXML
@@ -78,9 +76,9 @@ public class Controller {
     @FXML
     private Label usedCountLabel;
     @FXML
-    private Label tileHoverLabel;
+    Label tileHoverLabel;
     @FXML
-    private Label tileImageInformations;
+    Label tileImageInformations;
     @FXML
     private Pane canvasPane;
     @FXML
@@ -88,7 +86,7 @@ public class Controller {
     @FXML
     private CheckBox scanSubfolderCheck;
     @FXML
-    private CheckBox areaOfInterestCheck;
+    CheckBox areaOfInterestCheck;
     @FXML
     private CheckBox drawDebugInfoCheck;
     @FXML
@@ -144,7 +142,7 @@ public class Controller {
         scanSubfolderCheck.selectedProperty().bindBidirectional(propertiesManager.scanSubFolderProperty());
         drawDebugInfoCheck.selectedProperty().bindBidirectional(propertiesManager.drawDebugInfoProperty());
         isTilesPerImageCheck.selectedProperty().bindBidirectional(propertiesManager.isTilesPerImageProperty());
-        statusLabel.textProperty().bind(model.statusProperty());
+        statusLabel.textProperty().bind(status);
         tilesPerRow.disableProperty().bind(isTilesPerImageCheck.selectedProperty());
         tilesPerImage.disableProperty().bind(isTilesPerImageCheck.selectedProperty().not());
 
@@ -248,7 +246,7 @@ public class Controller {
         return (int) (propertiesManager.tileSizeProperty().get() * getScale());
     }
 
-    private void setTiles(List<TileView> tileViews) {
+    void setTiles(List<TileView> tileViews) {
         try (ExecutorService executorService = Executors.newFixedThreadPool(4)) {
             tileViews.forEach(tileView -> {
                 int x = tileView.getTilePositionX();
@@ -281,96 +279,36 @@ public class Controller {
         }
 
         if (Platform.isFxApplicationThread()) {
-            System.out.println("test1");
-            canvasPane.getChildren().clear();
-            canvasPane.getChildren().addAll(tiles);
-            canvasPane.setPrefWidth(tileSize * propertiesManager.tilesPerRowProperty().get());
-            canvasPane.setPrefHeight(tileSize * model.getTilesPerColumn());
+            initCanvas(tileSize);
         } else {
-            Platform.runLater(() -> {
-                System.out.println("test2");
-                System.out.println(Arrays.toString(Thread.currentThread().getStackTrace()));
-                canvasPane.getChildren().clear();
-                canvasPane.getChildren().addAll(tiles);
-                canvasPane.setPrefWidth(tileSize * propertiesManager.tilesPerRowProperty().get());
-                canvasPane.setPrefHeight(tileSize * model.getTilesPerColumn());
-            });
+            Platform.runLater(() -> initCanvas(tileSize));
         }
+    }
+
+    private void initCanvas(int tileSize) {
+        System.out.println("initCanvas");
+        System.out.println(Arrays.toString(Thread.currentThread().getStackTrace()));
+        canvasPane.getChildren().clear();
+        canvasPane.getChildren().addAll(tiles);
+        canvasPane.setPrefWidth(tileSize * propertiesManager.tilesPerRowProperty().get());
+        canvasPane.setPrefHeight(tileSize * model.getTilesPerColumn());
     }
 
     private void initEventHandler() {
         LOGGER.info("initEventHandler");
-        canvasPane.addEventHandler(MouseEvent.MOUSE_MOVED, getCursorPositionEventHandler());
-        canvasPane.addEventHandler(MouseEvent.MOUSE_MOVED, getTileHoverEventHandler());
-        canvasPane.addEventHandler(MouseEvent.MOUSE_MOVED, getTileImageInformationEventHandler());
-        canvasPane.addEventHandler(MouseEvent.MOUSE_CLICKED, setStartTileWithSecondaryButtonDown());
-        scrollPane.addEventFilter(ScrollEvent.SCROLL, getScrollEventHandler());
+        canvasPane.addEventHandler(MouseEvent.MOUSE_MOVED, new CursorPositionEventHandler(this));
+        canvasPane.addEventHandler(MouseEvent.MOUSE_MOVED, new TileHoverEventHandler(this));
+        canvasPane.addEventHandler(MouseEvent.MOUSE_MOVED, new TileImageInformationEventHandler(this));
+        canvasPane.addEventHandler(MouseEvent.MOUSE_CLICKED, new TileClickedEventHandler(this));
+        scrollPane.addEventFilter(ScrollEvent.SCROLL, new ScrollEventHandler(this));
+        DragEventHandler dragEventHandler = new DragEventHandler(this);
+        scrollPane.addEventFilter(MouseEvent.DRAG_DETECTED, dragEventHandler);
+        scrollPane.addEventFilter(MouseEvent.MOUSE_DRAGGED, dragEventHandler);
+        scrollPane.addEventFilter(MouseDragEvent.MOUSE_DRAG_RELEASED, dragEventHandler);
     }
 
-    private EventHandler<MouseEvent> setStartTileWithSecondaryButtonDown() {
-        return mouseEvent -> {
-            if (mouseEvent.isStillSincePress()) {
-                int x = getTilePosition(mouseEvent.getX());
-                int y = getTilePosition(mouseEvent.getY());
-
-                if (areaOfInterestCheck.isSelected()) {
-                    if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-                        model.addAreaOfIntrest(x, y);
-                        int index = new Converter(model.tilesPerRowProperty().get()).getIndex(new Position(x, y));
-                        setTiles(tiles.subList(index, index + 1));
-                    }
-                    if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
-                        model.removeAreaOfIntrest(x, y);
-                        int index = new Converter(model.tilesPerRowProperty().get()).getIndex(new Position(x, y));
-                        setTiles(tiles.subList(index, index + 1));
-                    }
-                }
-
-                if (!areaOfInterestCheck.isSelected()) {
-                    if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-                        LOGGER.info("replace function");
-                        model.replaceTile(x, y);
-                        setTiles(tiles);
-                    }
-                    if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
-                        LOGGER.info("ignore function");
-                        model.ignoreTile(x, y);
-                        setTiles(tiles);
-                    }
-                }
-
-                mouseEvent.consume();
-            }
-        };
-    }
-
-    private EventHandler<MouseEvent> getCursorPositionEventHandler() {
-        LOGGER.info("getCursorPositionEventHandler");
-        return mouseEvent -> cursorPositionLabel.setText("x:" + (int) mouseEvent.getX() + " y:" + (int) mouseEvent.getY());
-    }
-
-    private int getTilePosition(double mousePosition) {
+    int getTilePosition(double mousePosition) {
         return (int) (mousePosition / getActualTileSize());
-    }
-
-    private EventHandler<MouseEvent> getTileHoverEventHandler() {
-        LOGGER.info("getTileHoverEventHandler");
-        return mouseEvent -> {
-            int tileX = getTilePosition(mouseEvent.getX());
-            int tileY = getTilePosition(mouseEvent.getY());
-            tileHoverLabel.setText("x:" + tileX + " y:" + tileY);
-        };
-    }
-
-    private EventHandler<MouseEvent> getTileImageInformationEventHandler() {
-        LOGGER.info("getTileImageInformationEventHandler");
-        return mouseEvent -> {
-            int tileX = getTilePosition(mouseEvent.getX());
-            int tileY = getTilePosition(mouseEvent.getY());
-            if (propertiesManager.tilesPerRowProperty().get() > tileX && model.getTilesPerColumn() > tileY) {
-                tileImageInformations.setText(model.getDstTileInformation(tileX, tileY));
-            }
-        };
     }
 
     private void initChangeListener() {
@@ -382,7 +320,8 @@ public class Controller {
 
     private void initModelChangeListener() {
         model.tilesPerColumnProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("Controller.initModelChangeListener");
+            System.out.println("Controller.initModelChangeListener.tilesPerColumnProperty");
+            model.resetAreaOfIntrest();
             initTileViews();
         });
         model.imageCalculatedProperty().addListener((observable, oldValue, newValue) -> {
@@ -392,13 +331,12 @@ public class Controller {
 
     private void initPropertiesManagerChangeListener() {
         propertiesManager.tilesPerRowProperty().addListener((observable, oldValue, newValue) -> {
-            resetAreaOfInterest();
-            initTileViews();
+            System.out.println("Controller.initPropertiesManagerChangeListener");
+            if(!propertiesManager.isTilesPerImageProperty().get()) {
+                model.resetAreaOfIntrest();
+                initTileViews();
+            }
         });
-    }
-
-    private void resetAreaOfInterest() {
-        model.resetAreaOfIntrest();
     }
 
     private void initControllerPropertyChangeListener() {
@@ -431,16 +369,6 @@ public class Controller {
         String digitString = value.replaceAll("\\D", "");
         digitString = digitString.substring(0, Math.min(5, digitString.length()));
         return Math.min(Math.max(min, Integer.parseInt("0" + digitString)), max);
-    }
-
-    private EventHandler<ScrollEvent> getScrollEventHandler() {
-        LOGGER.info("getScrollEventHandler");
-        return scrollEvent -> {
-            if (scrollEvent.isControlDown()) {
-                setScale(getScale() * (1 + scrollEvent.getDeltaY() / 100));
-                scrollEvent.consume();
-            }
-        };
     }
 
     private void initCanvas() {
@@ -479,10 +407,12 @@ public class Controller {
 
         if (getImagePath() != null && !getImagePath().endsWith("test.png")) {
             LOGGER.info("imagePath");
-            fileChooser.setInitialDirectory(getImagePath().getParent().toFile());
+            File file = getImagePath().getParent().toFile();
+            if(file.isDirectory()) fileChooser.setInitialDirectory(file);
         } else {
             LOGGER.info("tilesPath");
-            fileChooser.setInitialDirectory(propertiesManager.tilesPathProperty().get().toFile());
+            File file = propertiesManager.tilesPathProperty().get().toFile();
+            if(file.isDirectory()) fileChooser.setInitialDirectory(file);
         }
 
         fileChooser.setTitle("Bild öffnen");
@@ -502,8 +432,9 @@ public class Controller {
         LOGGER.info("processTilesPath");
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Wähle Mosaik Tile Pfad");
-        directoryChooser.setInitialDirectory(propertiesManager.tilesPathProperty().get().toFile());
-        File file = directoryChooser.showDialog(menuBar.getScene().getWindow());
+        File file = propertiesManager.tilesPathProperty().get().toFile();
+        if(file.isDirectory()) directoryChooser.setInitialDirectory(file);
+        file = directoryChooser.showDialog(menuBar.getScene().getWindow());
         if (file != null) propertiesManager.tilesPathProperty().set(file.toPath());
     }
 
@@ -588,11 +519,11 @@ public class Controller {
         return scale;
     }
 
-    private double getScale() {
+    double getScale() {
         return scale.get();
     }
 
-    private void setScale(double scale) {
+    void setScale(double scale) {
         this.scale.set(Math.max(Math.min(scale, SCALE_MAX), SCALE_MIN));
     }
 
@@ -610,6 +541,10 @@ public class Controller {
 
     private void setSaveImagePath(Path imagePath) {
         this.saveImagePath.set(imagePath);
+    }
+
+    public void setStatus(String status) {
+        Platform.runLater(() -> this.status.set(status));
     }
 
     private BooleanProperty displayOriginalImageProperty() {
