@@ -79,9 +79,9 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     private void initChangeListener() {
         LOGGER.info("initChangeListener");
 
-        dstTilesLoadProgressProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(() -> dstTilesCount.set(newValue.intValue())));
-        imageCalculatedProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(() -> tilesMinNeeded.set(tilesPerRowProperty().get() * tilesPerColumnProperty().get() / getDivident())));
         dstTilesLoadProgressProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(() -> usedCount.set(0)));
+
+        imageCalculatedProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(() -> tilesMinNeeded.set(tilesPerRowProperty().get() * tilesPerColumnProperty().get() / getDivident())));
 
         dstTilesList.addListener((ListChangeListener<DstTile>) change -> Platform.runLater(() -> dstTilesCount.set(change.getList().size())));
 

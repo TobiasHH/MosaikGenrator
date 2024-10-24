@@ -107,6 +107,10 @@ public class Controller {
     private TextField reuseDistance;
     @FXML
     private Label statusLabel;
+    @FXML
+    public ProgressIndicator progressIndicator;
+    @FXML
+    public ProgressBar progressBar;
 
     public Controller(MosaicImageModel model) {
         LOGGER.info("Controller");
@@ -147,6 +151,8 @@ public class Controller {
         tilesPerImage.disableProperty().bind(isTilesPerImageCheck.selectedProperty().not());
 
         initTextFieldBindings();
+
+        progressBar.progressProperty().bind(model.dstTilesLoadProgressProperty().divide(100.0));
 
         model.tilesPerRowProperty().bind(propertiesManager.tilesPerRowProperty());
         model.tilesPerImageProperty().bind(propertiesManager.tilesPerImageProperty());

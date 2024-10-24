@@ -18,6 +18,7 @@ import java.net.URL;
 // TODO Miniatur Übersicht als extra Fenster oder in der Ecke
 // TODO ModelViewController besser umsetzen, siehe Sudoku Solver
 // TODO EventHandler code aufräumen, da dafür Controller Sachen public gemacht wurden statt methoden genutzt
+
 // TODO Scene Graph und Node ändernde Sachen nur auf Application Thread im Notfall mit Platform run later (prüfen ob so ist) andere Sachen auslagern
 // TODO Bei neuberechnung kann man über leere Fenster hovern und sieht unten Infos
 // Todo Exceptions nachgehen

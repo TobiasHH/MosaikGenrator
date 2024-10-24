@@ -25,6 +25,8 @@ public interface MosaicImageModel {
 
     String getDstTileInformation(int x, int y);
 
+    ReadOnlyIntegerProperty dstTilesLoadProgressProperty();
+
     void saveMosaicImage(Path path);
 
     void addAreaOfIntrest(int x, int y);
