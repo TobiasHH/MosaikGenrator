@@ -354,10 +354,8 @@ public class MosaicImageModelImpl implements MosaicImageModel {
 
         compareTask.setOnScheduled(event -> controller.randomImageButton.setDisable(true));
         compareTask.setOnRunning(event -> controller.setStatus("Erzeuge Mosaikbild"));
-        compareTask.setOnCancelled(workerStateEvent -> System.out.println("C"));
         compareTask.progressProperty().addListener((observable, oldValue, newValue) -> dstTilesLoadProgress.set((int) (newValue.doubleValue() * 100)));
         compareTask.setOnSucceeded(event -> {
-            System.out.println("S");
             controller.randomImageButton.setDisable(false);
             controller.setStatus("Mosaik erzeugt");
             scoredDstTileLists = compareTask.getValue();
