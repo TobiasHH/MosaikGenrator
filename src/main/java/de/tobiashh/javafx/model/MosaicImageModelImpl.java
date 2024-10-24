@@ -284,17 +284,13 @@ public class MosaicImageModelImpl implements MosaicImageModel {
     }
 
     private BufferedImage printDebugInformations(BufferedImage srcImage, int x, int y) {
+        DebugInformation debugInformation = getDebugInformation(x, y);
         LOGGER.debug("printDebugInformations " + drawDebugInfo.get());
+
         if (!drawDebugInfo.get()) return srcImage;
         BufferedImage bufferedImage = new BufferedImage(srcImage.getWidth(), srcImage.getHeight(), BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = (Graphics2D) bufferedImage.getGraphics();
         g2d.drawImage(srcImage, 0, 0, null);
-        int destinationTileIndex = destinationTileIndexes.get(getIndex(x, y));
-        int[] positions = IntStream.range(0, destinationTileIndexes.size())
-                .filter(i -> Objects.equals(destinationTileIndexes.get(i), destinationTileIndex) && i != getIndex(x, y)).toArray();
-        int scoredTileListIndex = scoredDstTileLists.get(getIndex(x, y)).indexOf(destinationTileIndex);
-
-        int reuses = positions.length;
 
         g2d.setColor(Color.WHITE);
         g2d.fillRect(10, 0, 100, 11);
@@ -304,13 +300,20 @@ public class MosaicImageModelImpl implements MosaicImageModel {
         g2d.fillRect(10, 60, 100, 11);
 
         g2d.setColor(Color.BLACK);
-        g2d.drawString("x:" + x + " y:" + y + " i:" + getIndex(x, y), 10, 10);
-        g2d.drawString("aoi:" + areaOfInterest.contains(getIndex(x, y)), 10, 25);
-        g2d.drawString("index:" + destinationTileIndex, 10, 40);
-        g2d.drawString("r:" + reuses + " pos:" + Arrays.toString(positions), 10, 55);
-        g2d.drawString("stli:" + scoredTileListIndex, 10, 70);
+        g2d.drawString("x:" + debugInformation.x() + " y:" + debugInformation.y() + " i:" + debugInformation.mosaikArrayIndex(), 10, 10);
+        g2d.drawString("aoi:" + debugInformation.areaOfIntrest(), 10, 25);
+        g2d.drawString("index:" + debugInformation.destinationTileIndex(), 10, 40);
+        g2d.drawString("r:" + debugInformation.reuses() + " pos:" + debugInformation.reusePositionsAsString(), 10, 55);
+        g2d.drawString("stli:" + debugInformation.scoredTileListIndex(), 10, 70);
 
         return bufferedImage;
+    }
+
+    private DebugInformation getDebugInformation(int x, int y) {
+        int index = getIndex(x, y);
+        int destinationTileIndex = destinationTileIndexes.get(index);
+        int[] positions = IntStream.range(0, destinationTileIndexes.size()).filter(i -> Objects.equals(destinationTileIndexes.get(i), destinationTileIndex) && i != index).toArray();
+        return new DebugInformation(x, y, index, areaOfInterest.contains(index), destinationTileIndex, positions.length, positions, scoredDstTileLists.get(index).indexOf(destinationTileIndex));
     }
 
     private int getIndex(int x, int y) {

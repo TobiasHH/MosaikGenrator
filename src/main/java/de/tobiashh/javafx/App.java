@@ -26,8 +26,7 @@ import java.net.URL;
 // TODO Workflow geradeziehen z.B. stoßen Listener gerade den Recalculate mehrfach an (tilesinRow ändern)
 // TODO Werden unten alle Infos mit Platform gesetzt?
 // TODO Schaltflächen Sperren solange berechnet wird (Neuklick verhindern)
-// TODO DEbug Infos im Tile speichern sodass man beim REplace ignore nur die geänderten TileViews neu laden muss mit setTiles
-// TODO Bildpfad vom SRC IMage in UI ausgeben
+// TODO Debug Infos im Tile speichern sodass man beim REplace ignore nur die geänderten TileViews neu laden muss mit setTiles
 
 /**
  * JavaFX App
